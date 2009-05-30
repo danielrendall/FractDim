@@ -11,6 +11,9 @@ public class DefaultResources extends Resources {
 	Hashtable icons;
 	ResourceBundle strings;
 
+    // Use the classloader used to load the application to load resources
+    private final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
 	/* (non-Javadoc)
 	 * @see org.bs.mdi.Resources#loadResources()
 	 */
@@ -67,9 +70,10 @@ public class DefaultResources extends Resources {
 	}
 	
 	protected void putMdiIcon(String key, String filename, int size) {
+        // Not ClassLoader.getSystemResource - doesn't work with one-jar
 		try {
 			putIcon(key, new ImageIcon(
-					ClassLoader.getSystemResource("icons/"+size+"/"+filename)), size);
+					classLoader.getResource("icons/"+size+"/"+filename)), size);
 		} catch (Exception ignored) {}
 	}
 

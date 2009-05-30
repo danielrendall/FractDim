@@ -104,7 +104,6 @@
                 <groupId>org.dstovall</groupId>
                 <artifactId>onejar-maven-plugin</artifactId>
                 <executions>
-                    <!--
                     <execution>
                         <configuration>
                             <mainClass>uk.co.danielrendall.fractdim.app.FractDim</mainClass>
@@ -115,7 +114,7 @@
                             <goal>one-jar</goal>
                         </goals>
                     </execution>
-                    -->
+                    <!--
                     <execution>
                         <configuration>
                             <mainClass>uk.co.danielrendall.fractdim.generate.Generator</mainClass>
@@ -126,6 +125,7 @@
                             <goal>one-jar</goal>
                         </goals>
                     </execution>
+                    -->
                 </executions>
                 <version>1.2.1</version>
             </plugin>
