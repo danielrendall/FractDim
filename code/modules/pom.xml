@@ -1,0 +1,151 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>uk.co.danielrendall</groupId>
+  <artifactId>fractdim</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>Fractal Dimension</name>
+  <url>http://www.danielrendall.co.uk/fractdim/</url>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.4</version>
+      <scope>test</scope>
+    </dependency>
+
+      <dependency>
+          <groupId>args4j</groupId>
+          <artifactId>args4j</artifactId>
+          <version>2.0.11</version>
+      </dependency>
+
+      <dependency>
+          <groupId>commons-lang</groupId>
+          <artifactId>commons-lang</artifactId>
+          <version>2.4</version>
+      </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.15</version>
+		<exclusions>
+			<exclusion>
+				<groupId>javax.mail</groupId>
+				<artifactId>mail</artifactId>
+			</exclusion>
+			<exclusion>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+			</exclusion>
+			<exclusion>
+				<groupId>javax.jms</groupId>
+				<artifactId>jms</artifactId>
+			</exclusion>
+			<exclusion>
+				<groupId>com.sun.jmx</groupId>
+				<artifactId>jmxri</artifactId>
+			</exclusion>
+			<exclusion>
+				<groupId>com.sun.jdmk</groupId>
+				<artifactId>jmxtools</artifactId>
+			</exclusion>
+		</exclusions>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-transcoder</artifactId>
+      <version>1.7</version>
+      <scope>compile</scope>
+    </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-codec</artifactId>
+        <version>1.7</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-swing</artifactId>
+        <version>1.7</version>
+        <scope>compile</scope>
+      </dependency>
+  </dependencies>
+  
+  <build>
+          <plugins>
+            <!-- Turning on debug -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <debug>true</debug>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+
+            <!--
+            Produces a single JAR containing all of the depenedencies, via a special
+            "One-jar" classloader - see
+                http://www.dstovall.org/onejar-maven-plugin/usage.html
+                    
+            For other techniques, see 
+
+                http://binkley.blogspot.com/2006/12/making-one-jar-with-maven.html
+                http://maven-plugins.sourceforge.net/maven-javaapp-plugin/index.html
+                http://maven.apache.org/plugins/maven-assembly-plugin/usage.html
+            -->
+            <plugin>
+                <groupId>org.dstovall</groupId>
+                <artifactId>onejar-maven-plugin</artifactId>
+                <executions>
+                    <!--
+                    <execution>
+                        <configuration>
+                            <mainClass>uk.co.danielrendall.fractdim.app.FractDim</mainClass>
+                            <onejarVersion>0.96</onejarVersion>
+                            <filename>FractDim.jar</filename>
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+                    -->
+                    <execution>
+                        <configuration>
+                            <mainClass>uk.co.danielrendall.fractdim.generate.Generator</mainClass>
+                            <onejarVersion>0.96</onejarVersion>
+                            <filename>Generator.jar</filename>
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <version>1.2.1</version>
+            </plugin>
+
+        </plugins>
+</build>
+  
+  <repositories>
+	<repository>
+		<id>IBiblio</id>
+		<url>http://mirrors.ibiblio.org/pub/mirrors/maven2/</url>
+	</repository>
+
+	<repository>
+		<id>maven2-repository.dev.java.net</id>
+		<name>Java.net Repository for Maven</name>
+		<url>http://download.java.net/maven/2/</url>
+		<layout>default</layout>
+	</repository>
+
+</repositories>
+
+</project>
