@@ -84,10 +84,7 @@ public class Generator {
             throw new CmdLineException("End point was invalid");
         }
 
-        Fractal f = new Fractal(new Line(startPoint, endPoint), ruleClass);
-        SVGGeneratorVisitor fv = new SVGGeneratorVisitor(depth);
-        f.accept(fv);
-        SVGDocument doc = fv.getDocument();
+        SVGDocument doc = generateFractal(ruleClass, startPoint, endPoint, depth);
 
         try {
             // Prepare the DOM document for writing
@@ -112,6 +109,14 @@ public class Generator {
         }
 
 
+    }
+
+    public SVGDocument generateFractal(Procedure ruleClass, Point startPoint, Point endPoint, int iterDepth) {
+        Fractal f = new Fractal(new Line(startPoint, endPoint), ruleClass);
+        SVGGeneratorVisitor fv = new SVGGeneratorVisitor(iterDepth);
+        f.accept(fv);
+        SVGDocument doc = fv.getDocument();
+        return doc;
     }
 
 

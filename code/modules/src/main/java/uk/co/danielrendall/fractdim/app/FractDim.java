@@ -1,13 +1,22 @@
 package uk.co.danielrendall.fractdim.app;
 
 import org.bs.mdi.*;
+import org.w3c.dom.svg.SVGDocument;
+import org.apache.log4j.Logger;
 
 import javax.swing.*;
+
+import uk.co.danielrendall.fractdim.generate.Generator;
+import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
+import uk.co.danielrendall.fractdim.geom.Point;
 
 /**
  * Hello world!
  */
 public class FractDim extends Application {
+
+    private static final Logger log = Logger.getLogger(FractDim.class);
+    
 
     public static void main(String[] args) throws Exception {
         System.out.println("Fractal Dimension Calculator");
@@ -52,5 +61,23 @@ public class FractDim extends Application {
 
     public RootView createRootView() {
         return new FDView();
+    }
+
+    public Document generateNewFractal() {
+        setStatus(tr("Generating..."));
+        setBusy(true);
+
+        Generator gen = new Generator();
+        SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 1000), 4);
+
+        Document doc = Document.createNew();
+        documents.add(doc);
+        ((FDData)doc.getData()).setSvgDoc(svg);
+        doc.syncViewsWithData();
+
+        setStatus(tr("Ready"));
+        setBusy(false);
+        return doc;
+
     }
 }

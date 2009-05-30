@@ -34,27 +34,38 @@ import javax.swing.event.*;
 import org.bs.mdi.*;
 import org.bs.mdi.DataPageable.PrintException;
 import org.jk.printpreview.PreviewDialog;
+import org.apache.log4j.Logger;
+
+// DR - refactored the menu creation to make it more convenient for subclasses to
+// pick and choose what menus they want
 
 /**
  * An implementation of a {@link MainWindow} using Swing technology.
  */
 public class SwingMainWindow extends JFrame implements MainWindow, MessageProcessor {
-	
+
+    private static final Logger log = Logger.getLogger(SwingMainWindow.class);
+
+    // keys for sensible default menus
+    public final static String FILE_MENU = "FILE";
+    public final static String EDIT_MENU = "EDIT";
+
 	protected Application application;	
 	protected PrinterJob printerJob = PrinterJob.getPrinterJob();
 	protected DataPageable docPrinter = new DataPageable();
 	protected SwingDefaultCommands commands;
-	protected JMenuBar menuBar;
-	protected JToolBar toolBar;
-	protected JMenu recentFilesMenu;
+
 	protected JMenu windowMenu;
-	protected JMenu editMenu;
-	protected JMenu fileMenu;
-	protected JMenu fileExportMenu;
 	protected SwingStatusBar statusBar;
 	protected SwingProgressMonitor progressMonitor;
 	protected MDIWindowManager windowManager;
 	protected JComponent desktop;
+
+    // See code at the bottom of the file
+    private int numSpecialCommands = 0;
+
+
+    protected final Map<String, JMenu> menus = new HashMap<String, JMenu>();
 
 	/**
 	 * Creates a new main window and adds a menu and a toolbar to it.
@@ -69,6 +80,7 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 	 * Creates a new main window.
 	 * @param addMenu	true if the main menu should be added to this window
 	 * @param addStatusBar	true if a status bar should be added to the window
+     * @param addToolBar true if a tool bar should be added to the window
 	 */
 	public SwingMainWindow(boolean addMenu, boolean addStatusBar, boolean addToolBar) {
 		application = Application.getInstance();
@@ -79,18 +91,13 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 		
 		// create menus
 		if (addMenu) {
-			menuBar = new JMenuBar();
+			JMenuBar menuBar = new JMenuBar();
 			setJMenuBar(menuBar);
 			commands = createCommands();
-			fileMenu = SwingCommandMenu.createMenu(commands.getShowFileMenuCommand());
-			editMenu = SwingCommandMenu.createMenu(commands.getShowEditMenuCommand());
+            addDefaultMenus(menuBar);
 			windowMenu = SwingCommandMenu.createMenu(commands.getShowWindowMenuCommand());
 			windowMenu.addSeparator();
-			menuBar.add(fileMenu);
-			menuBar.add(editMenu);
 			menuBar.add(windowMenu);
-			createFileMenu();
-			createEditMenu();
 		}
 		
 		// create status bar	
@@ -100,8 +107,8 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 		
 		// create toolbar
 		if (addToolBar) {
-			toolBar = new JToolBar();
-			createToolBar();
+			JToolBar toolBar = new JToolBar();
+			addToolBarItems(toolBar);
 			getContentPane().add(toolBar, BorderLayout.NORTH);
 		}
 		
@@ -112,7 +119,12 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 		if (rect != null) {
 			setBounds(rect);
 		} else {
-			setBounds(new Rectangle(100, 100, 320, 200));
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            Dimension defaultSize = getDefaultSize();
+            setBounds(new Rectangle((screenSize.width - defaultSize.width) / 2,
+                                    (screenSize.height - defaultSize.height) / 2,
+                                    defaultSize.width,
+                                    defaultSize.height));
 		}
 		// TODO: restore maximized status (see below in class MyWIndowListener)
 	}
@@ -225,8 +237,44 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 		}
 		return null;
 	}
-	
-	
+
+
+    /**
+     * Override this to add a different set of menus to the menubar, or override the convenience
+     * methods to change the contents of the menus.
+     * @param menuBar Menubar to which menus should be added
+     */
+    protected void addDefaultMenus(JMenuBar menuBar) {
+        addFileMenu(menuBar);
+        addEditMenu(menuBar);
+    }
+
+    /**
+     * Convenience method to add a default file menu. To change the items that are added, override
+     * #addFileMenuItems
+     * @param menuBar Menubar to which the menu is added
+     */
+    protected final void addFileMenu(JMenuBar menuBar) {
+        JMenu fileMenu = SwingCommandMenu.createMenu(commands.getShowFileMenuCommand());
+        addFileMenuItems(fileMenu);
+        menus.put(FILE_MENU, fileMenu);
+        menuBar.add(fileMenu);
+    }
+
+    /**
+     * Convenience method to add a default edit menu. To change the items that are added, override
+     * #addEditMenuItems
+     * @param menuBar Menubar to which the menu is added
+     */
+    protected final void addEditMenu(JMenuBar menuBar) {
+        JMenu editMenu = SwingCommandMenu.createMenu(commands.getShowEditMenuCommand());
+        addEditMenuItems(editMenu);
+        menus.put(EDIT_MENU, editMenu);
+        menuBar.add(editMenu);
+    }
+
+
+
 	protected Icon getMessageIcon(int type) {
 		Icon icon;
 		switch (type) {
@@ -245,8 +293,16 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 		}
 		return null;
 	}
-	
-	private class HintedButton extends JButton {
+
+    /**
+     * Override this to set the preferred initial width and height for the application.
+     * @return
+     */
+    protected Dimension getDefaultSize() {
+        return new Dimension(320, 240);
+    }
+
+    private class HintedButton extends JButton {
 		public JOptionPane pane;
 		public HintedButton(String s) { super(s); };
 	}
@@ -493,30 +549,35 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 		removeAllSpecialWindowCommands();
 		addSpecialWindowCommands(windowManager.getSpecialCommands());
 	}
-	
+
+    // DR - Accessor methods for menus commented out until it's clear whether or not they're
+    // actually useful. Note that they won't work in their current form anyway because
+    // the items in question have either been converted to local fields or stored in the
+    // menus Map
+
 	/**
 	 * Returns the toolbar.
 	 * @return	the tool bar
 	 */
-	public JToolBar getToolBar() {
-		return toolBar;
-	}
+//	public JToolBar getToolBar() {
+//		return toolBar;
+//	}
 	
 	/**
 	 * Returns the file menu.
 	 * @return	the file menu
 	 */
-	public JMenu getFileMenu() {
-		return fileMenu;
-	}
+//	public JMenu getFileMenu() {
+//		return fileMenu;
+//	}
 	
 	/**
 	 * Returns the edit menu.
 	 * @return	the edit menu
 	 */
-	public JMenu getEditMenu() {
-		return editMenu;
-	}
+//	public JMenu getEditMenu() {
+//		return editMenu;
+//	}
 	
 	/**
 	 * Returns the window menu.
@@ -524,9 +585,9 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 	 * Don't mess around with this menu unless you know what you are doing!
 	 * @return	the window menu
 	 */
-	public JMenu getWindowMenu() {
-		return windowMenu;
-	}
+//	public JMenu getWindowMenu() {
+//		return windowMenu;
+//	}
 	
 	/* (non-Javadoc)
 	 * @see org.bs.mdi.MainWindow#setBusy(boolean)
@@ -579,33 +640,22 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 	}
 	
 	/**
-	 * Creates the file menu. 
-	 */
-	protected void createFileMenu() {
+	 * Adds a default set of items to the file menu - override this if necessary (you will probably
+     * want to copy the method and tweak it). Note the convenience methods for adding the recent
+     * files menu item and the file export menu item.
+     * @param fileMenu Menu to which file menu items should be added
+     */
+	protected void addFileMenuItems(JMenu fileMenu) {
 		fileMenu.add(SwingCommandButton.createMenuItem(commands.getFileNewCommand()));
 		fileMenu.add(SwingCommandButton.createMenuItem(commands.getFileOpenCommand()));
-		recentFilesMenu = SwingCommandMenu.createMenu(commands.getShowFileRecentMenuCommand());
-		recentFilesMenu.addMenuListener(new MyRecentFilesMenuListener());
-		fileMenu.add(recentFilesMenu);
+
+        addRecentFilesMenu(fileMenu);
+
 		fileMenu.add(SwingCommandButton.createMenuItem(commands.getFileSaveCommand()));
 		fileMenu.add(SwingCommandButton.createMenuItem(commands.getFileSaveAsCommand()));
-		
-		fileExportMenu = SwingCommandMenu.createMenu(commands.getShowFileExportMenuCommand());
-		boolean isExportPossible = (Application.getFileIOManager().getFileExporters().length != 0);
-		if (isExportPossible) {
-			fileMenu.addSeparator();
-			FileExporter exporters[] = Application.getFileIOManager().getFileExporters();
-			for (int i=0; i<exporters.length; i++) {
-				ExportMenuItem item = new ExportMenuItem(exporters[i]);
-				item.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {
-					ExportMenuItem item = (ExportMenuItem)e.getSource(); 
-					application.exportDocument(item.getExporter()); 
-				}});
-				fileExportMenu.add(item);
-			}
-			fileMenu.add(fileExportMenu);
-		}
-		fileMenu.addSeparator();
+
+        addFileExportMenuIfRequired(fileMenu);
+        fileMenu.addSeparator();
 		
 		fileMenu.add(SwingCommandButton.createMenuItem(commands.getFilePrintSetupCommand()));
 		fileMenu.add(SwingCommandButton.createMenuItem(commands.getFilePrintPreviewCommand()));
@@ -614,11 +664,80 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 		fileMenu.add(SwingCommandButton.createMenuItem(commands.getFileCloseCommand()));
 		fileMenu.add(SwingCommandButton.createMenuItem(commands.getFileQuitCommand()));
 	}
-	
-	/**
-	 * Creates the edit menu.
-	 */
-	protected void createEditMenu() {
+
+    /**
+     * Convenience method which you may want to call if overriding #addFileMenuItems which adds
+     * a recent files menu and a listener to disable it if there are none.
+     * @param fileMenu Menu to which the export menu should be added
+     */
+    protected void addRecentFilesMenu(JMenu fileMenu) {
+        final JMenu recentFilesMenu = SwingCommandMenu.createMenu(commands.getShowFileRecentMenuCommand());
+        recentFilesMenu.addMenuListener(new MenuListener() {
+            public void menuSelected(MenuEvent e) {
+                ActionListener listener = new ActionListener() {
+                    public void actionPerformed(ActionEvent event) {
+                        String filename = event.getActionCommand();
+                        Application.getInstance().openDocument(filename);
+                    }
+                };
+                String[] files = Application.getRecentFiles().getList();
+                recentFilesMenu.removeAll();
+                for (int i=0; i<files.length; i++) {
+                    JMenuItem item = new JMenuItem(files[i]);
+                    item.addActionListener(listener);
+                    recentFilesMenu.add(item);
+                }
+            }
+
+            public void menuDeselected(MenuEvent e) {}
+
+            public void menuCanceled(MenuEvent e) {}
+        });
+        RecentFiles rf = Application.getRecentFiles();
+        recentFilesMenu.setEnabled(rf.count() > 0);
+        rf.addRecentFilesListener(new RecentFiles.RecentFilesListener() {
+            public void recentFileAdded(String fileName, int count) {
+                recentFilesMenu.setEnabled(count > 0);
+            }
+
+            public void recentFileRemoved(String fileName, int count) {
+                recentFilesMenu.setEnabled(count > 0);
+            }
+        });
+
+        fileMenu.add(recentFilesMenu);
+    }
+
+    /**
+     * Convenience method which you may want to call if overriding #addFileMenuItems which adds
+     * an export menu if some exporters have been defined for the application.
+     * @param fileMenu Menu to which the export menu should be added
+     */
+
+    protected void addFileExportMenuIfRequired(JMenu fileMenu) {
+        if (Application.getFileIOManager().getFileExporters().length != 0) {
+            JMenu fileExportMenu = SwingCommandMenu.createMenu(commands.getShowFileExportMenuCommand());
+            FileExporter exporters[] = Application.getFileIOManager().getFileExporters();
+            for (int i=0; i<exporters.length; i++) {
+                ExportMenuItem item = new ExportMenuItem(exporters[i]);
+                item.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        ExportMenuItem item = (ExportMenuItem)e.getSource();
+                        application.exportDocument(item.getExporter());
+                    }});
+                fileExportMenu.add(item);
+            }
+            fileMenu.addSeparator();
+			fileMenu.add(fileExportMenu);
+		}
+    }
+
+    /**
+     * Adds a default set of items to the edit menu - override this if necessary (you will probably
+     * want to copy the method and tweak it).
+     * @param editMenu Menu to which edit menu items should be added
+     */
+	protected void addEditMenuItems(JMenu editMenu) {
 		editMenu.add(SwingCommandButton.createMenuItem(commands.getEditUndoCommand()));
 		editMenu.add(SwingCommandButton.createMenuItem(commands.getEditRedoCommand()));
 		editMenu.addSeparator();
@@ -630,9 +749,11 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 	}
 	
 	/**
-	 * Creates the toolbar.
-	 */
-	protected void createToolBar() {
+     * Adds a default set of items to the toolbar - override this if necessary (you will probably
+     * want to copy the method and tweak it).
+     * @param toolBar Toolbar to which items should be added
+     */
+	protected void addToolBarItems(JToolBar toolBar) {
 		toolBar.add(SwingCommandButton.createToolButton(commands.getFileNewCommand()));
 		toolBar.add(SwingCommandButton.createToolButton(commands.getFileOpenCommand()));
 		toolBar.add(SwingCommandButton.createToolButton(commands.getFileSaveCommand()));
@@ -659,8 +780,6 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 	 * defined by the windowmanager and should be accessible via the GUI.
 	 */
 	
-	int numSpecialCommands = 0;
-
 	protected void addSpecialWindowCommands(SwingCommand commands[]) {
 		if (commands != null) {
 			for (int i=0; i<commands.length; i++) {
@@ -679,31 +798,9 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 			numSpecialCommands--;
 		}
 	}
-	
-	
-	class MyRecentFilesMenuListener implements MenuListener {
-		public void menuSelected(MenuEvent e) {			
-			MyRecentFileActionListener listener = new MyRecentFileActionListener();
-			String[] files = Application.getRecentFiles().getList();
-			recentFilesMenu.removeAll();
-			for (int i=0; i<files.length; i++) {
-				JMenuItem item = new JMenuItem(files[i]);
-				item.addActionListener(listener);
-				recentFilesMenu.add(item);
-			}			
-		}
-		public void menuDeselected(MenuEvent e) {};
-		public void menuCanceled(MenuEvent e) {};
-	}
-	
-	class MyRecentFileActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent event) {
-			String filename = event.getActionCommand();
-			Application.getInstance().openDocument(filename);
-		}
-	}
-	
-	class ExportMenuItem extends JMenuItem {
+
+
+    class ExportMenuItem extends JMenuItem {
 		FileExporter exporter;
 		
 		public ExportMenuItem(FileExporter exporter) {

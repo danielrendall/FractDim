@@ -25,10 +25,14 @@ package org.bs.mdi;
 
 import java.util.*;
 
+// DR - added listener
+
 /**
  * Remembers recently opened filenames.
  */
 public class RecentFiles {
+
+    private final List<RecentFilesListener> listeners = new ArrayList<RecentFilesListener>();
 
 	class RecentFileEntry {
 		String filename;
@@ -76,6 +80,7 @@ public class RecentFiles {
 		}
 		entry = new RecentFileEntry(filename, System.currentTimeMillis());
 		entries.add(entry);
+        notifyRecentFileAdded(filename, entries.size());
 		sort();
 	}
 	
@@ -110,6 +115,7 @@ public class RecentFiles {
 			RecentFileEntry entry = (RecentFileEntry)entries.get(i);
 			if (entry.filename.equals(filename)) {
 				entries.remove(i);
+                notifyRecentFileRemoved(filename, entries.size());
 				i--;
 			}
 		}
@@ -164,6 +170,7 @@ public class RecentFiles {
 			long time = prefs.getLong("mdi.recentfiles.time" + i, 0);
 			if (filename == null || time == 0) continue;
 			entries.add(new RecentFileEntry(filename, time));
+            notifyRecentFileAdded(filename, entries.size());
 		}
 		sort();
 	}
@@ -197,5 +204,29 @@ public class RecentFiles {
 		}
 		return null;
 	}
-	
+
+    private void notifyRecentFileAdded(String fileName, int count) {
+        for (RecentFilesListener listener : listeners) {
+            listener.recentFileAdded(fileName, count);
+        }
+    }
+
+    private void notifyRecentFileRemoved(String fileName, int count) {
+        for (RecentFilesListener listener : listeners) {
+            listener.recentFileRemoved(fileName, count);
+        }
+    }
+
+    public void addRecentFilesListener(RecentFilesListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeRecentFilesListener(RecentFilesListener listener) {
+        listeners.remove(listener);
+    }
+
+    public interface RecentFilesListener {
+        void recentFileAdded(String fileName, int count);
+        void recentFileRemoved(String fileName, int count);
+    }
 }
