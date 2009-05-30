@@ -1,16 +1,10 @@
 package uk.co.danielrendall.fractdim.calculation;
 
 import org.w3c.dom.svg.SVGDocument;
-import org.w3c.dom.svg.SVGSVGElement;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.log4j.Logger;
-
-import java.io.StringWriter;
-import java.io.Writer;
-import java.io.OutputStream;
-import java.io.IOException;
 
 /**
  * @author Daniel Rendall
@@ -32,15 +26,16 @@ public class Calculator {
         CalculationResult result = new CalculationResult();
         TranscoderInput input = new TranscoderInput(svgDoc);
 
-        for (double d = 0.1d; d < 11.0d; d += 0.1d) {
-            PixelGrid grid = new PixelGrid(d);
+//        for (double d = 0.1d; d < 11.0d; d += 0.1d) {
+        double d = 100;
+            Grid grid = new Grid(d);
             try {
                 transcoder.transcode(input, output, grid);
-                result.addResult(0.0d, d, grid.getPixelCount());
+                result.addResult(0.0d, d, grid.getSquareCount());
             } catch (TranscoderException e) {
                 log.warn("Couldn't transcode at resolution " + d + " - " + e.getMessage());
             }
-        }
+//        }
         return result;
     }
 }

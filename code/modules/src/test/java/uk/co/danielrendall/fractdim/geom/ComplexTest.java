@@ -1,7 +1,6 @@
 package uk.co.danielrendall.fractdim.geom;
 
 import org.junit.Test;
-import uk.co.danielrendall.fractdim.geom.Complex;
 import static org.junit.Assert.*;
 
 /**

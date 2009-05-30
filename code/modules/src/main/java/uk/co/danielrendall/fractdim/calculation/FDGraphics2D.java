@@ -22,14 +22,14 @@ public class FDGraphics2D extends DefaultGraphics2D {
     private Point start = Point.ORIGIN;
     private final double[] pathSegment = new double[6];
 
-    private PixelGrid grid;
+    private Grid grid;
 
     public FDGraphics2D(FDGraphics2D g) {
         super(g);
         this.grid = g.grid;
     }
 
-    public FDGraphics2D(PixelGrid grid) {
+    public FDGraphics2D(Grid grid) {
         super(true);
         gc = new GraphicContext();
         this.grid = grid;

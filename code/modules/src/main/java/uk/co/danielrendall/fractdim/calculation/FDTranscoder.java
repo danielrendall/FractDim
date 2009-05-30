@@ -11,9 +11,9 @@ import org.w3c.dom.Document;
 public class FDTranscoder extends SVGAbstractTranscoder {
     private static final Logger log = Logger.getLogger(FDTranscoder.class);
 
-    private PixelGrid grid;
+    private Grid grid;
 
-    public void transcode(TranscoderInput input, TranscoderOutput output, PixelGrid grid) throws TranscoderException {
+    public void transcode(TranscoderInput input, TranscoderOutput output, Grid grid) throws TranscoderException {
         this.grid = grid;
         super.transcode(input, output);
     }

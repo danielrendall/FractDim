@@ -68,7 +68,7 @@ public class FractDim extends Application {
         setBusy(true);
 
         Generator gen = new Generator();
-        SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 1000), 4);
+        SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 0);
 
         Document doc = Document.createNew();
         documents.add(doc);

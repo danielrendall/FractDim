@@ -41,7 +41,7 @@ public class FDData extends RootData {
 
     void setSvgDoc(SVGDocument svgDoc) {
         this.svgDoc = svgDoc;
-//        updateFractalDimension();
+        updateFractalDimension();
     }
 
     Document getSvgDoc() {
