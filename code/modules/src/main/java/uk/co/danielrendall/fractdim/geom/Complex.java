@@ -1,13 +1,12 @@
 package uk.co.danielrendall.fractdim.geom;
 
-import org.apache.log4j.Logger;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 /**
  * @author Daniel Rendall
  * @created 23-May-2009 10:05:23
  */
-public class Complex extends XY {
-    private final static Logger log = Logger.getLogger(Complex.class);
+public final class Complex implements XY {
 
     private final static double EPSILON = Double.MIN_VALUE * 100;
 
@@ -16,8 +15,13 @@ public class Complex extends XY {
     private final boolean xIsZero;
     private final boolean yIsZero;
 
+    // make these package visible
+    final double x;
+    final double y;
+
     public Complex(double x, double y) {
-        super(x, y);
+        this.x = x;
+        this.y = y;
         xIsZero = Math.abs(x) < EPSILON;
         yIsZero = Math.abs(y) < EPSILON;
     }
@@ -34,28 +38,28 @@ public class Complex extends XY {
         return new Complex (mod * Math.cos(arg), mod * Math.sin(arg));
     }
 
-    public Complex neg() {
+    public final Complex neg() {
         return new Complex(0.0d - x, 0.0d - y);
     }
 
-    public Complex add(Complex other) {
+    public final Complex add(Complex other) {
         return new Complex(x + other.x, y + other.y);
     }
 
-    public Complex sub(Complex other) {
+    public final Complex sub(Complex other) {
         return add(other.neg());
     }
 
-    public double mod() {
+    public final double mod() {
         return xIsZero && yIsZero ? 0.0 : Math.sqrt((x * x) + (y * y));
     }
 
-    public double arg() {
+    public final double arg() {
         if (xIsZero) {
             // on the y axis
             if (yIsZero) {
                 // the zero vector
-                log.warn("Zero vector asked for argument");
+                Log.misc.warn("Zero vector asked for argument");
                 return 0.0;
             } else {
                 // either straight up or straight down
@@ -81,18 +85,28 @@ public class Complex extends XY {
         }
     }
 
-    public Complex times(double m) {
+    public final Complex times(double m) {
         return new Complex(x * m, y * m);
     }
 
-    public Complex times(Complex c) {
+    public final Complex times(Complex c) {
         // (x + iy)(a+ib) = xa - yb + (xb + ya)i
         return new Complex(x * c.x - y * c.y, x * c.y + y * c.x);
     }
 
-    public Complex rotate(double angle) {
+    public final Complex rotate(double angle) {
         return times(Complex.unit(angle));
     }
 
+    public final String toString() {
+        return (String.format("(%s + %si)", x, y));
+    }
 
+    public final double x() {
+        return x;
+    }
+
+    public final double y() {
+        return y;
+    }
 }

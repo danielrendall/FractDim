@@ -26,11 +26,7 @@ public class Calculator {
 
         GridCollection grids = new GridCollection(1000);
 
-//        for (double d = 0.1d; d < 11.0d; d += 0.1d) {
-        for (double d = 100d; d < 101d; d += 50d) {
-            grids.addGrid(new Grid(d));
-        }
-        
+
         try {
             transcoder.transcode(input, output, grids);
         } catch (TranscoderException e) {

@@ -4,8 +4,7 @@ import uk.co.danielrendall.fractdim.geom.ParametricCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
 
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * @author Daniel Rendall
@@ -15,20 +14,47 @@ public class GridCollection {
 
     private final Set<Grid> grids;
     private final int maxDepth;
-    
+
+    private final SortedMap<Double, SortedMap<Double, Set<Grid>>> classifiedGrids;
 
     public GridCollection(int maxDepth) {
         this.maxDepth = maxDepth;
         grids = new HashSet<Grid>();
+        classifiedGrids = new TreeMap<Double, SortedMap<Double, Set<Grid>>>();
     }
 
+    public void addGrid(double angle, double resolution, double fractionalXDisplacement, double fractionalYDisplacement) {
+        Grid aGrid = new Grid(angle, resolution, fractionalXDisplacement, fractionalYDisplacement);
+        setForResolution(resolution, mapForAngle(angle)).add(aGrid);
+        grids.add(aGrid);
+    }
+
+    private SortedMap<Double, Set<Grid>> mapForAngle(double angle) {
+        SortedMap<Double, Set<Grid>> theMap = classifiedGrids.get(angle);
+        if (theMap == null) {
+            theMap = new TreeMap<Double, Set<Grid>>();
+            classifiedGrids.put(angle, theMap);
+        }
+        return theMap;
+    }
+
+    private Set<Grid> setForResolution(double resolution, SortedMap<Double, Set<Grid>> angleMap) {
+        Set<Grid> theSet = angleMap.get(resolution);
+        if (theSet == null) {
+            theSet = new HashSet<Grid>();
+            angleMap.put(resolution,theSet);
+        }
+        return theSet;
+    }
+
+    // Intended for testing with single grids
+    @Deprecated
     void addGrid(Grid grid) {
         grids.add(grid);
     }
 
     void handleCurve(ParametricCurve curve) {
         evaluateBetween(curve, 0, 0.0d, 1.0d);
-
     }
 
     private void evaluateBetween(ParametricCurve curve, int depth, double rangeStart, double rangeEnd) {
@@ -41,7 +67,6 @@ public class GridCollection {
         temporarySet.addAll(grids);
 
         evaluateBetween(curve, temporarySet, depth, rangeStart, start, rangeEnd, end);
-
 
         for (Grid grid : grids) {
             grid.endEvaluation();
@@ -99,4 +124,34 @@ public class GridCollection {
 
     }
 
+    public static GridCollection createCollection(int maxDepth, double minResolution, double maxResolution, double resolutionIncrement,
+                                                  int numberOfAngles, int numberOfDisplacementPoints) {
+        GridCollection collection = new GridCollection(maxDepth);
+        if (numberOfAngles < 1) throw new IllegalArgumentException("Number of angles must be >= 1");
+        if (numberOfDisplacementPoints < 1) throw new IllegalArgumentException("Number of displacement points must be >= 1");
+        if (minResolution > maxResolution) throw new IllegalArgumentException("Minimum resolution must be less than maximum resolution");
+
+        double angleIncrement = Math.PI / (2.0d * (double) numberOfAngles);
+        double fractionalDisplacementIncrement = 1.0d / (double) numberOfDisplacementPoints;
+        int numberOfResolutionSteps = (int) Math.ceil((maxResolution - minResolution) / resolutionIncrement);
+
+        for (int angleCount = 0; angleCount < numberOfAngles; angleCount++) {
+            double angle = angleIncrement * (double) angleCount;
+            for (int resolutionCount = 0; resolutionCount <= numberOfResolutionSteps; resolutionCount++) {
+                double resolution = minResolution + (resolutionIncrement * (double) resolutionCount);
+                for (int displacementXCount = 0; displacementXCount < numberOfDisplacementPoints; displacementXCount++) {
+                    double fractionalXDisplacement = fractionalDisplacementIncrement * (double) displacementXCount;
+                    for (int displacementYCount = 0; displacementYCount < numberOfDisplacementPoints; displacementYCount++) {
+                        double fractionalYDisplacement = fractionalDisplacementIncrement * (double) displacementYCount;
+                        collection.addGrid(angle, resolution, fractionalXDisplacement, fractionalYDisplacement);
+                    }
+                }
+            }
+        }
+        return collection;
+    }
+
+    public int count() {
+        return grids.size();
+    }
 }

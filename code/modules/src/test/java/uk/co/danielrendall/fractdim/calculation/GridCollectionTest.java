@@ -187,4 +187,17 @@ public class GridCollectionTest {
         assertEquals(34, pg10.getSquareCount());
     }
 
+    @Test
+    public void testCreateCollection() {
+        GridCollection collection = GridCollection.createCollection(1000, 1.0d, 10.0d, 1.0d, 1, 1);
+        assertEquals(10, collection.count());
+
+        // four angles
+        collection = GridCollection.createCollection(1000, 1.0d, 10.0d, 1.0d, 4, 1);
+        assertEquals(40, collection.count());
+
+        // four angles, 3 displacement points (= 9 displacement vectors)
+        collection = GridCollection.createCollection(1000, 1.0d, 10.0d, 1.0d, 4, 3);
+        assertEquals(360, collection.count());
+    }
 }

@@ -5,25 +5,10 @@ package uk.co.danielrendall.fractdim.geom;
  * @created 23-May-2009 10:02:49
  */
 
-class XY {
+interface XY {
 
-    protected final double x, y;
+    public double x();
 
-    public XY(double x, double y) {
-        this.x = x;
-        this.y = y;
-    }
+    public double y();
 
-    public double x() {
-        return x;
-    }
-
-    public double y() {
-        return y;
-    }
-
-    public String toString() {
-        return (String.format("(%s, %s)", x, y));
-    }
-    
 }

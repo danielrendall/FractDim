@@ -1,6 +1,7 @@
 package uk.co.danielrendall.fractdim.calculation;
 
 import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.fractdim.geom.Vec;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.util.Iterator;
@@ -14,26 +15,59 @@ import java.util.HashMap;
  */
 public class Grid {
 
-    private final double resolution;
-    private final double proximityThreshold;
+    final double resolution;
+    final Vec displacement;
+    final double angle;
+
     private final GridSquareStore masterStore;
     private final GridSquareStore temporaryStore;
 
     private final static boolean[] NO_RECURSE = new boolean[] {false, false};
 
     private final Map<Point, GridSquare> squaresMet;
+    private final double proximityThreshold;
 
-    public Grid(double resolution) {
+    private final boolean doDisplace, doRotate;
+
+    public Grid(double angle, double resolution, double fractionalXDisp, double fractionalYDisp) {
         this.resolution = resolution;
         proximityThreshold = resolution / 1000.0d;
         Log.points.debug(String.format("Resolution: %09.9f Proximity Threshold: %09.9f", resolution, proximityThreshold));
         masterStore = new GridSquareStore(new TreeSet<GridSquare>()); // sorted
         temporaryStore = new GridSquareStore(); // use the default hashset
         squaresMet = new HashMap<Point, GridSquare>();
+        displacement = new Vec(new Point(fractionalXDisp * resolution, fractionalYDisp * resolution));
+        this.angle = angle;
+        doDisplace = (fractionalXDisp != 0.0d || fractionalYDisp != 0.0d);
+        doRotate = (angle != 0.0d);
+    }
+
+    public Grid(double resolution) {
+        this(0.0d, resolution, 0.0d, 0.0d);
+    }
+
+    public Grid(double resolution, double fractionalXDisp, double fractionalYDisp) {
+        this(0.0d, resolution, fractionalXDisp, fractionalYDisp);
+    }
+
+    public Grid(double resolution, double angle) {
+        this(angle, resolution, 0.0d, 0.0d);
     }
 
     Point transformPoint(Point p) {
-        return p;
+        if (doDisplace) {
+            if (doRotate) {
+                return p.displace(displacement).rotate(angle);
+            } else {
+                return p.displace(displacement);
+            }
+        } else {
+            if (doRotate) {
+                return p.rotate(angle);
+            } else {
+                return p;
+            }
+        }
     }
 
     void startEvaluation(Point startPoint, Point endPoint) {
