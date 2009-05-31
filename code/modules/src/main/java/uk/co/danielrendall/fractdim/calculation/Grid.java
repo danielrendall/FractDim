@@ -45,12 +45,17 @@ public class Grid {
 
 
 
-        GridSquare currentStartSquare = getSquare(startPoint);
-        GridSquare currentEndSquare = getSquare(endPoint);
-        temporaryStore.put(currentStartSquare);
-        temporaryStore.put(currentEndSquare);
-        squaresMet.put(startPoint, currentStartSquare);
-        squaresMet.put(endPoint, currentEndSquare);
+        GridSquare startSquare = getSquare(startPoint);
+        GridSquare endSquare = getSquare(endPoint);
+
+        if (Log.squares.isDebugEnabled()) {
+            Log.squares.debug(String.format("Start point: %s Start square: %s End point: %s End square: %s", startPoint, startSquare, endPoint, endSquare));
+        }
+
+        temporaryStore.put(startSquare);
+        temporaryStore.put(endSquare);
+        squaresMet.put(startPoint, startSquare);
+        squaresMet.put(endPoint, endSquare);
     }
 
     void endEvaluation() {
@@ -75,9 +80,11 @@ public class Grid {
             return NO_RECURSE;
         }
 
-        Log.points.debug(String.format("Square Start: (%d, %d) Mid: (%d, %d) End: (%d, %d)",
-                startSquare.xIndex, startSquare.yIndex, midSquare.xIndex, midSquare.yIndex, endSquare.xIndex, endSquare.yIndex));
-
+        if (Log.squares.isDebugEnabled()) {
+            Log.squares.debug(String.format("Square Start: (%d, %d) Mid: (%d, %d) [%s] End: (%d, %d)",
+                startSquare.xIndex, startSquare.yIndex, midSquare.xIndex, midSquare.yIndex, midPoint, endSquare.xIndex, endSquare.yIndex));
+        }
+        
         int midFromStart = startSquare.direction(midSquare);
         int midFromEnd = endSquare.direction(midSquare);
 
