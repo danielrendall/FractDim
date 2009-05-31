@@ -3,7 +3,6 @@ package uk.co.danielrendall.fractdim.app;
 import org.bs.mdi.*;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.apache.log4j.Logger;
 import org.w3c.dom.svg.SVGDocument;
 
 import javax.xml.transform.*;
@@ -11,13 +10,13 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMSource;
 import java.io.*;
 
+import uk.co.danielrendall.fractdim.logging.Log;
+
 /**
  * @author Daniel Rendall
  * @created 13-May-2009 23:35:43
  */
 public class FDFileIOModule implements FileLoader, FileSaver, FileExporter {
-
-    private static final Logger log = Logger.getLogger(FDFileIOModule.class);
 
     static FileFormat[] formats = {new SVGFileFormat() };
 
@@ -69,10 +68,10 @@ public class FDFileIOModule implements FileLoader, FileSaver, FileExporter {
             Transformer xformer = TransformerFactory.newInstance().newTransformer();
             xformer.transform(source, result);
         } catch (FileNotFoundException e) {
-            log.warn("Unable to save: " + e.getMessage());
+            Log.gui.warn("Unable to save: " + e.getMessage());
             throw new FileIOException(FileIOException.ERR_NOSUCHFILE, filename);
         } catch (TransformerException e) {
-            log.warn("Unable to save: " + e.getMessage());
+            Log.gui.warn("Unable to save: " + e.getMessage());
             throw new FileIOException(FileIOException.ERR_UNKNOWN, filename);
         }
 

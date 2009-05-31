@@ -10,9 +10,11 @@ public class CalculationResult {
 
     // maps initial rotation angle to the results for that angle
     private final SortedMap<Double, SortedMap<Double, Statistics>> results;
+    private final GridCollection grids;
 
-    CalculationResult() {
+    CalculationResult(GridCollection grids) {
         results = new TreeMap<Double, SortedMap<Double, Statistics>>();
+        this.grids = grids;
     }
 
     // using SortedMap means that the iterator returns these in order

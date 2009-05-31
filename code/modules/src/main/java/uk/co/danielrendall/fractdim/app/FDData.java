@@ -6,8 +6,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
-import org.w3c.dom.svg.SVGSVGElement;
-import org.apache.log4j.Logger;
 
 import java.awt.print.PageFormat;
 import java.awt.*;
@@ -17,6 +15,7 @@ import java.util.Vector;
 
 import uk.co.danielrendall.fractdim.calculation.CalculationResult;
 import uk.co.danielrendall.fractdim.calculation.Calculator;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.table.TableModel;
 import javax.swing.table.AbstractTableModel;
@@ -26,7 +25,6 @@ import javax.swing.table.AbstractTableModel;
  * @created 13-May-2009 23:43:19
  */
 public class FDData extends RootData {
-    private static final Logger log = Logger.getLogger(FDData.class);
 
     private final Printer printer = new FractDimPrinter();
     private final Calculator calculator = new Calculator();
@@ -54,7 +52,7 @@ public class FDData extends RootData {
     }
 
     private void prettyPrint(Node aNode, int depth) {
-        log.debug("                            ".substring(0, depth) + aNode.getClass().getName());
+        Log.gui.debug("                            ".substring(0, depth) + aNode.getClass().getName());
         NodeList children = aNode.getChildNodes();
         for (int i=0; i< children.getLength(); i++) {
             prettyPrint(children.item(i), depth + 1);

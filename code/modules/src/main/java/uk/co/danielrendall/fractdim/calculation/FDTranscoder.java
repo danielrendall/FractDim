@@ -9,19 +9,18 @@ import org.w3c.dom.Document;
  * @created 20-May-2009 21:42:55
  */
 public class FDTranscoder extends SVGAbstractTranscoder {
-    private static final Logger log = Logger.getLogger(FDTranscoder.class);
 
-    private Grid grid;
+    private GridCollection grids;
 
-    public void transcode(TranscoderInput input, TranscoderOutput output, Grid grid) throws TranscoderException {
-        this.grid = grid;
+    public void transcode(TranscoderInput input, TranscoderOutput output, GridCollection grids) throws TranscoderException {
+        this.grids = grids;
         super.transcode(input, output);
     }
 
     @Override
     protected void transcode(Document document, String uri, TranscoderOutput output) throws TranscoderException {
         super.transcode(document, uri, output);
-        FDGraphics2D g2d = new FDGraphics2D(grid);
+        FDGraphics2D g2d = new FDGraphics2D(grids);
         root.paint(g2d);
     }
 

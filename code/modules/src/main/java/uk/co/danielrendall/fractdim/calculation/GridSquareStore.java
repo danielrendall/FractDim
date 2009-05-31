@@ -1,15 +1,42 @@
 package uk.co.danielrendall.fractdim.calculation;
 
 import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Daniel Rendall
  * @created 30-May-2009 20:15:13
  */
-public interface GridSquareStore {
-    void put(GridSquare square);
+public class GridSquareStore {
 
-    int count();
+    private final Set<GridSquare> squares;
 
-    Iterator<GridSquare> squareIterator();
+    public GridSquareStore() {
+        this(new HashSet<GridSquare>());
+    }
+
+    public GridSquareStore(Set<GridSquare> squares) {
+        this.squares = squares;
+    }
+
+    public void put(GridSquare square) {
+        squares.add(square);
+    }
+
+    public int count() {
+        return squares.size();
+    }
+
+    public Iterator<GridSquare> squareIterator() {
+        return squares.iterator();
+    }
+
+    public void clear() {
+        squares.clear();
+    }
+
+    public void addAll(GridSquareStore other) {
+        squares.addAll(other.squares);
+    }
 }

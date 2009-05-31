@@ -4,14 +4,13 @@ import org.w3c.dom.svg.SVGDocument;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.TranscoderException;
-import org.apache.log4j.Logger;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 /**
  * @author Daniel Rendall
  * @created 24-May-2009 11:00:39
  */
 public class Calculator {
-    private static final Logger log = Logger.getLogger(Calculator.class);
 
     private final FDTranscoder transcoder;
     private final TranscoderOutput output;
@@ -23,19 +22,20 @@ public class Calculator {
 
     public CalculationResult process(SVGDocument svgDoc) {
 
-        CalculationResult result = new CalculationResult();
         TranscoderInput input = new TranscoderInput(svgDoc);
 
+        GridCollection grids = new GridCollection(1000);
+
 //        for (double d = 0.1d; d < 11.0d; d += 0.1d) {
-        double d = 100;
-            Grid grid = new Grid(d);
-            try {
-                transcoder.transcode(input, output, grid);
-                result.addResult(0.0d, d, grid.getSquareCount());
-            } catch (TranscoderException e) {
-                log.warn("Couldn't transcode at resolution " + d + " - " + e.getMessage());
-            }
-//        }
-        return result;
+        for (double d = 100d; d < 101d; d += 50d) {
+            grids.addGrid(new Grid(d));
+        }
+        
+        try {
+            transcoder.transcode(input, output, grids);
+        } catch (TranscoderException e) {
+            Log.app.warn("Couldn't transcode at - " + e.getMessage());
+        }
+        return new CalculationResult(grids);
     }
 }

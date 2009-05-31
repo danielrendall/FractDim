@@ -6,14 +6,13 @@ import org.apache.log4j.Logger;
 import javax.swing.*;
 import java.awt.*;
 
+import uk.co.danielrendall.fractdim.logging.Log;
+
 /**
  * @author Daniel Rendall
  * @created 13-May-2009 23:39:39
  */
 public class FDMainWindow extends SwingMainWindow {
-
-    private static final Logger log = Logger.getLogger(FDMainWindow.class);
-
 
     private final static int DEFAULT_WIDTH = 640;
     private final static int DEFAULT_HEIGHT = 480;
