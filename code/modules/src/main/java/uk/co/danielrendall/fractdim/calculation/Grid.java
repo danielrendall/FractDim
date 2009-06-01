@@ -29,6 +29,18 @@ public class Grid {
 
     private final boolean doDisplace, doRotate;
 
+    public Grid(double resolution) {
+        this(0.0d, resolution, 0.0d, 0.0d);
+    }
+
+    public Grid(double resolution, double fractionalXDisp, double fractionalYDisp) {
+        this(0.0d, resolution, fractionalXDisp, fractionalYDisp);
+    }
+
+    public Grid(double angle, double resolution) {
+        this(angle, resolution, 0.0d, 0.0d);
+    }
+
     public Grid(double angle, double resolution, double fractionalXDisp, double fractionalYDisp) {
         this.resolution = resolution;
         proximityThreshold = resolution / 1000.0d;
@@ -42,17 +54,6 @@ public class Grid {
         doRotate = (angle != 0.0d);
     }
 
-    public Grid(double resolution) {
-        this(0.0d, resolution, 0.0d, 0.0d);
-    }
-
-    public Grid(double resolution, double fractionalXDisp, double fractionalYDisp) {
-        this(0.0d, resolution, fractionalXDisp, fractionalYDisp);
-    }
-
-    public Grid(double resolution, double angle) {
-        this(angle, resolution, 0.0d, 0.0d);
-    }
 
     Point transformPoint(Point p) {
         if (doDisplace) {
@@ -110,7 +111,16 @@ public class Grid {
         GridSquare endSquare = squaresMet.get(endPoint);
 
         if ((startSquare == null) || (endSquare == null)) {
-            Log.points.warn("Encountered a null start or end square - this should never happen!");
+            Log.app.warn("Encountered a null start or end square - this should never happen!");
+
+            if (Log.app.isDebugEnabled()) {
+                Log.app.debug(String.format("Transformed points - start: %s, mid: %s, end: %s", startPoint, midPoint, endPoint));
+                for (Point next : squaresMet.keySet()) {
+                    Log.app.debug(String.format("Stored point: %s", next));
+                }
+
+            }
+
             return NO_RECURSE;
         }
 

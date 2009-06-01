@@ -200,4 +200,32 @@ public class GridCollectionTest {
         collection = GridCollection.createCollection(1000, 1.0d, 10.0d, 1.0d, 4, 3);
         assertEquals(360, collection.count());
     }
+
+    @Test
+    public void testGridDisplacements() {
+        Point start = new Point(29.198, 29.198);
+        Point end = new Point(286.171, 88.963);
+
+        GridCollection gc = new GridCollection(1000);
+        Grid pg100 = new Grid(100.0d);
+
+        Grid pg100_x1 = new Grid(100.0d, 0.5d, 0.0d);
+
+        Grid pg100_y1 = new Grid(100.0d, 0.0d, 0.5d);
+
+        Grid pg100_x1_y1 = new Grid(100.0d, 0.5d, 0.5d);
+
+        gc.addGrid(pg100);
+        gc.addGrid(pg100_x1);
+        gc.addGrid(pg100_y1);
+        gc.addGrid(pg100_x1_y1);
+        ParametricCurve pc = new Line(start, end);
+        gc.handleCurve(pc);
+
+        assertEquals(3, pg100.getSquareCount());
+        assertEquals(4, pg100_x1.getSquareCount());
+        assertEquals(4, pg100_y1.getSquareCount());
+        assertEquals(5, pg100_x1_y1.getSquareCount());
+
+    }
 }

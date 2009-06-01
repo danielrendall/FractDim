@@ -102,6 +102,12 @@ public final class Complex implements XY {
         return (String.format("(%s + %si)", x, y));
     }
 
+    @Override
+    public final boolean equals(Object obj) {
+        Complex other = (Complex) obj;
+        return other.x == this.x && other.y == this.y;
+    }
+
     public final double x() {
         return x;
     }

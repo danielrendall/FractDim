@@ -46,4 +46,14 @@ public class Point implements XY {
     public final String toString() {
         return (String.format("(%s, %s)", rep.x, rep.y));
     }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return ((Point) obj).rep.equals(this.rep);
+    }
+
+    @Override
+    public int hashCode() {
+        return (int)(10000*rep.x + rep.y);
+    }
 }
