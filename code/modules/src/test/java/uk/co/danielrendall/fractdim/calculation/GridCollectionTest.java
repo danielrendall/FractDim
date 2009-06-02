@@ -271,4 +271,53 @@ public class GridCollectionTest {
         assertEquals(5, pg100_90.getSquareCount());
 
     }
+
+    @Test
+    public void testGridRotationAndDisplacement() {
+        Point start = new Point(50.001, 30.001);
+        Point control1 = new Point(100.0, 150.0);
+        Point control2 = new Point(210.0, 160.0);
+        Point end = new Point(249.999, 90.001);
+
+        GridCollection gc = new GridCollection(1000);
+        Grid pg60 = new Grid(60.0d);
+        Grid pg60_30 = new Grid(3.0d * Math.PI / 18.0d, 60.0d);
+        Grid pg60_70 = new Grid(7.0d * Math.PI / 18.0d, 60.0d);
+        Grid pg60_x1 = new Grid(60.0d, 0.5d, 0.0d);
+        Grid pg60_30_x1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, 0.5d, 0.0d);
+        Grid pg60_70_x1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, 0.5d, 0.0d);
+        Grid pg60_y1 = new Grid(60.0d, 0.0d, 0.5d);
+        Grid pg60_30_y1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, 0.0d, 0.5d);
+        Grid pg60_70_y1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, 0.0d, 0.5d);
+        Grid pg60_x1_y1 = new Grid(60.0d, 0.5d, 0.5d);
+        Grid pg60_30_x1_y1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, 0.5d, 0.5d);
+        Grid pg60_70_x1_y1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, 0.5d, 0.5d);
+        gc.addGrid(pg60);
+        gc.addGrid(pg60_30);
+        gc.addGrid(pg60_70);
+        gc.addGrid(pg60_x1);
+        gc.addGrid(pg60_30_x1);
+        gc.addGrid(pg60_70_x1);
+        gc.addGrid(pg60_y1);
+        gc.addGrid(pg60_30_y1);
+        gc.addGrid(pg60_70_y1);
+        gc.addGrid(pg60_x1_y1);
+        gc.addGrid(pg60_30_x1_y1);
+        gc.addGrid(pg60_70_x1_y1);
+        ParametricCurve pc = new BezierCubic(start, control1, control2, end);
+        gc.handleCurve(pc);
+        assertEquals(8, pg60.getSquareCount());
+        assertEquals(6, pg60_30.getSquareCount());
+        assertEquals(8, pg60_70.getSquareCount());
+        assertEquals(7, pg60_x1.getSquareCount());
+        assertEquals(6, pg60_30_x1.getSquareCount());
+        assertEquals(6, pg60_70_x1.getSquareCount());
+        assertEquals(6, pg60_y1.getSquareCount());
+        assertEquals(7, pg60_30_y1.getSquareCount());
+        assertEquals(6, pg60_70_y1.getSquareCount());
+        assertEquals(5, pg60_x1_y1.getSquareCount());
+        assertEquals(7, pg60_30_x1_y1.getSquareCount());
+        assertEquals(7, pg60_70_x1_y1.getSquareCount());
+
+    }
 }
