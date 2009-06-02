@@ -19,34 +19,16 @@ public class CalculationResult {
 
     // using SortedMap means that the iterator returns these in order
     public Set<Double> getAvailableAngles() {
-        return Collections.unmodifiableSet(results.keySet());
+        return Collections.unmodifiableSet(grids.getAvailableAngles());
     }
 
     public Set<Double> getAvailableResolutions(double angle) {
-        return Collections.unmodifiableSet(_getMapForAngle(angle).keySet());
-    }
-
-    public SortedMap<Double, Statistics> getMapForAngle(double angle) {
-        return Collections.unmodifiableSortedMap(_getMapForAngle(angle));
+        return Collections.unmodifiableSet(grids.getAvailableResolutions(angle));
     }
 
     // TODO - handle the case where there are no such statistics
     public Statistics getStatistics(double angle, double resolution) {
-        return _getMapForAngle(angle).get(resolution);
-    }
-
-    void addResult(double angle, double resolution, int numberOfSquares) {
-        SortedMap<Double, Statistics> map = _getMapForAngle(angle);
-        map.put(resolution, new Statistics(numberOfSquares));
-    }
-
-    private SortedMap<Double, Statistics> _getMapForAngle(double angle) {
-        SortedMap<Double, Statistics> map = results.get(angle);
-        if (map == null) {
-            map = new TreeMap<Double, Statistics>();
-            results.put(angle, map);
-        }
-        return map;
+        return new Statistics(grids.setForResolution(resolution, grids.mapForAngle(angle)));
     }
 
     public String getFractalDimension() {
@@ -56,14 +38,22 @@ public class CalculationResult {
 
     public static class Statistics {
 
-        private final int numberOfSquares;
+        private final int[] squareCounts;
 
-        public Statistics(int numberOfSquares) {
-            this.numberOfSquares = numberOfSquares;
+        public Statistics(Set<Grid> grids) {
+            squareCounts = new int[grids.size()];
+            int i=0;
+            for (Grid grid : grids) {
+                squareCounts[i++] = grid.getSquareCount();
+            }
         }
 
-        public int getNumberOfSquares() {
-            return numberOfSquares;
+        public double getNumberOfSquares() {
+            double d=0.0;
+            for (int squareCount : squareCounts) {
+                d += (double) squareCount;
+            }
+            return d / (double) squareCounts.length;
         }
     }
 

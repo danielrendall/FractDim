@@ -29,7 +29,11 @@ public class GridCollection {
         grids.add(aGrid);
     }
 
-    private SortedMap<Double, Set<Grid>> mapForAngle(double angle) {
+    Set<Double> getAvailableAngles() {
+        return classifiedGrids.keySet();
+    }
+
+    SortedMap<Double, Set<Grid>> mapForAngle(double angle) {
         SortedMap<Double, Set<Grid>> theMap = classifiedGrids.get(angle);
         if (theMap == null) {
             theMap = new TreeMap<Double, Set<Grid>>();
@@ -38,7 +42,12 @@ public class GridCollection {
         return theMap;
     }
 
-    private Set<Grid> setForResolution(double resolution, SortedMap<Double, Set<Grid>> angleMap) {
+    Set<Double> getAvailableResolutions(double angle) {
+        return mapForAngle(angle).keySet();
+    }
+
+
+    Set<Grid> setForResolution(double resolution, SortedMap<Double, Set<Grid>> angleMap) {
         Set<Grid> theSet = angleMap.get(resolution);
         if (theSet == null) {
             theSet = new HashSet<Grid>();
@@ -46,7 +55,6 @@ public class GridCollection {
         }
         return theSet;
     }
-
     // Intended for testing with single grids
     @Deprecated
     void addGrid(Grid grid) {

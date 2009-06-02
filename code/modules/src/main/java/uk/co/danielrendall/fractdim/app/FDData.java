@@ -82,7 +82,7 @@ public class FDData extends RootData {
 
         private final Vector<Double> angleData;
         private final Vector<Double> resolutionData;
-        private final Vector<Integer> squaresData;
+        private final Vector<Double> squaresData;
 
         private final int numRows;
 
@@ -93,14 +93,14 @@ public class FDData extends RootData {
         public CalculationResultTableModel() {
             angleData = new Vector<Double>();
             resolutionData = new Vector<Double>();
-            squaresData = new Vector<Integer>();
+            squaresData = new Vector<Double>();
 
             for (Double angle : result.getAvailableAngles()) {
-                SortedMap<Double, CalculationResult.Statistics> map = result.getMapForAngle(angle);
-                for(Map.Entry<Double, CalculationResult.Statistics> entry : map.entrySet()) {
+
+                for(Double resolution : result.getAvailableResolutions(angle)) {
                     angleData.add(angle);
-                    resolutionData.add(entry.getKey());
-                    squaresData.add(entry.getValue().getNumberOfSquares());
+                    resolutionData.add(resolution);
+                    squaresData.add(result.getStatistics(angle, resolution).getNumberOfSquares());
                 }
             }
             numRows = angleData.size();

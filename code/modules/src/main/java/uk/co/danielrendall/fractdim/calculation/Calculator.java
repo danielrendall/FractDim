@@ -24,7 +24,7 @@ public class Calculator {
 
         TranscoderInput input = new TranscoderInput(svgDoc);
 
-        GridCollection grids = new GridCollection(1000);
+        GridCollection grids = GridCollection.createCollection(1000, 1, 10, 1, 4, 4);
 
 
         try {
