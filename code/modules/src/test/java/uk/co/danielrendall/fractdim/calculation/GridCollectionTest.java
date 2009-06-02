@@ -228,4 +228,47 @@ public class GridCollectionTest {
         assertEquals(5, pg100_x1_y1.getSquareCount());
 
     }
+
+    @Test
+    public void testGridRotation() {
+        Point start = new Point(50.001, 30.001);
+        Point control1 = new Point(100.0, 150.0);
+        Point control2 = new Point(210.0, 160.0);
+        Point end = new Point(249.999, 90.001);
+
+        GridCollection gc = new GridCollection(1000);
+        Grid pg100 = new Grid(100.0d);
+        Grid pg100_10 = new Grid(Math.PI / 18.0d, 100.0d);
+        Grid pg100_20 = new Grid(2.0d * Math.PI / 18.0d, 100.0d);
+        Grid pg100_30 = new Grid(3.0d * Math.PI / 18.0d, 100.0d);
+        Grid pg100_40 = new Grid(4.0d * Math.PI / 18.0d, 100.0d);
+        Grid pg100_50 = new Grid(5.0d * Math.PI / 18.0d, 100.0d);
+        Grid pg100_60 = new Grid(6.0d * Math.PI / 18.0d, 100.0d);
+        Grid pg100_70 = new Grid(7.0d * Math.PI / 18.0d, 100.0d);
+        Grid pg100_80 = new Grid(8.0d * Math.PI / 18.0d, 100.0d);
+        Grid pg100_90 = new Grid(9.0d * Math.PI / 18.0d, 100.0d);
+        gc.addGrid(pg100);
+        gc.addGrid(pg100_10);
+        gc.addGrid(pg100_20);
+        gc.addGrid(pg100_30);
+        gc.addGrid(pg100_40);
+        gc.addGrid(pg100_50);
+        gc.addGrid(pg100_60);
+        gc.addGrid(pg100_70);
+        gc.addGrid(pg100_80);
+        gc.addGrid(pg100_90);
+        ParametricCurve pc = new BezierCubic(start, control1, control2, end);
+        gc.handleCurve(pc);
+        assertEquals(5, pg100.getSquareCount());
+        assertEquals(4, pg100_10.getSquareCount());
+        assertEquals(4, pg100_20.getSquareCount());
+        assertEquals(4, pg100_30.getSquareCount());
+        assertEquals(4, pg100_40.getSquareCount());
+        assertEquals(5, pg100_50.getSquareCount());
+        assertEquals(4, pg100_60.getSquareCount());
+        assertEquals(4, pg100_70.getSquareCount());
+        assertEquals(5, pg100_80.getSquareCount());
+        assertEquals(5, pg100_90.getSquareCount());
+
+    }
 }
