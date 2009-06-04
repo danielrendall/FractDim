@@ -6,13 +6,15 @@ import java.util.*;
  * @author Daniel Rendall
  * @created 24-May-2009 10:28:34
  */
-public class CalculationResult {
+public class SquareCountingResult {
 
     // maps initial rotation angle to the results for that angle
     private final SortedMap<Double, SortedMap<Double, Statistics>> results;
     private final GridCollection grids;
 
-    CalculationResult(GridCollection grids) {
+    // makes sense to have this backed by the grids because we may want to display them
+    // in the SVG - contrast the approach with Statistics
+    SquareCountingResult(GridCollection grids) {
         results = new TreeMap<Double, SortedMap<Double, Statistics>>();
         this.grids = grids;
     }

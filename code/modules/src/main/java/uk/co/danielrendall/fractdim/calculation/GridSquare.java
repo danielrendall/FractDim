@@ -17,12 +17,15 @@ class GridSquare implements Comparable {
     static final int BELOW_LEFT = 7;
     static final int LEFT = 8;
 
+    // maybe better to have a factory method which returns flyweight squares?
+    public static int createCount = 0;
 
     public final int xIndex, yIndex;
 
     GridSquare(int xIndex, int yIndex) {
         this.xIndex = xIndex;
         this.yIndex = yIndex;
+        createCount++;
     }
 
     @Override

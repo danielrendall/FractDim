@@ -5,8 +5,8 @@ import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import uk.co.danielrendall.fractdim.calculation.Calculator;
-import uk.co.danielrendall.fractdim.calculation.CalculationResult;
+import uk.co.danielrendall.fractdim.calculation.SquareCounter;
+import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.io.File;
@@ -29,15 +29,15 @@ public class FDRunner {
 
             SVGDocument doc = (SVGDocument) f.createDocument(file.toURI().toString());
 
-            Calculator calc = new Calculator();
+            SquareCounter calc = new SquareCounter(doc);
 
-            CalculationResult result = calc.process(doc);
+            SquareCountingResult result = calc.process();
 
             // cheat - only one angle at the moment
             double angle = result.getAvailableAngles().iterator().next();
 
             for (Double resolution : result.getAvailableResolutions(angle)) {
-                CalculationResult.Statistics stats = result.getStatistics(angle, resolution);
+                SquareCountingResult.Statistics stats = result.getStatistics(angle, resolution);
                 Log.gui.debug("Resolution: " + resolution + " Number of squares: " + stats.getNumberOfSquares());
             }
 

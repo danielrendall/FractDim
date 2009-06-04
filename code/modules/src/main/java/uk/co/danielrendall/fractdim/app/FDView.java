@@ -23,7 +23,7 @@ public class FDView extends SwingRootView {
         setLayout(new BorderLayout());
 
         tabbedPane.addTab("SVG", new JScrollPane(svgCanvas));
-        tabbedPane.addTab("Results", new JScrollPane(resultTable));
+//        tabbedPane.addTab("Results", new JScrollPane(resultTable));
         tabbedPane.setSelectedIndex(0);
 
         add(tabbedPane, BorderLayout.CENTER);
@@ -49,6 +49,6 @@ public class FDView extends SwingRootView {
     public void syncWithData() {
         FDData theData = ((FDData) getDocument().getData());
         svgCanvas.setDocument(theData.getSvgDoc());
-        resultTable.setModel(theData.getTableModel());
+//        resultTable.setModel(theData.getTableModel());
     }
 }

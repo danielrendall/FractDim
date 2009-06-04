@@ -51,4 +51,15 @@ public class Line implements ParametricCurve {
     public String toString() {
         return String.format("Line from %s to %s", start, end);
     }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return obj == this || (((Line) obj).start.equals(this.start) && ((Line) obj).end.equals(this.end));
+    }
+
+    @Override
+    public int hashCode() {
+        return start.hashCode() ^ end.hashCode();
+    }
+
 }

@@ -27,8 +27,7 @@ public class GridCollectionTest {
         GridCollection gc = new GridCollection(1000);
         Grid pg = new Grid(100.0d);
         gc.addGrid(pg);
-        ParametricCurve pc = new Line(start, end);
-        gc.handleCurve(pc);
+        gc.handleCurve(new Line(start, end));
         assertEquals(3, pg.getSquareCount());
     }
 
@@ -147,8 +146,7 @@ public class GridCollectionTest {
         gc.addGrid(pg40);
         gc.addGrid(pg20);
         gc.addGrid(pg10);
-        ParametricCurve pc = new Line(start, end);
-        gc.handleCurve(pc);
+        gc.handleCurve(new Line(start, end));
         assertEquals(3, pg100.getSquareCount());
         assertEquals(5, pg80.getSquareCount());
         assertEquals(6, pg60.getSquareCount());
@@ -177,8 +175,7 @@ public class GridCollectionTest {
         gc.addGrid(pg40);
         gc.addGrid(pg20);
         gc.addGrid(pg10);
-        ParametricCurve pc = new BezierCubic(start, control1, control2, end);
-        gc.handleCurve(pc);
+        gc.handleCurve(new BezierCubic(start, control1, control2, end));
         assertEquals(5, pg100.getSquareCount());
         assertEquals(5, pg80.getSquareCount());
         assertEquals(8, pg60.getSquareCount());
@@ -219,8 +216,7 @@ public class GridCollectionTest {
         gc.addGrid(pg100_x1);
         gc.addGrid(pg100_y1);
         gc.addGrid(pg100_x1_y1);
-        ParametricCurve pc = new Line(start, end);
-        gc.handleCurve(pc);
+        gc.handleCurve(new Line(start, end));
 
         assertEquals(3, pg100.getSquareCount());
         assertEquals(4, pg100_x1.getSquareCount());
@@ -257,8 +253,7 @@ public class GridCollectionTest {
         gc.addGrid(pg100_70);
         gc.addGrid(pg100_80);
         gc.addGrid(pg100_90);
-        ParametricCurve pc = new BezierCubic(start, control1, control2, end);
-        gc.handleCurve(pc);
+        gc.handleCurve(new BezierCubic(start, control1, control2, end));
         assertEquals(5, pg100.getSquareCount());
         assertEquals(4, pg100_10.getSquareCount());
         assertEquals(4, pg100_20.getSquareCount());
@@ -304,8 +299,7 @@ public class GridCollectionTest {
         gc.addGrid(pg60_x1_y1);
         gc.addGrid(pg60_30_x1_y1);
         gc.addGrid(pg60_70_x1_y1);
-        ParametricCurve pc = new BezierCubic(start, control1, control2, end);
-        gc.handleCurve(pc);
+        gc.handleCurve(new BezierCubic(start, control1, control2, end));
         assertEquals(8, pg60.getSquareCount());
         assertEquals(6, pg60_30.getSquareCount());
         assertEquals(8, pg60_70.getSquareCount());

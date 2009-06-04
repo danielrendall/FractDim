@@ -1,8 +1,8 @@
-package uk.co.danielrendall.fractdim.calculation;
+package uk.co.danielrendall.fractdim.svgbridge;
 
 import org.apache.batik.transcoder.*;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import uk.co.danielrendall.fractdim.calculation.GridCollection;
 
 /**
  * @author Daniel Rendall
@@ -10,18 +10,20 @@ import org.w3c.dom.Document;
  */
 public class FDTranscoder extends SVGAbstractTranscoder {
 
-    private GridCollection grids;
+    private final FDGraphics2D graphics;
 
-    public void transcode(TranscoderInput input, TranscoderOutput output, GridCollection grids) throws TranscoderException {
-        this.grids = grids;
+    public FDTranscoder(FDGraphics2D graphics) {
+        this.graphics = graphics;
+    }
+
+    public void transcode(TranscoderInput input, TranscoderOutput output) throws TranscoderException {
         super.transcode(input, output);
     }
 
     @Override
     protected void transcode(Document document, String uri, TranscoderOutput output) throws TranscoderException {
         super.transcode(document, uri, output);
-        FDGraphics2D g2d = new FDGraphics2D(grids);
-        root.paint(g2d);
+        root.paint(graphics);
     }
 
     

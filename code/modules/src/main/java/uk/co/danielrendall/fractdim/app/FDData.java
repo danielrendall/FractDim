@@ -9,13 +9,12 @@ import org.w3c.dom.svg.SVGDocument;
 
 import java.awt.print.PageFormat;
 import java.awt.*;
-import java.util.Map;
-import java.util.SortedMap;
 import java.util.Vector;
 
-import uk.co.danielrendall.fractdim.calculation.CalculationResult;
-import uk.co.danielrendall.fractdim.calculation.Calculator;
+import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
+import uk.co.danielrendall.fractdim.calculation.SquareCounter;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.app.datamodel.CombinedModel;
 
 import javax.swing.table.TableModel;
 import javax.swing.table.AbstractTableModel;
@@ -27,10 +26,8 @@ import javax.swing.table.AbstractTableModel;
 public class FDData extends RootData {
 
     private final Printer printer = new FractDimPrinter();
-    private final Calculator calculator = new Calculator();
 
-    private SVGDocument svgDoc;
-    private CalculationResult result;
+    private CombinedModel model;
 
 
     public Printer getPrinter() {
@@ -38,17 +35,16 @@ public class FDData extends RootData {
     }
 
     void setSvgDoc(SVGDocument svgDoc) {
-        this.svgDoc = svgDoc;
-        updateFractalDimension();
+        model = new CombinedModel(svgDoc);
     }
 
     Document getSvgDoc() {
-        return svgDoc;
+        return model.getSvgDoc();
     }
 
     private void updateFractalDimension() {
         // todo - consider running this in a separate thread...
-        result = calculator.process(svgDoc);
+//        result = squareCounter.process(svgDoc);
     }
 
     private void prettyPrint(Node aNode, int depth) {
@@ -59,12 +55,8 @@ public class FDData extends RootData {
         }
     }
 
-    String getFractalDimension() {
-        return result.getFractalDimension();
-    }
-
     public TableModel getTableModel() {
-        return new CalculationResultTableModel();
+        return model.getResultTableModel();
     }
 
     class FractDimPrinter implements Printer {
@@ -78,59 +70,4 @@ public class FDData extends RootData {
         }
     }
 
-    class CalculationResultTableModel extends AbstractTableModel {
-
-        private final Vector<Double> angleData;
-        private final Vector<Double> resolutionData;
-        private final Vector<Double> squaresData;
-
-        private final int numRows;
-
-        private final String[] columnNames = new String[] {
-                "Angle", "Resolution", "Square Count"
-        };
-
-        public CalculationResultTableModel() {
-            angleData = new Vector<Double>();
-            resolutionData = new Vector<Double>();
-            squaresData = new Vector<Double>();
-
-            for (Double angle : result.getAvailableAngles()) {
-
-                for(Double resolution : result.getAvailableResolutions(angle)) {
-                    angleData.add(angle);
-                    resolutionData.add(resolution);
-                    squaresData.add(result.getStatistics(angle, resolution).getNumberOfSquares());
-                }
-            }
-            numRows = angleData.size();
-        }
-
-        public int getRowCount() {
-            return numRows;
-        }
-
-        public int getColumnCount() {
-            return 3;
-        }
-
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            switch (columnIndex) {
-                case 0:
-                    return angleData.get(rowIndex);
-                case 1:
-                    return resolutionData.get(rowIndex);
-                case 2:
-                    return squaresData.get(rowIndex);
-                default:
-                    return "FAIL";
-            }
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnNames[column];
-        }
-
-    }
   }

@@ -1,4 +1,4 @@
-package uk.co.danielrendall.fractdim.calculation;
+package uk.co.danielrendall.fractdim.svgbridge;
 
 import org.apache.batik.ext.awt.g2d.DefaultGraphics2D;
 import org.apache.batik.ext.awt.g2d.GraphicContext;
@@ -14,22 +14,14 @@ import uk.co.danielrendall.fractdim.logging.Log;
  * @author Daniel Rendall
  * @created 20-May-2009 23:27:39
  */
-public class FDGraphics2D extends DefaultGraphics2D {
+public abstract class FDGraphics2D extends DefaultGraphics2D {
 
-    private Point start = Point.ORIGIN;
+    protected Point start = Point.ORIGIN;
     private final double[] pathSegment = new double[6];
 
-    private GridCollection grids;
-
-    public FDGraphics2D(FDGraphics2D g) {
-        super(g);
-        this.grids = g.grids;
-    }
-
-    public FDGraphics2D(GridCollection grids) {
+    public FDGraphics2D() {
         super(true);
         gc = new GraphicContext();
-        this.grids = grids;
     }
 
     @Override
@@ -47,23 +39,25 @@ public class FDGraphics2D extends DefaultGraphics2D {
                     break;
                 case PathIterator.SEG_LINETO:
                     Point end = new Point(pathSegment[0], pathSegment[1]);
-                    grids.handleCurve(new Line(start, end));
+                    handleCurve(new Line(start, end));
                     this.start = end;
                     break;
                 case PathIterator.SEG_QUADTO:
                     Point end1 = new Point(pathSegment[2], pathSegment[3]);
-                    grids.handleCurve(new BezierQuad(start, new Point(pathSegment[0], pathSegment[1]), end1));
+                    handleCurve(new BezierQuad(start, new Point(pathSegment[0], pathSegment[1]), end1));
                     this.start = end1;
                     break;
                 case PathIterator.SEG_CUBICTO:
                     Point end2 = new Point(pathSegment[4], pathSegment[5]);
-                    grids.handleCurve(new BezierCubic(start, new Point( pathSegment[0], pathSegment[1]), new Point(pathSegment[2], pathSegment[3]), end2));
+                    handleCurve(new BezierCubic(start, new Point( pathSegment[0], pathSegment[1]), new Point(pathSegment[2], pathSegment[3]), end2));
                     this.start = end2;
                     break;
             }
             pit.next();
         }
     }
+
+    public abstract void handleCurve(ParametricCurve curve);
 
     // ignore for now - treat as draw
     @Override
@@ -74,12 +68,13 @@ public class FDGraphics2D extends DefaultGraphics2D {
 
     @Override
     public void dispose() {
-        grids = null;
         gc = null;
     }
 
+    // I have no idea why it's necessary to override this, but if you don't then the method in the superclass
+    // returns a new Graphics2D.
     public Graphics create(){
-        return new FDGraphics2D(this);
+        return this;
     }
 
 }

@@ -24,6 +24,10 @@ public final class Vec implements XY {
         return rep.mod();
     }
 
+    public final double angle() {
+        return rep.arg();
+    }
+
     public final Vec add(Vec other) {
         return new Vec(rep.add(other.rep));
     }
@@ -68,4 +72,23 @@ public final class Vec implements XY {
     public final double y() {
         return rep.y;
     }
+
+    public Vec normalize() {
+        return new Vec(Complex.unit(rep.arg()));
+    }
+
+    public double dotProduct(Vec other) {
+        return rep.x * other.rep.x + rep.y * other.rep.y;
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return obj == this || ((Vec) obj).rep.equals(this.rep);
+    }
+
+    @Override
+    public int hashCode() {
+        return rep.hashCode();
+    }
+    
 }

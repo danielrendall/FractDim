@@ -1,8 +1,8 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import uk.co.danielrendall.fractdim.geom.ParametricCurve;
-import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.fractdim.geom.*;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
 
 import java.util.*;
 
@@ -10,7 +10,7 @@ import java.util.*;
  * @author Daniel Rendall
  * @created 31-May-2009 09:34:20
  */
-public class GridCollection {
+public class GridCollection extends FDGraphics2D {
 
     private final Set<Grid> grids;
     private final int maxDepth;
@@ -61,7 +61,7 @@ public class GridCollection {
         grids.add(grid);
     }
 
-    void handleCurve(ParametricCurve curve) {
+    public void handleCurve(ParametricCurve curve) {
         evaluateBetween(curve, 0, 0.0d, 1.0d);
     }
 

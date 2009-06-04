@@ -49,11 +49,11 @@ public class Point implements XY {
 
     @Override
     public final boolean equals(Object obj) {
-        return ((Point) obj).rep.equals(this.rep);
+        return obj == this || ((Point) obj).rep.equals(this.rep);
     }
 
     @Override
     public int hashCode() {
-        return (int)(10000*rep.x + rep.y);
+        return rep.hashCode();
     }
 }

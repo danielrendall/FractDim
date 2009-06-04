@@ -105,7 +105,12 @@ public final class Complex implements XY {
     @Override
     public final boolean equals(Object obj) {
         Complex other = (Complex) obj;
-        return other.x == this.x && other.y == this.y;
+        return other == this || (other.x == this.x && other.y == this.y);
+    }
+
+    @Override
+    public int hashCode() {
+        return new Double(x).hashCode() ^ new Double(y).hashCode();
     }
 
     public final double x() {

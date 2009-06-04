@@ -5,33 +5,34 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.TranscoderException;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
 
 /**
  * @author Daniel Rendall
  * @created 24-May-2009 11:00:39
  */
-public class Calculator {
+public class SquareCounter  {
 
-    private final FDTranscoder transcoder;
-    private final TranscoderOutput output;
+    private final SVGDocument svgDoc;
 
-    public Calculator() {
-        transcoder = new FDTranscoder();
-        output = new TranscoderOutput();
+    public SquareCounter(SVGDocument svgDoc) {
+        this.svgDoc = svgDoc;
     }
 
-    public CalculationResult process(SVGDocument svgDoc) {
+    public SquareCountingResult process() {
 
         TranscoderInput input = new TranscoderInput(svgDoc);
 
         GridCollection grids = GridCollection.createCollection(1000, 1, 10, 1, 4, 4);
+        FDTranscoder transcoder = new FDTranscoder(grids);
 
 
         try {
-            transcoder.transcode(input, output, grids);
+            transcoder.transcode(input, new TranscoderOutput());
         } catch (TranscoderException e) {
             Log.app.warn("Couldn't transcode at - " + e.getMessage());
         }
-        return new CalculationResult(grids);
+        Log.misc.info("There were " + GridSquare.createCount + " squares created");
+        return new SquareCountingResult(grids);
     }
 }
