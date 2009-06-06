@@ -1,0 +1,39 @@
+package uk.co.danielrendall.fractdim.app;
+
+import uk.co.danielrendall.fractdim.logging.Log;
+
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: daniel
+ * Date: 06-Jun-2009
+ * Time: 09:23:41
+ * To change this template use File | Settings | File Templates.
+ */
+public abstract class FDTaskSupport implements FDTask {
+
+    private boolean shouldStop = false;
+    private boolean isActive = true;
+
+    public void stop() {
+        if (shouldStop) {
+            Log.thread.warn("Task " + getName() + " asked to stop more than once");
+        }
+        shouldStop = true;
+    }
+
+    protected boolean shouldStop() {
+        return shouldStop;
+    }
+
+    public final void run() {
+        doRun();
+        isActive = false;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    protected abstract void doRun();
+}

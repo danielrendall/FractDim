@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 public final class Log {
 
     public final static Logger gui = Logger.getLogger("fractdim.gui");
+    public final static Logger thread = Logger.getLogger("fractdim.thread");
     public final static Logger app = Logger.getLogger("fractdim.app");
     public final static Logger misc = Logger.getLogger("fractdim.misc");
     public final static Logger test = Logger.getLogger("fractdim.test");

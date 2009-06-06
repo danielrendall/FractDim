@@ -30,7 +30,7 @@ public class FDCommands extends SwingDefaultCommands {
         }
 
         public KeyStroke getAccelerator() {
-            return KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N,
+            return KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G,
                     java.awt.event.InputEvent.CTRL_MASK);
         }
     }

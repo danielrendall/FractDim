@@ -16,7 +16,7 @@ import uk.co.danielrendall.fractdim.geom.Point;
 public class FractDim extends Application {
 
     private static final Logger log = Logger.getLogger(FractDim.class);
-    
+
 
     public static void main(String[] args) throws Exception {
         System.out.println("Fractal Dimension Calculator");
@@ -63,12 +63,19 @@ public class FractDim extends Application {
         return new FDView();
     }
 
+
+    @Override
+    public boolean close() {
+        // do some tidying
+        return super.close();    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
     public Document generateNewFractal() {
         setStatus(tr("Generating..."));
         setBusy(true);
 
         Generator gen = new Generator();
-        SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 0);
+        SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 4);
 
         Document doc = Document.createNew();
         documents.add(doc);
@@ -80,4 +87,6 @@ public class FractDim extends Application {
         return doc;
 
     }
+
+
 }
