@@ -1,16 +1,15 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.bs.mdi.*;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.bs.mdi.*;
 import org.w3c.dom.svg.SVGDocument;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.xml.transform.*;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-
-import uk.co.danielrendall.fractdim.logging.Log;
 
 /**
  * @author Daniel Rendall

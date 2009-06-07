@@ -1,14 +1,13 @@
 package uk.co.danielrendall.fractdim.app;
 
+import org.apache.log4j.Logger;
 import org.bs.mdi.*;
 import org.w3c.dom.svg.SVGDocument;
-import org.apache.log4j.Logger;
-
-import javax.swing.*;
-
 import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
+
+import javax.swing.*;
 
 /**
  * Hello world!

@@ -1,10 +1,10 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.w3c.dom.svg.SVGDocument;
+import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.calculation.SquareCounter;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.logging.Log;

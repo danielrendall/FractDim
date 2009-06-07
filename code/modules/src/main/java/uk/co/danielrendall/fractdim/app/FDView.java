@@ -1,11 +1,10 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.bs.mdi.swing.SwingRootView;
-import org.bs.mdi.Action;
 import org.apache.batik.swing.JSVGCanvas;
+import org.bs.mdi.Action;
+import org.bs.mdi.swing.SwingRootView;
 
 import javax.swing.*;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 
 /**

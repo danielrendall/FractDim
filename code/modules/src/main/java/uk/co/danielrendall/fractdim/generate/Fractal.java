@@ -3,10 +3,10 @@ package uk.co.danielrendall.fractdim.generate;
 import uk.co.danielrendall.fractdim.geom.Line;
 import uk.co.danielrendall.fractdim.geom.Point;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Daniel Rendall

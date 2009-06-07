@@ -1,9 +1,8 @@
 package uk.co.danielrendall.fractdim.app.datamodel;
 
-import org.w3c.dom.svg.SVGDocument;
-import org.bs.mdi.Application;
-import org.bs.mdi.Task;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.bs.mdi.Application;
+import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.StatisticsCalculator;
@@ -11,7 +10,6 @@ import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
-import javax.swing.*;
 import java.util.Vector;
 
 /**

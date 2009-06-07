@@ -5,7 +5,6 @@ import uk.co.danielrendall.fractdim.generate.fractals.Messy;
 import uk.co.danielrendall.fractdim.generate.fractals.SquareKoch;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * @author Daniel Rendall

@@ -1,15 +1,14 @@
 package uk.co.danielrendall.fractdim.generate;
 
-import uk.co.danielrendall.fractdim.geom.Point;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-
+import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
-import org.apache.batik.dom.svg.SVGDOMImplementation;
+import uk.co.danielrendall.fractdim.geom.Point;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Daniel Rendall

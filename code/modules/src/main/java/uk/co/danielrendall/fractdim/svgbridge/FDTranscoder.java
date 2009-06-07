@@ -1,8 +1,10 @@
 package uk.co.danielrendall.fractdim.svgbridge;
 
-import org.apache.batik.transcoder.*;
+import org.apache.batik.transcoder.SVGAbstractTranscoder;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
 import org.w3c.dom.Document;
-import uk.co.danielrendall.fractdim.calculation.GridCollection;
 
 /**
  * @author Daniel Rendall

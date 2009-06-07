@@ -1,7 +1,7 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.bs.mdi.ActionConverter;
 import org.bs.mdi.Action;
+import org.bs.mdi.ActionConverter;
 
 import java.awt.datatransfer.Transferable;
 

@@ -1,6 +1,9 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author Daniel Rendall

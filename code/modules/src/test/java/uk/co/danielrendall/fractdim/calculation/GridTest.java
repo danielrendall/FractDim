@@ -1,13 +1,9 @@
 package uk.co.danielrendall.fractdim.calculation;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import uk.co.danielrendall.fractdim.geom.ParametricCurve;
-import uk.co.danielrendall.fractdim.geom.Line;
 import uk.co.danielrendall.fractdim.geom.Point;
-import static org.junit.Assert.*;
-import org.apache.log4j.Logger;
-
-import java.util.Iterator;
 
 /**
  * @author Daniel Rendall

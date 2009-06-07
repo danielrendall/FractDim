@@ -1,9 +1,9 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.bs.mdi.swing.SwingDefaultCommands;
+import org.bs.mdi.Application;
 import org.bs.mdi.swing.SwingCommand;
 import org.bs.mdi.swing.SwingCommandAdapter;
-import org.bs.mdi.Application;
+import org.bs.mdi.swing.SwingDefaultCommands;
 
 import javax.swing.*;
 

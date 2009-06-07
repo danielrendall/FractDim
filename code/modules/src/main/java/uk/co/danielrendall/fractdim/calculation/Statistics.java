@@ -3,7 +3,6 @@ package uk.co.danielrendall.fractdim.calculation;
 import uk.co.danielrendall.fractdim.geom.Line;
 
 import java.util.Set;
-import java.util.Iterator;
 
 /**
  * @author Daniel Rendall

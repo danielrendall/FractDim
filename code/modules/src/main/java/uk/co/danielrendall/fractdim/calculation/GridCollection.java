@@ -1,10 +1,14 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import uk.co.danielrendall.fractdim.geom.*;
+import uk.co.danielrendall.fractdim.geom.ParametricCurve;
+import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author Daniel Rendall

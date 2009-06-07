@@ -1,14 +1,11 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import org.junit.Test;
-import org.junit.Ignore;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.apache.batik.ext.awt.geom.Cubic;
-import uk.co.danielrendall.fractdim.geom.Point;
-import uk.co.danielrendall.fractdim.geom.ParametricCurve;
-import uk.co.danielrendall.fractdim.geom.Line;
+import org.junit.Test;
 import uk.co.danielrendall.fractdim.geom.BezierCubic;
+import uk.co.danielrendall.fractdim.geom.Line;
+import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.util.Iterator;

@@ -1,19 +1,19 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import org.w3c.dom.svg.SVGDocument;
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.TranscoderException;
 import org.bs.mdi.Task;
-import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
-import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
-import uk.co.danielrendall.fractdim.logging.Log;
-import uk.co.danielrendall.fractdim.geom.ParametricCurve;
+import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.geom.Line;
+import uk.co.danielrendall.fractdim.geom.ParametricCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
+import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Daniel Rendall

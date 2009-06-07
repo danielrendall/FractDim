@@ -1,7 +1,7 @@
 package uk.co.danielrendall.fractdim.geom;
 
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * @author Daniel Rendall

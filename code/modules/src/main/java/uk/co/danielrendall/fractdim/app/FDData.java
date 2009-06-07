@@ -1,23 +1,17 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.bs.mdi.RootData;
 import org.bs.mdi.Printer;
+import org.bs.mdi.RootData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
-
-import java.awt.print.PageFormat;
-import java.awt.*;
-import java.util.Vector;
-
-import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
-import uk.co.danielrendall.fractdim.calculation.SquareCounter;
-import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.app.datamodel.CombinedModel;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.table.TableModel;
-import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.awt.print.PageFormat;
 
 /**
  * @author Daniel Rendall

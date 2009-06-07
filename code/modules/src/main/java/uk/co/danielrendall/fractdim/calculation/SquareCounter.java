@@ -1,9 +1,9 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import org.w3c.dom.svg.SVGDocument;
+import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.TranscoderException;
+import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
 

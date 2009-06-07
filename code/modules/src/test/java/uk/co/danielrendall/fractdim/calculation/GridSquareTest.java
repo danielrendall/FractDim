@@ -1,10 +1,7 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import uk.co.danielrendall.fractdim.geom.Point;
-import uk.co.danielrendall.fractdim.geom.ParametricCurve;
-import uk.co.danielrendall.fractdim.geom.Line;
 
 /**
  * @author Daniel Rendall

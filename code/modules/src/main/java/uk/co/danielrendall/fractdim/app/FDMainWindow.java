@@ -1,12 +1,11 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.bs.mdi.swing.*;
-import org.apache.log4j.Logger;
+import org.bs.mdi.swing.SwingCommandButton;
+import org.bs.mdi.swing.SwingDefaultCommands;
+import org.bs.mdi.swing.SwingMainWindow;
 
 import javax.swing.*;
 import java.awt.*;
-
-import uk.co.danielrendall.fractdim.logging.Log;
 
 /**
  * @author Daniel Rendall

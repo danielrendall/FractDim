@@ -4,10 +4,10 @@ import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.geom.Vec;
 import uk.co.danielrendall.fractdim.logging.Log;
 
-import java.util.Iterator;
-import java.util.TreeSet;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeSet;
 
 /**
  * @author Daniel Rendall

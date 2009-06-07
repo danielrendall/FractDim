@@ -1,9 +1,6 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.bs.mdi.Resources;
 import org.bs.mdi.DefaultResources;
-
-import javax.swing.*;
 
 /**
  * @author Daniel Rendall

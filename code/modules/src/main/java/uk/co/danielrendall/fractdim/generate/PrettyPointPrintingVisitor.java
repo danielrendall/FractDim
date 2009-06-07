@@ -2,8 +2,6 @@ package uk.co.danielrendall.fractdim.generate;
 
 import uk.co.danielrendall.fractdim.geom.Point;
 
-import java.util.List;
-import java.util.LinkedList;
 import java.util.Iterator;
 
 /**

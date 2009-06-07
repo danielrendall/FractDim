@@ -1,20 +1,20 @@
 package uk.co.danielrendall.fractdim.generate;
 
+import org.apache.commons.lang.text.StrTokenizer;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.geom.Line;
 import uk.co.danielrendall.fractdim.geom.Point;
-import org.w3c.dom.svg.SVGDocument;
-import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.CmdLineException;
-import org.apache.commons.lang.text.StrTokenizer;
 
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 /**
  * @author Daniel Rendall
