@@ -13,22 +13,27 @@ import uk.co.danielrendall.fractdim.logging.Log;
 public abstract class FDTaskSupport implements FDTask {
 
     private boolean shouldStop = false;
-    private boolean isActive = true;
+    private volatile boolean isActive = true;
 
     public void stop() {
+        Log.thread.info("Task " + getName() + " asked to stop");
         if (shouldStop) {
             Log.thread.warn("Task " + getName() + " asked to stop more than once");
         }
         shouldStop = true;
     }
 
-    protected boolean shouldStop() {
+    protected final boolean shouldStop() {
         return shouldStop;
     }
 
     public final void run() {
-        doRun();
-        isActive = false;
+        try {
+            doRun();
+        } finally {
+            isActive = false;
+            Log.thread.info("Task " + getName() + " exiting run method");
+        }
     }
 
     public boolean isActive() {

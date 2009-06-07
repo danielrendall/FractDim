@@ -5,6 +5,7 @@ import uk.co.danielrendall.fractdim.logging.Log;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collections;
 
 
 /**
@@ -20,9 +21,11 @@ public class FDThreadManager extends Thread {
     private boolean okToAddTasks = true;
     private boolean shouldStop = false;
     private final long waitTime;
+    private boolean isActive = true;
 
     public FDThreadManager(int pollingFrequency) {
-        threads = new ArrayList<FDThread>();
+        threads = Collections.synchronizedList(new ArrayList<FDThread>());
+        new ArrayList<FDThread>();
         waitTime = (long) 1000 / pollingFrequency;
     }
 
@@ -35,45 +38,58 @@ public class FDThreadManager extends Thread {
     }
 
     public void run() {
-        while (!shouldStop) {
-            synchronized (this) {
-                int threadsBefore = threads.size();
-                for (Iterator<FDThread> it = threads.iterator(); it.hasNext();) {
-                    FDThread thread = it.next();
-                    // TODO - can I use isAlive for this?
-                    if (thread.isFinished()) {
-                        try {
-                            thread.join(1000L);
-                            it.remove();
-                        } catch (InterruptedException e) {
-                            Log.thread.warn("Interrupted while joining a thread");
-                        }
-                    }
-                }
-                int threadsAfter = threads.size();
-                if (threadsAfter != threadsBefore) {
-                    Log.thread.debug("Thread count was " + threadsBefore + " and is now " + threadsAfter);
-                }
-                try {
-//                    Log.thread.debug("Waiting");
-                    wait(waitTime);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        int size = 0;
+        while (!shouldStop || (size = threads.size()) > 0) {
+            if (shouldStop) {
+                Log.thread.debug("Asked to stop - thread count is " + size);
+            }
+            reapThreads();
+            try {
+                sleep(waitTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
         }
+        isActive = false;
+    }
+
+    private synchronized void reapThreads() {
+        int threadsBefore = threads.size();
+        Log.thread.debug("List has " + threadsBefore + " threads");
+        for (Iterator<FDThread> it = threads.iterator(); it.hasNext();) {
+            FDThread thread = it.next();
+            // TODO - can I use isAlive for this?
+            if (thread.isFinished()) {
+                try {
+                    thread.join();
+                    Log.thread.info("Joined thread " + thread.getName());
+                    it.remove();
+                } catch (InterruptedException e) {
+                    Log.thread.warn("Interrupted while joining a thread");
+                }
+            } else {
+                Log.thread.debug("Thread " + thread.getName() + " not finished");
+            }
+        }
+        int threadsAfter = threads.size();
+        if (threadsAfter != threadsBefore) {
+            Log.thread.debug("Thread count was " + threadsBefore + " and is now " + threadsAfter);
+        }
+        Log.thread.debug("List now has " + threadsAfter + " threads");
     }
 
     public synchronized void addTask(FDTask task) {
         if (okToAddTasks) {
             FDThread newThread = new FDThread(task);
             threads.add(newThread);
-            Log.thread.debug("Starting thread at index " + threads.indexOf(newThread) + " for " + task.getName());
             newThread.start();
+            Log.thread.info("Created thread " + newThread.getName() + ", final threadcount is " + threads.size());
         }
     }
 
-
+    public boolean isActive() {
+        return isActive;
+    }
 
     private class FDThread extends Thread {
 
@@ -83,6 +99,7 @@ public class FDThreadManager extends Thread {
             super(task);
             // not sure if I can get a handle to the Runnable...
             this.task = task;
+            setName(task.getName());
         }
 
         public void run() {
@@ -94,7 +111,8 @@ public class FDThreadManager extends Thread {
         }
 
         boolean isFinished() {
-            return task.isActive();
+            return !task.isActive();
         }
+
     }
 }

@@ -15,16 +15,30 @@ public class FDThreadManagerTest {
 
     @Test
     public void testThreadManager() {
-        FDThreadManager manager = new FDThreadManager(1000);
+        FDThreadManager manager = new FDThreadManager(250);
         manager.start();
         for (int i = 0; i < 10; i++) {
             FDTask task = new CountingTask(i, 1000 * i);
             manager.addTask(task);
         }
         try {
-            Thread.sleep(10000);
-            manager.signalStop();
-            manager.join(10000L);
+            Thread.sleep(5000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        manager.signalStop();
+        while (manager.isAlive()) {
+            try {
+//                Log.test.debug("Waiting for manager to exit");
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+
+        try {
+            Log.test.debug("Waiting to join manager");
+            manager.join();
         } catch (InterruptedException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -48,10 +62,6 @@ public class FDThreadManagerTest {
             return "Counting task " + taskNum + " counting to " + countTo;
         }
 
-        public boolean isActive() {
-            return false;  //To change body of implemented methods use File | Settings | File Templates.
-        }
-
         public int getMinimumProgress() {
             return 0;
         }
@@ -65,14 +75,14 @@ public class FDThreadManagerTest {
         }
 
         public void doRun() {
-            while (currentNum < countTo) {
+            while (currentNum < countTo && !shouldStop()) {
                 currentNum++;
                 try {
-                    Thread.sleep(11 - taskNum);
+                    Thread.sleep((long)(Math.random() * 8L));
                 } catch (InterruptedException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-//                Log.test.debug(getName() + " at " + currentNum);
+                Log.test.debug(getName() + " at " + currentNum);
             }
             Log.test.debug("Finished " + getName());
         }
