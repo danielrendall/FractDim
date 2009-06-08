@@ -6,8 +6,13 @@ import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
 
 import javax.swing.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Hello world!
@@ -15,6 +20,16 @@ import javax.swing.*;
 public class FractDim extends Application {
 
     private static final Logger log = Logger.getLogger(FractDim.class);
+
+    private final static int DOCUMENT_GENERATED = 256;
+
+    private final Map<Document, List<SwingWorker<?, ?>>> workersForDoc;
+
+    public FractDim() {
+        super();
+//        threadManager = new FDThreadManager(5);
+        workersForDoc = new HashMap<Document, List<SwingWorker<?,?>>>();
+    }
 
 
     public static void main(String[] args) throws Exception {
@@ -62,6 +77,14 @@ public class FractDim extends Application {
         return new FDView();
     }
 
+    protected synchronized List<SwingWorker<?,?>> getWorkersForDocument(Document doc) {
+        List<SwingWorker<?,?>> workers = workersForDoc.get(doc);
+        if (workers == null) {
+            workers = new LinkedList<SwingWorker<?,?>>();
+            workersForDoc.put(doc, workers);
+        }
+        return workers;
+    }
 
     @Override
     public boolean close() {
@@ -83,9 +106,24 @@ public class FractDim extends Application {
 
         setStatus(tr("Ready"));
         setBusy(false);
+        Application.getMessageDispatcher().dispatch(
+                doc, FractDim.DOCUMENT_GENERATED, doc);
+
         return doc;
 
     }
 
+    @Override
+    public void processMessage(Object source, int type, Object argument) {
+        super.processMessage(source, type, argument);
+        switch (type) {
+            case DOCUMENT_GENERATED:
+            case MessageDispatcher.DOCUMENT_OPENED:
+                Document doc = (Document) argument;
+                CalculateStatisticsWorker csw = new CalculateStatisticsWorker(doc);
+                csw.execute();
+                break;
+        }
+    }
 
 }

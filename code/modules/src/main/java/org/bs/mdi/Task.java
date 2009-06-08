@@ -1,5 +1,5 @@
 /* 
- * Task.java - Provides status information of progressing tasks
+ * Task.java - Provides status information of progressing workers
  * 
  * This file is part the Abstract MDI Framework.
  * Copyright (c) 2005 Bernhard Stiftner

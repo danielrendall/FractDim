@@ -152,7 +152,7 @@ public class Document {
 	 * Synchronize all root views with the data.
 	 * Calls {@link View#syncWithData} for every associated root view.
 	 */
-	public void syncViewsWithData() {		
+	public void     syncViewsWithData() {
 		for (int i=0; i<countViews(); i++) {
 			try {
 				getView(i).syncWithData();
@@ -214,6 +214,8 @@ public class Document {
 		doc.syncViewsWithData();
 		doc.getUndoManager().flushLogs();
 		doc.dirty = false;		
+        Application.getMessageDispatcher().dispatch(
+                doc, MessageDispatcher.DOCUMENT_CREATED, doc);
 		return doc;
 	}
 
@@ -244,6 +246,8 @@ public class Document {
 		doc.fileExists = true;
 		doc.getUndoManager().flushLogs();
 		doc.dirty = false;
+        Application.getMessageDispatcher().dispatch(
+                doc, MessageDispatcher.DOCUMENT_OPENED, doc);
 		return doc;
 	}
 

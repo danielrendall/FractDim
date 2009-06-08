@@ -3,7 +3,6 @@ package uk.co.danielrendall.fractdim.calculation;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
-import org.bs.mdi.Task;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.geom.Line;
 import uk.co.danielrendall.fractdim.geom.ParametricCurve;
@@ -11,22 +10,26 @@ import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
 import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
+import uk.co.danielrendall.fractdim.app.workers.ProgressListener;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * @author Daniel Rendall
  * @created 04-Jun-2009 20:50:55
  */
-public class StatisticsCalculator extends FDGraphics2D implements Task {
+public class StatisticsCalculator extends FDGraphics2D  {
+
+    private final List<ProgressListener> listeners = new LinkedList<ProgressListener>();
 
     private final SVGDocument svgDoc;
 
     private final Set<Set<Line>> curveLines;
     private final int numberOfCurves;
     private final double minCosine;
-    private boolean isActive = false;
 
     public StatisticsCalculator(SVGDocument svgDoc, double minAngle) {
         this.svgDoc = svgDoc;
@@ -43,23 +46,18 @@ public class StatisticsCalculator extends FDGraphics2D implements Task {
     }
 
     public Statistics process() {
-        isActive = true;
+        Log.calc.info(String.format("Calculating stats for a shape wih %d curves with a minCosine of %s", numberOfCurves, minCosine));
+        TranscoderInput input = new TranscoderInput(svgDoc);
+        FDTranscoder transcoder = new FDTranscoder(this);
         try {
-            Log.calc.info(String.format("Calculating stats for a shape wih %d curves with a minCosine of %s", numberOfCurves, minCosine));
-            TranscoderInput input = new TranscoderInput(svgDoc);
-            FDTranscoder transcoder = new FDTranscoder(this);
-            try {
-                transcoder.transcode(input, new TranscoderOutput());
-            } catch (TranscoderException e) {
-                Log.app.warn("Couldn't transcode at - " + e.getMessage());
-            }
-            if (curveLines.size() != numberOfCurves) {
-                Log.calc.warn(String.format("Discrepancy - was expecting %d curves, but got %d", numberOfCurves, curveLines.size()));
-            }
-            return Statistics.create(curveLines);
-        } finally {
-            isActive = false;
+            transcoder.transcode(input, new TranscoderOutput());
+        } catch (TranscoderException e) {
+            Log.app.warn("Couldn't transcode at - " + e.getMessage());
         }
+        if (curveLines.size() != numberOfCurves) {
+            Log.calc.warn(String.format("Discrepancy - was expecting %d curves, but got %d", numberOfCurves, curveLines.size()));
+        }
+        return Statistics.create(curveLines);
     }
 
     public void handleCurve(ParametricCurve curve) {
@@ -67,6 +65,9 @@ public class StatisticsCalculator extends FDGraphics2D implements Task {
         // note - a sequence of methods leading to the real method to minimise duplicating objects
         handleCurve(curve, 0.0, 1.0, accum);
         curveLines.add(accum);
+        for (ProgressListener listener : listeners) {
+            listener.notifyProgress(0, curveLines.size(), numberOfCurves);
+        }
     }
 
     private void handleCurve(ParametricCurve curve, double rangeStart, double rangeEnd, Set<Line> accum) {
@@ -115,24 +116,7 @@ public class StatisticsCalculator extends FDGraphics2D implements Task {
 
     }
 
-    public int getProgress() {
-        // may not be thread safe, but it's not critical that this is correct.
-        return curveLines.size();
-    }
-
-    public String getName() {
-        return "Calculate statistics";
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public int getMinimumProgress() {
-        return 0;
-    }
-
-    public int getMaximumProgress() {
-        return numberOfCurves;
+    public void addProgressListener(ProgressListener listener) {
+        listeners.add(listener);
     }
 }

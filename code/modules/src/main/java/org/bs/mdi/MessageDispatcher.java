@@ -98,6 +98,14 @@ public class MessageDispatcher {
 	 * Indicates that a documents dirty status has been changed.
 	 */
 	public static final int DOCUMENT_DIRTY = 17;
+    /**
+     * Indicates that a document has been created.
+     */
+    public static final int DOCUMENT_CREATED = 18;
+    /**
+     * Indicates that a documents has been opened.
+     */
+    public static final int DOCUMENT_OPENED = 19;
 	/**
 	 * This is the last message ID reserved by the MDI framework. Custom messages may
 	 * use id's > LAST_RESERVED.
