@@ -1,6 +1,7 @@
 package uk.co.danielrendall.fractdim.app;
 
 import org.bs.mdi.Application;
+import org.bs.mdi.Document;
 import org.bs.mdi.swing.SwingCommand;
 import org.bs.mdi.swing.SwingCommandAdapter;
 import org.bs.mdi.swing.SwingDefaultCommands;
@@ -14,9 +15,14 @@ import javax.swing.*;
 public class FDCommands extends SwingDefaultCommands {
 
     SwingCommand fileGenerateCmd = new FileGenerateCmd();
+    SwingCommand fileCalculateCmd = new FileCalculateCmd();
 
     public SwingCommand getFileGenerateCommand() {
         return fileGenerateCmd;
+    }
+
+    public SwingCommand getFileCalculateCommand() {
+        return fileCalculateCmd;
     }
 
     class FileGenerateCmd extends SwingCommandAdapter {
@@ -35,5 +41,16 @@ public class FDCommands extends SwingDefaultCommands {
         }
     }
 
+    class FileCalculateCmd extends SwingCommandAdapter {
+        public FileCalculateCmd() {
+            super("Calculate", "Calculates fractal dimension");
+            setAvailable(true);
+        }
+
+        protected void doExecute() {
+            Document currentDoc = Application.getCurrentDocument();
+            // do something
+        }
+    }
 
 }

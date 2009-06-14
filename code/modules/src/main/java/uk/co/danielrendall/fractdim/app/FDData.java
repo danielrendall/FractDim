@@ -50,6 +50,12 @@ public class FDData extends RootData {
         return svgDoc;
     }
 
+    // annoyingly, Batik has threading issues if you try to traverse the same SVGdoc simultaneously
+    // in two threads
+    public SVGDocument getSvgDocForCalculation() {
+        return (SVGDocument) svgDoc.cloneNode(true);
+    }
+
     public void setStatistics(Statistics statistics) {
         this.statistics = statistics;
         statisticsDirty = true;

@@ -45,6 +45,10 @@ public class FDMainWindow extends SwingMainWindow {
         addFileExportMenuIfRequired(fileMenu);
         fileMenu.addSeparator();
 
+        fileMenu.add(SwingCommandButton.createMenuItem(((FDCommands)commands).getFileCalculateCommand()));
+
+        fileMenu.addSeparator();
+
         fileMenu.add(SwingCommandButton.createMenuItem(commands.getFileCloseCommand()));
         fileMenu.add(SwingCommandButton.createMenuItem(commands.getFileQuitCommand()));
     }

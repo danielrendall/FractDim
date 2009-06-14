@@ -1,4 +1,4 @@
-package uk.co.danielrendall.fractdim.app.dialog;
+package uk.co.danielrendall.fractdim.app.gui;
 
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.generate.fractals.Messy;

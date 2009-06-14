@@ -28,7 +28,9 @@ public class CurveCounter extends FDGraphics2D {
         try {
             transcoder.transcode(input, new TranscoderOutput());
         } catch (TranscoderException e) {
-            Log.app.warn("Couldn't transcode at - " + e.getMessage());
+            Log.app.warn("Transcoder exception - couldn't transcode at - " + e.getMessage());
+        } catch (Exception e) {
+            Log.app.warn("Exception - couldn't transcode at - " + e.getMessage());
         }
         return curveCount;
     }

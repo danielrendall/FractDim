@@ -11,6 +11,7 @@ import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
 import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
 import uk.co.danielrendall.fractdim.app.workers.ProgressListener;
+import uk.co.danielrendall.fractdim.app.workers.OperationAbortedException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -67,6 +68,9 @@ public class StatisticsCalculator extends FDGraphics2D  {
         curveLines.add(accum);
         for (ProgressListener listener : listeners) {
             listener.notifyProgress(0, curveLines.size(), numberOfCurves);
+        }
+        if (Thread.currentThread().isInterrupted()) {
+            throw new OperationAbortedException();
         }
     }
 

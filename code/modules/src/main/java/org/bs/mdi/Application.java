@@ -29,7 +29,7 @@ import java.util.*;
  */
 public abstract class Application implements MessageProcessor {
 	
-	protected static ArrayList documents;
+	protected static List documents;
 	protected static DocumentWindow currentWindow;
 	protected static MainWindow mainWindow;
 	protected static ClipboardManager clipboardManager;
@@ -63,7 +63,7 @@ public abstract class Application implements MessageProcessor {
 		resources.addResource(createResources());
 		recentFiles = new RecentFiles();
 		messageDispatcher = new MessageDispatcher();
-		documents = new ArrayList();
+		documents = Collections.synchronizedList(new ArrayList());
 		fileIOManager = new FileIOManager();
 		fileIOManager.registerAllModules(createFileIOModules());
 		clipboardManager = new ClipboardManager();

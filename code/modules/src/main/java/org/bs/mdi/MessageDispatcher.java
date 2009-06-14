@@ -106,6 +106,18 @@ public class MessageDispatcher {
      * Indicates that a documents has been opened.
      */
     public static final int DOCUMENT_OPENED = 19;
+    /**
+     * Indicates that a document is about to close
+     */
+    public static final int DOCUMENT_CLOSING = 20;
+    /**
+     * Indicates that the closing of the document has been vetoed by something
+     */
+    public static final int DOCUMENT_CLOSE_ABORTED = 21;
+    /**
+     * Indicates that a document has closed all its windows and is about to expire
+     */
+    public static final int DOCUMENT_CLOSED = 22;
 	/**
 	 * This is the last message ID reserved by the MDI framework. Custom messages may
 	 * use id's > LAST_RESERVED.
@@ -114,8 +126,8 @@ public class MessageDispatcher {
 	
 	
 	List messageProcessors = new LinkedList();
-	
-	/**
+
+    /**
 	 * Creates a new message dispatcher.
 	 * Note that there is a default dispatcher which can be accessed using
 	 * {@link Application#getMessageDispatcher}.

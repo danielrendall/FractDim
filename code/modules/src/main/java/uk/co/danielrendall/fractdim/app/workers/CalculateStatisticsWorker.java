@@ -4,8 +4,7 @@ import uk.co.danielrendall.fractdim.app.FDData;
 import uk.co.danielrendall.fractdim.app.FDView;
 import uk.co.danielrendall.fractdim.calculation.StatisticsCalculator;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
-
-import javax.swing.*;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import org.bs.mdi.Document;
 
@@ -19,20 +18,27 @@ import java.util.List;
  * Time: 10:56:13
  * To change this template use File | Settings | File Templates.
  */
-public class CalculateStatisticsWorker extends SwingWorker<Statistics, Integer> implements ProgressListener {
+public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integer> implements ProgressListener {
 
-    private final Document doc;
+    private boolean useful = true;
+    private final Document document;
 
-    public CalculateStatisticsWorker(Document doc) {
-        this.doc = doc;
-
+    public CalculateStatisticsWorker(Document document, Notifiable notifiable) {
+        super(notifiable);
+        this.document = document;
     }
 
     protected Statistics doInBackground() throws Exception {
-        FDData data = ((FDData) doc.getData());
-        StatisticsCalculator sc = new StatisticsCalculator(data.getSvgDoc(true), Math.PI / 90.0d);
+        FDData data = ((FDData) document.getData());
+        StatisticsCalculator sc = new StatisticsCalculator(data.getSvgDocForCalculation(), Math.PI / 90.0d);
         sc.addProgressListener(this);
-        return sc.process();
+        try {
+            return sc.process();
+        } catch (OperationAbortedException e) {
+            useful = false;
+            Log.thread.debug("Operation aborted - caught exception");
+            return null;
+        }
     }
 
     public void notifyProgress(int minProgress, int progress, int maxProgress) {
@@ -41,24 +47,38 @@ public class CalculateStatisticsWorker extends SwingWorker<Statistics, Integer> 
 
     @Override
     protected void process(List<Integer> chunks) {
-        int last = chunks.get(chunks.size() - 1);
-        FDView view = (FDView) doc.getView(0);
-        view.updateProgressBar(last);
+        if (useful && !Thread.currentThread().isInterrupted()) {
+            try {
+                int last = chunks.get(chunks.size() - 1);
+                FDView view = (FDView) document.getView(0);
+                view.updateProgressBar(last);
+            } catch (Exception e) {
+                Log.thread.warn("Problem getting hold of view - " + e.getMessage());
+            }
+        } else {
+            useful = false;
+        }
 
     }
 
     @Override
-    protected void done() {
+    protected void doDone() {
         try {
-            FDData data = ((FDData) doc.getData());
-            data.setStatistics(get());
+            if (useful && !Thread.currentThread().isInterrupted()) {
+                FDData data = ((FDData) document.getData());
+                data.setStatistics(get());
 
-            FDView view = (FDView) doc.getView(0);
-            view.syncWithData();
+                FDView view = (FDView) document.getView(0);
+                view.syncWithData();
+            } else {
+                useful = false;
+            }
         } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            Log.thread.debug("Operation aborted");
         } catch (ExecutionException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (Exception e) {
+            Log.thread.warn("Problem getting hold of view - " + e.getMessage());
         }
     }
 }

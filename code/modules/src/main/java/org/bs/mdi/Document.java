@@ -23,8 +23,11 @@
  
 package org.bs.mdi;
 
+import uk.co.danielrendall.fractdim.app.workers.NotifyingWorker;
+import uk.co.danielrendall.fractdim.logging.Log;
+
 import java.util.*;
- 
+
 /**
  * The Document class manages data and views. 
  * A document consists of two major components: 
@@ -34,22 +37,26 @@ import java.util.*;
  */
 public class Document {
 	
-	Application application;
-	String filename;
-	String baseFilename;
-	RootData data;
-	ArrayList rootViews;
-	UndoManager undoManager;
-	static int untitledDocumentCounter = 0;
-	boolean dirty = false;
-	boolean fileExists = false;
-	boolean opened;
+    static int untitledDocumentCounter = 0;
+
+	private final Application application;
+    private final ArrayList rootViews;
+    private final UndoManager undoManager;
+    private final List<NotifyingWorker<?,?>> workers;
+
+	private String filename;
+	private String baseFilename;
+	private RootData data;
+	private boolean dirty = false;
+	private boolean fileExists = false;
+	private boolean opened;
 
 	protected Document(Application app) {
 		application = app;
 		rootViews = new ArrayList();
 		opened = true;
 		undoManager = new UndoManager(this);
+        workers = new LinkedList<NotifyingWorker<?,?>>();
 	}
 
 	/**
@@ -275,7 +282,7 @@ public class Document {
 	 * Tells if this document is still opened.
 	 * @return	true if the document has not yet been closed, false otherwise
 	 */
-	public boolean isOpened() {
+	public synchronized boolean isOpened() {
 		return opened;
 	}
 	
@@ -289,13 +296,27 @@ public class Document {
 	 * @return	true if closing the document succeeded, false otherwise
 	 */
 	public boolean close() {
+        Application.getMessageDispatcher().dispatch(
+				this, MessageDispatcher.DOCUMENT_CLOSING, this);
+        for (NotifyingWorker worker : workers)  {
+            worker.cancel(true);
+        }
 		for (int i=0; i<rootViews.size(); i++) {
 			DocumentWindow w = getView(i).getWindow();
 			if (w == null) continue;
-			if (!w.close()) return false;
+			if (!w.close()) {
+                Application.getMessageDispatcher().dispatch(
+				this, MessageDispatcher.DOCUMENT_CLOSE_ABORTED, this);
+                return false;
+            }
 		}
-		data = null;				
-		opened = false;
+        synchronized(this) {
+            data = null;
+            opened = false;
+            workers.clear();
+        }
+        Application.getMessageDispatcher().dispatch(
+                this, MessageDispatcher.DOCUMENT_CLOSED, this);
 		return true;
 	}
 	
@@ -348,4 +369,16 @@ public class Document {
 		baseFilename = new java.io.File(filename).getName();
 	}
 
+    public synchronized void addWorker(NotifyingWorker<?, ?> worker) {
+        workers.add(worker);
+        Log.thread.debug("Adding worker " + worker.toString());
+        worker.execute();
+    }
+
+    public synchronized void removeWorker(NotifyingWorker<?, ?> worker) {
+        Log.thread.debug("Removing worker " + worker.toString());
+        if (!workers.remove(worker)) {
+            Log.thread.warn("Tried to remove a worker but it was already gone");
+        }
+    }
 }

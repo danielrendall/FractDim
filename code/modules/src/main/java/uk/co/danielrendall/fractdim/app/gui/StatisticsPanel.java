@@ -1,6 +1,5 @@
-package uk.co.danielrendall.fractdim.app.dialog;
+package uk.co.danielrendall.fractdim.app.gui;
 
-import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 
 import javax.swing.*;
@@ -41,11 +40,16 @@ public class StatisticsPanel extends JPanel {
 
     }
 
-    private void addInformationField(JTextField textField, String label) {
+    private void addInformationField(JTextField textField, String labelText) {
         textField.setEditable(false);
-        textField.setEnabled(false);
         textField.setText("");
-        add(new JLabel(label));
+        textField.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+
+        JLabel label = new JLabel(labelText);
+        label.setHorizontalAlignment(JLabel.RIGHT);
+        label.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+
+        add(label);
         add(textField);
     }
 

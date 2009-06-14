@@ -7,6 +7,9 @@ import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
+import uk.co.danielrendall.fractdim.app.workers.Notifiable;
+import uk.co.danielrendall.fractdim.app.workers.NotifyingWorker;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.*;
 import java.util.Map;
@@ -23,12 +26,8 @@ public class FractDim extends Application {
 
     private final static int DOCUMENT_GENERATED = 256;
 
-    private final Map<Document, List<SwingWorker<?, ?>>> workersForDoc;
-
     public FractDim() {
         super();
-//        threadManager = new FDThreadManager(5);
-        workersForDoc = new HashMap<Document, List<SwingWorker<?,?>>>();
     }
 
 
@@ -77,15 +76,6 @@ public class FractDim extends Application {
         return new FDView();
     }
 
-    protected synchronized List<SwingWorker<?,?>> getWorkersForDocument(Document doc) {
-        List<SwingWorker<?,?>> workers = workersForDoc.get(doc);
-        if (workers == null) {
-            workers = new LinkedList<SwingWorker<?,?>>();
-            workersForDoc.put(doc, workers);
-        }
-        return workers;
-    }
-
     @Override
     public boolean close() {
         // do some tidying
@@ -100,8 +90,8 @@ public class FractDim extends Application {
         SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 4);
 
         Document doc = Document.createNew();
-        documents.add(doc);
         ((FDData)doc.getData()).setSvgDoc(svg);
+        documents.add(doc);
         doc.syncViewsWithData();
 
         setStatus(tr("Ready"));
@@ -110,7 +100,6 @@ public class FractDim extends Application {
                 doc, FractDim.DOCUMENT_GENERATED, doc);
 
         return doc;
-
     }
 
     @Override
@@ -119,9 +108,12 @@ public class FractDim extends Application {
         switch (type) {
             case DOCUMENT_GENERATED:
             case MessageDispatcher.DOCUMENT_OPENED:
-                Document doc = (Document) argument;
-                CalculateStatisticsWorker csw = new CalculateStatisticsWorker(doc);
-                csw.execute();
+                final Document doc = (Document) argument;
+                doc.addWorker(new CalculateStatisticsWorker(doc, new Notifiable() {
+                    public void notifyComplete(NotifyingWorker worker) {
+                        doc.removeWorker(worker);
+                    }
+                }));
                 break;
         }
     }

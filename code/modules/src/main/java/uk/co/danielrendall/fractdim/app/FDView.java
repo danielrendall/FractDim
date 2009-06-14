@@ -11,7 +11,9 @@ import java.awt.*;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
-import uk.co.danielrendall.fractdim.app.dialog.StatisticsPanel;
+import uk.co.danielrendall.fractdim.app.gui.StatisticsPanel;
+import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 /**
  * @author Daniel Rendall
@@ -19,12 +21,16 @@ import uk.co.danielrendall.fractdim.app.dialog.StatisticsPanel;
  */
 public class FDView extends SwingRootView {
 
-    JSVGCanvas svgCanvas = new JSVGCanvas();
     JTabbedPane tabbedPane = new JTabbedPane();
-    JTable resultTable = new JTable();
+
+    JSVGCanvas svgCanvas = new JSVGCanvas();
+
     StatisticsPanel statsPanel = new StatisticsPanel();
-    JButton btnShowSettings = new JButton("Settings");
-    JButton btnCalculate = new JButton("Calculate");
+
+    SettingsPanel settingsPanel = new SettingsPanel();
+
+    JTable resultTable = new JTable();
+
     JProgressBar progressBar = new JProgressBar();
 
 
@@ -32,23 +38,13 @@ public class FDView extends SwingRootView {
         super();
         setLayout(new BorderLayout());
 
-        Box buttonBox = Box.createHorizontalBox();
-        btnShowSettings.setEnabled(false);
-        buttonBox.add(btnShowSettings);
-        btnCalculate.setEnabled(false);
-        buttonBox.add(btnCalculate);
-        buttonBox.add(Box.createHorizontalGlue());
+        tabbedPane.addTab("SVG image", new JScrollPane(svgCanvas));
 
-        add(statsPanel, BorderLayout.NORTH);
+        add(tabbedPane, BorderLayout.CENTER);
 
-        add(new JScrollPane(svgCanvas), BorderLayout.CENTER);
-
-        Box box = Box.createVerticalBox();
-        box.add(buttonBox);
         progressBar.setMaximum(100);
-        box.add(progressBar);
-
-        add(box, BorderLayout.SOUTH);
+        progressBar.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        add(progressBar, BorderLayout.SOUTH);
 
         setPastePossible(false);
     }
@@ -92,11 +88,21 @@ public class FDView extends SwingRootView {
     }
 
     private void updateStatistics(Statistics statistics) {
+        Log.gui.debug("Updating statistics");
+        if (tabbedPane.getTabCount() == 1) {
+            Log.gui.debug("Adding new pane to tabbed pane");
+            Box vertBox = Box.createVerticalBox();
+            vertBox.add(statsPanel);
+            vertBox.add(Box.createVerticalStrut(5));
+            vertBox.add(settingsPanel);
+            tabbedPane.addTab("Settings", vertBox);
+            tabbedPane.repaint();
+        }
+        Log.gui.debug("Just updating statistics");
         statsPanel.update(statistics);
     }
 
     private void updateSettings(CalculationSettings settings) {
-        //To change body of created methods use File | Settings | File Templates.
     }
 
     private void updateResult(SquareCountingResult result) {
