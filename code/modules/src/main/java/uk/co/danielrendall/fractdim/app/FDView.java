@@ -91,14 +91,34 @@ public class FDView extends SwingRootView {
         Log.gui.debug("Updating statistics");
         if (tabbedPane.getTabCount() == 1) {
             Log.gui.debug("Adding new pane to tabbed pane");
-            Box vertBox = Box.createVerticalBox();
-            vertBox.add(statsPanel);
-            vertBox.add(Box.createVerticalStrut(5));
-            vertBox.add(settingsPanel);
-            tabbedPane.addTab("Settings", vertBox);
+
+
+//            JPanel thePanel = new JPanel();
+//            thePanel.setLayout(new GridBagLayout());
+
+//            thePanel.add(statsPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.5,
+//                    GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, statsPanel.getInsets(), 0, 0));
+
+            settingsPanel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createTitledBorder("Settings"),
+                    BorderFactory.createEtchedBorder()
+            ));
+//            thePanel.add(settingsPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.5,
+//                    GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, settingsPanel.getInsets(), 0, 0));
+//
+            Box theBox = Box.createVerticalBox();
+            theBox.add(statsPanel);
+            theBox.add(Box.createVerticalStrut(10));
+            theBox.add(settingsPanel);
+
+            JPanel aPanel = new JPanel(new FlowLayout());
+            aPanel.add(theBox);
+
+            tabbedPane.addTab("Settings", aPanel);
             tabbedPane.repaint();
+        } else {
+            Log.gui.debug("Just updating statistics");
         }
-        Log.gui.debug("Just updating statistics");
         statsPanel.update(statistics);
     }
 

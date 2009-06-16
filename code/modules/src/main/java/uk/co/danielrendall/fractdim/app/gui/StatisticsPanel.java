@@ -1,6 +1,7 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
 import uk.co.danielrendall.fractdim.calculation.Statistics;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +13,8 @@ import java.awt.*;
  * Time: 17:42:43
  * To change this template use File | Settings | File Templates.
  */
-public class StatisticsPanel extends JPanel {
+public class StatisticsPanel extends GenericFormPanel {
+    
     private final JTextField txtTotalCurveCount = new JTextField();
     private final JTextField txtFragmentedCurveCount = new JTextField();
     private final JTextField txtShortestLine = new JTextField();
@@ -25,37 +27,39 @@ public class StatisticsPanel extends JPanel {
     private final JTextField txtVarianceFragmentsPerCurve = new JTextField();
 
     public StatisticsPanel() {
-        GridLayout myLayout = new GridLayout(10, 2);
-        this.setLayout(myLayout);
-        addInformationField(txtTotalCurveCount, "Total number of lines");
-        addInformationField(txtFragmentedCurveCount, "Total number of non-straight lines");
-        addInformationField(txtShortestLine, "Shortest line or fragment");
-        addInformationField(txtLongestLine, "Longest line or fragment");
-        addInformationField(txtMeanLineLength, "Mean line or fragment length");
-        addInformationField(txtVarianceLineLength, "Variance of line or fragment length");
-        addInformationField(txtMeanFragmentOnlyLength, "Mean length of approximating fragments");
-        addInformationField(txtVarianceFragmentOnlyLength, "Variance of approximating fragments");
-        addInformationField(txtMeanFragmentsPerCurve, "Mean number of fragments per line");
-        addInformationField(txtVarianceFragmentsPerCurve, "Variance of fragments per line");
+        super(new ComponentPreparer() {
+            public void prepare(JComponent component) {
+                ((JLabel) component).setHorizontalAlignment(JLabel.RIGHT);
+            }
+        }, new ComponentPreparer() {
+            public void prepare(JComponent component) {
+                ((JTextField) component).setEditable(false);
+                ((JTextField) component).setText("");
+                component.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            }
+        });
+        setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createTitledBorder("Statistics"),
+                    BorderFactory.createEtchedBorder()
+            ));
+        
+        add("Total number of lines", txtTotalCurveCount);
+        add("Total number of non-straight lines", txtFragmentedCurveCount);
+        add("Shortest line or fragment", txtShortestLine);
+        add("Longest line or fragment", txtLongestLine);
+        add("Mean line or fragment length", txtMeanLineLength);
+        add("Variance of line or fragment length", txtVarianceLineLength);
+        add("Mean length of approximating fragments", txtMeanFragmentOnlyLength);
+        add("Variance of approximating fragments", txtVarianceFragmentOnlyLength);
+        add("Mean number of fragments per line", txtMeanFragmentsPerCurve);
+        add("Variance of fragments per line", txtVarianceFragmentsPerCurve);
 
-    }
-
-    private void addInformationField(JTextField textField, String labelText) {
-        textField.setEditable(false);
-        textField.setText("");
-        textField.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-
-        JLabel label = new JLabel(labelText);
-        label.setHorizontalAlignment(JLabel.RIGHT);
-        label.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-
-        add(label);
-        add(textField);
+        Log.gui.debug("Added components");
     }
 
     public void update(Statistics stats) {
-        txtTotalCurveCount.setText(String.format("%d", stats.getTotalCurveCount()));
-        txtFragmentedCurveCount.setText(String.format("%d", stats.getFragmentedCurveCount()));
+        txtTotalCurveCount.setText(String.format("%9d", stats.getTotalCurveCount()));
+        txtFragmentedCurveCount.setText(String.format("%9d", stats.getFragmentedCurveCount()));
         txtShortestLine.setText(String.format("%9.2f", stats.getShortestLine()));
         txtLongestLine.setText(String.format("%9.2f", stats.getLongestLine()));
         txtMeanLineLength.setText(String.format("%9.2f", stats.getMeanLineLength()));

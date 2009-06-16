@@ -28,40 +28,47 @@ public class SettingsPanel extends JPanel {
 
 
     public SettingsPanel() {
-        GridLayout myLayout = new GridLayout(6, 2);
-        this.setLayout(myLayout);
+        super(new BorderLayout());
 
-//        private double minimumSquareSize;
-//        private double maximumSquareSize;
-//        private int numberOfResolutions;
-//        private int numberOfAngles;
-//        private int numberOfDisplacementPoints;
-        addTextField(txtSmallestSquareSize, "Smallest square size");
+        GenericFormPanel myForm = new GenericFormPanel(new GenericFormPanel.ComponentPreparer() {
+            public void prepare(JComponent component) {
+                ((JLabel) component).setHorizontalAlignment(JLabel.RIGHT);
+            }
+        }, new GenericFormPanel.ComponentPreparer() {
+            public void prepare(JComponent component) {
+                component.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            }
+        });
+
+        myForm.add("Smallest square size", txtSmallestSquareSize);
         model.bind("minimumSquareSize", txtSmallestSquareSize);
 
-        addTextField(txtLargestSquareSize, "Largest square size");
+        myForm.add("Largest square size", txtLargestSquareSize);
         model.bind("maximumSquareSize", txtLargestSquareSize);
 
-        addTextField(txtNumberOfSizes, "Number of square sizes");
+        myForm.add("Number of square sizes", txtNumberOfSizes);
         model.bind("numberOfResolutions", txtNumberOfSizes);
 
         spnNumberOfAngles.setModel(new SpinnerNumberModel(1, 1, 18, 1));
-        addField(spnNumberOfAngles, "Number of angles");
+        myForm.add("Number of angles", spnNumberOfAngles);
         model.bind("numberOfAngles", spnNumberOfAngles);
 
         spnNumberOfDisplacements.setModel(new SpinnerNumberModel(1, 1, 3, 1));
-        addField(spnNumberOfDisplacements, "Number of sub-points");
+        myForm.add("Number of sub-points", spnNumberOfDisplacements);
         model.bind("numberOfDisplacementPoints", spnNumberOfDisplacements);
-        
+
+        add(myForm, BorderLayout.CENTER);
+
+        JPanel buttonBox = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         final JButton btnOk = new JButton("OK");
-        btnOk.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
         btnOk.setEnabled(false);
-        add(btnOk);
+        buttonBox.add(btnOk);
 
         final JButton btnCancel = new JButton("Cancel");
-        btnCancel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-        add(btnCancel);
+        buttonBox.add(btnCancel);
+
+        add(buttonBox, BorderLayout.SOUTH);
 
         model.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
@@ -76,21 +83,6 @@ public class SettingsPanel extends JPanel {
         });
     }
 
-    private void addTextField(JTextField textField, String labelText) {
-        textField.setText("0");
-        addField(textField, labelText);
-    }
-
-    private void addField(JComponent c, String labelText) {
-        c.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-
-        JLabel label = new JLabel(labelText);
-        label.setHorizontalAlignment(JLabel.RIGHT);
-        label.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-
-        add(label);
-        add(c);
-    }
 
     public void update(CalculationSettings settings) {
         txtSmallestSquareSize.setText(String.format("%9.2f", settings.getMinimumSquareSize()));
