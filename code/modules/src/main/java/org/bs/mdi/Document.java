@@ -24,6 +24,7 @@
 package org.bs.mdi;
 
 import uk.co.danielrendall.fractdim.app.workers.NotifyingWorker;
+import uk.co.danielrendall.fractdim.app.workers.Notifiable;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.util.*;
@@ -35,7 +36,7 @@ import java.util.*;
  * {@link RootData} and {@link RootView} classes.
  * The combination of data and views is called a <code>Document</code>. 
  */
-public class Document {
+public class Document implements Notifiable {
 	
     static int untitledDocumentCounter = 0;
 
@@ -203,8 +204,8 @@ public class Document {
 	public static Document createNew() {
 		RootView view;
 		DocumentWindow window;
-		Application app = Application.getInstance();
-		Document doc = new Document(app);
+        Application app = Application.getInstance();
+        Document doc = app.createDocument();
 		
 		untitledDocumentCounter++;
 		doc.setFilename(Application.tr("Untitled")+"-"+untitledDocumentCounter);
@@ -237,7 +238,7 @@ public class Document {
 		DocumentWindow window;
 		
 		Application app = Application.getInstance();
-		Document doc = new Document(app);
+		Document doc = app.createDocument();
 		doc.setFilename(filename);
 		doc.data = Application.getFileIOManager().load(filename);				
 		view = Application.getInstance().createRootView();
@@ -371,6 +372,7 @@ public class Document {
 
     public synchronized void addWorker(NotifyingWorker<?, ?> worker) {
         workers.add(worker);
+        worker.addNotifiable(this);
         Log.thread.debug("Adding worker " + worker.toString());
         worker.execute();
     }
@@ -380,5 +382,9 @@ public class Document {
         if (!workers.remove(worker)) {
             Log.thread.warn("Tried to remove a worker but it was already gone");
         }
+    }
+
+    public void notifyComplete(NotifyingWorker worker) {
+        removeWorker(worker);
     }
 }

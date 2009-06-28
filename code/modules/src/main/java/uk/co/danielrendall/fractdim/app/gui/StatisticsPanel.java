@@ -38,10 +38,7 @@ public class StatisticsPanel extends GenericFormPanel {
                 component.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
             }
         });
-        setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder("Statistics"),
-                    BorderFactory.createEtchedBorder()
-            ));
+        setBorder(BorderFactory.createTitledBorder("Statistics"));
         
         add("Total number of lines", txtTotalCurveCount);
         add("Total number of non-straight lines", txtFragmentedCurveCount);

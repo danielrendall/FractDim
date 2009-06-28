@@ -8,6 +8,9 @@ import org.bs.mdi.swing.SwingDefaultCommands;
 
 import javax.swing.*;
 
+import uk.co.danielrendall.fractdim.app.workers.SquareCountingWorker;
+import uk.co.danielrendall.fractdim.FDDocument;
+
 /**
  * @author Daniel Rendall
  * @created 30-May-2009 12:24:57
@@ -44,12 +47,12 @@ public class FDCommands extends SwingDefaultCommands {
     class FileCalculateCmd extends SwingCommandAdapter {
         public FileCalculateCmd() {
             super("Calculate", "Calculates fractal dimension");
-            setAvailable(true);
+            setAvailable(false);
         }
 
         protected void doExecute() {
             Document currentDoc = Application.getCurrentDocument();
-            // do something
+            currentDoc.addWorker(new SquareCountingWorker((FDDocument) currentDoc));
         }
     }
 

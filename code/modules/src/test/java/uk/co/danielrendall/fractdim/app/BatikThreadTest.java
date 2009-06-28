@@ -36,14 +36,14 @@ public class BatikThreadTest {
 
         Thread thread1 = new Thread(new Runnable() {
             public void run() {
-                StatisticsCalculator sc = new StatisticsCalculator(svg, Math.PI / 90.0d);
-                Statistics stats = sc.process();
+                StatisticsCalculator sc = new StatisticsCalculator(Math.PI / 90.0d);
+                Statistics stats = sc.process(svg);
             }
         });
         Thread thread2 = new Thread(new Runnable() {
             public void run() {
-                StatisticsCalculator sc = new StatisticsCalculator(svg2, Math.PI / 90.0d);
-                Statistics stats = sc.process();
+                StatisticsCalculator sc = new StatisticsCalculator(Math.PI / 90.0d);
+                Statistics stats = sc.process(svg2);
             }
         });
 

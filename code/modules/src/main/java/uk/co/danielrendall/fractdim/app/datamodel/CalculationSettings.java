@@ -1,5 +1,7 @@
 package uk.co.danielrendall.fractdim.app.datamodel;
 
+import uk.co.danielrendall.fractdim.calculation.Statistics;
+
 /**
  * @author Daniel Rendall
  * @created 04-Jun-2009 20:02:40
@@ -18,6 +20,14 @@ public class CalculationSettings {
         numberOfResolutions = 1;
         numberOfAngles = 1;
         numberOfDisplacementPoints = 1;
+    }
+
+    public CalculationSettings(Statistics statistics) {
+        minimumSquareSize = statistics.getShortestLine() / 10;
+        maximumSquareSize = Math.max(statistics.getImageHeight(), statistics.getImageHeight());
+        numberOfResolutions = (int) ((Math.log10(maximumSquareSize) - Math.log10(minimumSquareSize)) * 10.0d);
+        numberOfAngles = 2;
+        numberOfDisplacementPoints = 2;
     }
 
     public double getMinimumSquareSize() {

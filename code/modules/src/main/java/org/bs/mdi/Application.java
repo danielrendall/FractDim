@@ -769,5 +769,12 @@ public abstract class Application implements MessageProcessor {
 	 * @return	a new RootView object
 	 */
 	public abstract RootView createRootView();
-	
+
+    /**
+     * Creates and returns a new Document instance.
+     * This is a factory method which is to be implemented by subclasses of
+     * Application.
+     * @return	a new RootView object
+     */
+    public abstract Document createDocument();
 }

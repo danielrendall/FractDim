@@ -83,7 +83,8 @@ public class CompoundDataModel {
         }));
     }
 
-    public void bind(String propertyName, JSpinner spn) {        Class fieldType = fieldTypes.get(propertyName);
+    public void bind(String propertyName, JSpinner spn) {
+        Class fieldType = fieldTypes.get(propertyName);
         if (fieldType == null) {
             throw new IllegalArgumentException("Property " + propertyName + " doesn't exist in the model");
         }

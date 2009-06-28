@@ -550,6 +550,7 @@ public class SwingMainWindow extends JFrame implements MainWindow, MessageProces
 		addSpecialWindowCommands(windowManager.getSpecialCommands());
 	}
 
+
     // DR - Accessor methods for menus commented out until it's clear whether or not they're
     // actually useful. Note that they won't work in their current form anyway because
     // the items in question have either been converted to local fields or stored in the

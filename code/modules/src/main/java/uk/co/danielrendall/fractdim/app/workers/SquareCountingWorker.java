@@ -1,36 +1,43 @@
 package uk.co.danielrendall.fractdim.app.workers;
 
+import uk.co.danielrendall.fractdim.calculation.StatisticsCalculator;
+import uk.co.danielrendall.fractdim.calculation.SquareCounts;
+import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
+import uk.co.danielrendall.fractdim.calculation.SquareCounter;
+import uk.co.danielrendall.fractdim.FDDocument;
+import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.app.FDData;
 import uk.co.danielrendall.fractdim.app.FDView;
-import uk.co.danielrendall.fractdim.calculation.StatisticsCalculator;
-import uk.co.danielrendall.fractdim.calculation.Statistics;
-import uk.co.danielrendall.fractdim.logging.Log;
-import uk.co.danielrendall.fractdim.FDDocument;
+import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 
-import org.bs.mdi.Document;
-
-import java.util.concurrent.ExecutionException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by IntelliJ IDEA.
  * User: daniel
- * Date: 07-Jun-2009
- * Time: 10:56:13
+ * Date: 28-Jun-2009
+ * Time: 17:41:23
  * To change this template use File | Settings | File Templates.
  */
-public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integer> implements ProgressListener {
+public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, Integer> implements ProgressListener {
 
     private boolean useful = true;
     private final FDDocument document;
 
-    public CalculateStatisticsWorker(FDDocument document) {
+    public SquareCountingWorker(FDDocument document) {
         this.document = document;
     }
 
-    protected Statistics doInBackground() throws Exception {
+    protected SquareCountingResult doInBackground() throws Exception {
         FDData data = ((FDData) document.getData());
-        StatisticsCalculator sc = new StatisticsCalculator(Math.PI / 90.0d);
+        CalculationSettings settings = data.getSettings(false);
+        SquareCounter sc = SquareCounter.createSquareCounter(30,
+                settings.getMinimumSquareSize(),
+                settings.getMaximumSquareSize(),
+                settings.getNumberOfResolutions(),
+                settings.getNumberOfAngles(),
+                settings.getNumberOfDisplacementPoints());
         sc.addProgressListener(this);
         try {
             return sc.process(data.getSvgDocForCalculation());
@@ -65,7 +72,7 @@ public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integ
     protected void doDone() {
         try {
             if (useful && !Thread.currentThread().isInterrupted()) {
-                document.setStatistics(get());
+                document.setSquareCountingResult(get());
             } else {
                 useful = false;
             }

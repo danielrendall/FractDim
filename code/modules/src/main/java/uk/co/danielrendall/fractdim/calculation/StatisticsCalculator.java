@@ -22,31 +22,19 @@ import java.util.LinkedList;
  * @author Daniel Rendall
  * @created 04-Jun-2009 20:50:55
  */
-public class StatisticsCalculator extends FDGraphics2D  {
-
-    private final List<ProgressListener> listeners = new LinkedList<ProgressListener>();
-
-    private final SVGDocument svgDoc;
+public class StatisticsCalculator extends AbstractNotifyingGraphics  {
 
     private final Set<Set<Line>> curveLines;
-    private final int numberOfCurves;
     private final double minCosine;
 
-    public StatisticsCalculator(SVGDocument svgDoc, double minAngle) {
-        this.svgDoc = svgDoc;
+    public StatisticsCalculator(double minAngle) {
         curveLines = new HashSet<Set<Line>>();
-        this.numberOfCurves = new CurveCounter(svgDoc).getCurveCount();
         minCosine = Math.cos(minAngle);
     }
 
-    StatisticsCalculator(SVGDocument svgDoc, int numberOfCurves, double minAngle) {
-        this.svgDoc = svgDoc;
-        curveLines = new HashSet<Set<Line>>();
-        this.numberOfCurves = numberOfCurves;
-        minCosine = Math.cos(minAngle);
-    }
+    public Statistics process(SVGDocument svgDoc) {
+        initCurveCount(svgDoc);
 
-    public Statistics process() {
         Log.calc.info(String.format("Calculating stats for a shape wih %d curves with a minCosine of %s", numberOfCurves, minCosine));
         TranscoderInput input = new TranscoderInput(svgDoc);
         FDTranscoder transcoder = new FDTranscoder(this);
@@ -61,17 +49,11 @@ public class StatisticsCalculator extends FDGraphics2D  {
         return Statistics.create(curveLines);
     }
 
-    public void handleCurve(ParametricCurve curve) {
+    public void doHandleCurve(ParametricCurve curve) {
         Set<Line> accum = new HashSet<Line>();
         // note - a sequence of methods leading to the real method to minimise duplicating objects
         handleCurve(curve, 0.0, 1.0, accum);
         curveLines.add(accum);
-        for (ProgressListener listener : listeners) {
-            listener.notifyProgress(0, curveLines.size(), numberOfCurves);
-        }
-        if (Thread.currentThread().isInterrupted()) {
-            throw new OperationAbortedException();
-        }
     }
 
     private void handleCurve(ParametricCurve curve, double rangeStart, double rangeEnd, Set<Line> accum) {
@@ -120,7 +102,4 @@ public class StatisticsCalculator extends FDGraphics2D  {
 
     }
 
-    public void addProgressListener(ProgressListener listener) {
-        listeners.add(listener);
-    }
 }

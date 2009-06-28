@@ -9,7 +9,9 @@ import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
 import uk.co.danielrendall.fractdim.app.workers.Notifiable;
 import uk.co.danielrendall.fractdim.app.workers.NotifyingWorker;
+import uk.co.danielrendall.fractdim.app.datamodel.ModelStatusListener;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.FDDocument;
 
 import javax.swing.*;
 import java.util.Map;
@@ -25,6 +27,8 @@ public class FractDim extends Application {
     private static final Logger log = Logger.getLogger(FractDim.class);
 
     private final static int DOCUMENT_GENERATED = 256;
+
+    private FDDocument lastSelectedDocument = null;
 
     public FractDim() {
         super();
@@ -53,11 +57,11 @@ public class FractDim extends Application {
     }
 
     protected FileIOModule[] createFileIOModules() {
-        return new FileIOModule[] { new FDFileIOModule() };
+        return new FileIOModule[]{new FDFileIOModule()};
     }
 
     protected ActionConverter[] createActionConverters() {
-        return new ActionConverter[] { new FDActionConverter() };
+        return new ActionConverter[]{new FDActionConverter()};
     }
 
     protected MainWindow createMainWindow() {
@@ -76,6 +80,10 @@ public class FractDim extends Application {
         return new FDView();
     }
 
+    public Document createDocument() {
+        return new FDDocument(this);
+    }
+
     @Override
     public boolean close() {
         // do some tidying
@@ -90,7 +98,7 @@ public class FractDim extends Application {
         SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 4);
 
         Document doc = Document.createNew();
-        ((FDData)doc.getData()).setSvgDoc(svg);
+        ((FDData) doc.getData()).setSvgDoc(svg);
         documents.add(doc);
         doc.syncViewsWithData();
 
@@ -105,17 +113,35 @@ public class FractDim extends Application {
     @Override
     public void processMessage(Object source, int type, Object argument) {
         super.processMessage(source, type, argument);
+        Log.messages.debug("Message: " + type + " argument " + (argument != null ? argument.toString() : "null"));
         switch (type) {
             case DOCUMENT_GENERATED:
-            case MessageDispatcher.DOCUMENT_OPENED:
-                final Document doc = (Document) argument;
-                doc.addWorker(new CalculateStatisticsWorker(doc, new Notifiable() {
-                    public void notifyComplete(NotifyingWorker worker) {
-                        doc.removeWorker(worker);
+            case MessageDispatcher.DOCUMENT_OPENED: {
+                final FDDocument doc = (FDDocument) argument;
+                doc.init();
+            }
+            break;
+            case MessageDispatcher.DOCUMENT_SELECTED:
+                if (argument != null) {
+                    final FDDocument doc = (FDDocument) argument;
+                    if (lastSelectedDocument != null) {
+                        lastSelectedDocument.removeModelStatusListener(calculateOptionListener);
+
                     }
-                }));
-                break;
+                    doc.addModelStatusListener(calculateOptionListener);
+                    lastSelectedDocument = doc;
+                }
         }
     }
+
+    private final ModelStatusListener calculateOptionListener = new ModelStatusListener() {
+        public void modelIsGood() {
+            ((FDCommands)((FDMainWindow)getMainWindow()).getCommands()).getFileCalculateCommand().setAvailable(true);
+        }
+
+        public void modelIsBad() {
+            ((FDCommands)((FDMainWindow)getMainWindow()).getCommands()).getFileCalculateCommand().setAvailable(false);
+        }
+    };
 
 }

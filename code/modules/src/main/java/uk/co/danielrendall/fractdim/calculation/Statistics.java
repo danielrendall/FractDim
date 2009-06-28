@@ -1,6 +1,7 @@
 package uk.co.danielrendall.fractdim.calculation;
 
 import uk.co.danielrendall.fractdim.geom.Line;
+import uk.co.danielrendall.fractdim.geom.BoundingBox;
 
 import java.util.Set;
 
@@ -22,12 +23,16 @@ public class Statistics {
     private final int totalCurveCount;
     private final int fragmentedCurveCount;
 
+    private final double imageWidth;
+    private final double imageHeight;
+
 
     public Statistics(int totalCurveCount, int fragmentedCurveCount,
                       double shortestLine, double longestLine,
                       double meanLineLength, double varianceLineLength,
                       double meanFragmentOnlyLength, double varianceFragmentOnlyLength,
-                      double meanFragmentsPerCurve, double varianceFragmentsPerCurve) {
+                      double meanFragmentsPerCurve, double varianceFragmentsPerCurve,
+                      double imageWidth, double imageHeight) {
         //To change body of created methods use File | Settings | File Templates.
         this.totalCurveCount = totalCurveCount;
         this.fragmentedCurveCount = fragmentedCurveCount;
@@ -39,6 +44,8 @@ public class Statistics {
         this.varianceFragmentOnlyLength = varianceFragmentOnlyLength;
         this.meanFragmentsPerCurve = meanFragmentsPerCurve;
         this.varianceFragmentsPerCurve = varianceFragmentsPerCurve;
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
     }
 
     public double getShortestLine() {
@@ -81,6 +88,14 @@ public class Statistics {
         return fragmentedCurveCount;
     }
 
+    public double getImageWidth() {
+        return imageWidth;
+    }
+
+    public double getImageHeight() {
+        return imageHeight;
+    }
+
     public static Statistics create(Set<Set<Line>> curveLines) {
         // the total number of curves in the set
         int totalCurveCount = 0;
@@ -106,6 +121,9 @@ public class Statistics {
         // total of fragments when there were more than one in the curve
         int totalFragmentOnlyCount = 0;
 
+        BoundingBox bbox = new BoundingBox();
+
+
         for (Set<Line> curveData : curveLines) {
             totalCurveCount++;
 
@@ -118,6 +136,8 @@ public class Statistics {
 
             for (Line fragment : curveData) {
                 double fragmentLength = fragment.length();
+
+                bbox = bbox.expandToInclude(fragment.getBoundingBox());
 
                 totalLineLength += fragmentLength;
                 totalLineCount++;
@@ -172,6 +192,7 @@ public class Statistics {
                 shortestLine, longestLine,
                 meanLineLength, varianceLineLength,
                 meanFragmentOnlyLength, varianceFragmentOnlyLength,
-                meanFragmentsPerCurve, varianceFragmentsPerCurve);
+                meanFragmentsPerCurve, varianceFragmentsPerCurve,
+                bbox.getWidth(), bbox.getHeight());
     }
 }

@@ -14,14 +14,14 @@ import java.util.Iterator;
  * @author Daniel Rendall
  * @created 31-May-2009 11:20:00
  */
-public class GridCollectionTest {
+public class SquareCounterTest {
 
     @Test
     public void testStraightLine() {
         Point start = new Point(50.0, 30.0);
         Point end = new Point(250.0, 90.0);
 
-        GridCollection gc = new GridCollection(1000);
+        SquareCounter gc = new SquareCounter(1000);
         Grid pg = new Grid(100.0d);
         gc.addGrid(pg);
         gc.handleCurve(new Line(start, end));
@@ -37,7 +37,7 @@ public class GridCollectionTest {
         Point p3 = new Point(666.6666666666667, 500.0);
         Point end = new Point(999.999999999, 749.9999999999); // no spill over
 
-        GridCollection gc = new GridCollection(1000);
+        SquareCounter gc = new SquareCounter(1000);
         Grid pg = new Grid(100.0d);
         gc.addGrid(pg);
 
@@ -82,7 +82,7 @@ public class GridCollectionTest {
         Point p3 = new Point(666.6666666666667, 500.0);
         Point end = new Point(999.999999999, 749.9999999999); // no spill over
 
-        GridCollection gc = new GridCollection(1000);
+        SquareCounter gc = new SquareCounter(1000);
         Grid pg = new Grid(69.0d);
         gc.addGrid(pg);
 
@@ -130,7 +130,7 @@ public class GridCollectionTest {
         Point start = new Point(50.001, 30.001);
         Point end = new Point(249.999, 89.999);
 
-        GridCollection gc = new GridCollection(1000);
+        SquareCounter gc = new SquareCounter(1000);
         Grid pg100 = new Grid(100.0d);
         Grid pg80 = new Grid(80);
         Grid pg60 = new Grid(60);
@@ -159,7 +159,7 @@ public class GridCollectionTest {
         Point control2 = new Point(210.0, 160.0);
         Point end = new Point(249.999, 90.001);
 
-        GridCollection gc = new GridCollection(1000);
+        SquareCounter gc = new SquareCounter(1000);
         Grid pg100 = new Grid(100.0d);
         Grid pg80 = new Grid(80);
         Grid pg60 = new Grid(60);
@@ -183,15 +183,15 @@ public class GridCollectionTest {
 
     @Test
     public void testCreateCollection() {
-        GridCollection collection = GridCollection.createCollection(1000, 1.0d, 10.0d, 1.0d, 1, 1);
+        SquareCounter collection = SquareCounter.createSquareCounter(1000, 1.0d, 10.0d, 9, 1, 1);
         assertEquals(10, collection.count());
 
         // four angles
-        collection = GridCollection.createCollection(1000, 1.0d, 10.0d, 1.0d, 4, 1);
+        collection = SquareCounter.createSquareCounter(1000, 1.0d, 10.0d, 9, 4, 1);
         assertEquals(40, collection.count());
 
         // four angles, 3 displacement points (= 9 displacement vectors)
-        collection = GridCollection.createCollection(1000, 1.0d, 10.0d, 1.0d, 4, 3);
+        collection = SquareCounter.createSquareCounter(1000, 1.0d, 10.0d, 9, 4, 3);
         assertEquals(360, collection.count());
     }
 
@@ -200,7 +200,7 @@ public class GridCollectionTest {
         Point start = new Point(29.198, 29.198);
         Point end = new Point(286.171, 88.963);
 
-        GridCollection gc = new GridCollection(1000);
+        SquareCounter gc = new SquareCounter(1000);
         Grid pg100 = new Grid(100.0d);
 
         Grid pg100_x1 = new Grid(100.0d, 0.5d, 0.0d);
@@ -229,7 +229,7 @@ public class GridCollectionTest {
         Point control2 = new Point(210.0, 160.0);
         Point end = new Point(249.999, 90.001);
 
-        GridCollection gc = new GridCollection(1000);
+        SquareCounter gc = new SquareCounter(1000);
         Grid pg100 = new Grid(100.0d);
         Grid pg100_10 = new Grid(Math.PI / 18.0d, 100.0d);
         Grid pg100_20 = new Grid(2.0d * Math.PI / 18.0d, 100.0d);
@@ -271,7 +271,7 @@ public class GridCollectionTest {
         Point control2 = new Point(210.0, 160.0);
         Point end = new Point(249.999, 90.001);
 
-        GridCollection gc = new GridCollection(1000);
+        SquareCounter gc = new SquareCounter(1000);
         Grid pg60 = new Grid(60.0d);
         Grid pg60_30 = new Grid(3.0d * Math.PI / 18.0d, 60.0d);
         Grid pg60_70 = new Grid(7.0d * Math.PI / 18.0d, 60.0d);

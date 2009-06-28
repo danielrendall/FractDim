@@ -7,6 +7,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.calculation.SquareCounter;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
+import uk.co.danielrendall.fractdim.calculation.SquareCounts;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.io.File;
@@ -29,15 +30,15 @@ public class FDRunner {
 
             SVGDocument doc = (SVGDocument) f.createDocument(file.toURI().toString());
 
-            SquareCounter calc = new SquareCounter(doc);
+            SquareCounter calc = SquareCounter.createSquareCounter(1, 1, 1, 1, 1, 1);
 
-            SquareCountingResult result = calc.process();
+            SquareCountingResult result = calc.process(doc);
 
             // cheat - only one angle at the moment
             double angle = result.getAvailableAngles().iterator().next();
 
             for (Double resolution : result.getAvailableResolutions(angle)) {
-                SquareCountingResult.Statistics stats = result.getStatistics(angle, resolution);
+                SquareCounts stats = result.getStatistics(angle, resolution);
                 Log.gui.debug("Resolution: " + resolution + " Number of squares: " + stats.getNumberOfSquares());
             }
 

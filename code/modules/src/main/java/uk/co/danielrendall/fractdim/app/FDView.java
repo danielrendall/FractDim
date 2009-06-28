@@ -11,6 +11,7 @@ import java.awt.*;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
+import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
 import uk.co.danielrendall.fractdim.app.gui.StatisticsPanel;
 import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
 import uk.co.danielrendall.fractdim.logging.Log;
@@ -21,18 +22,19 @@ import uk.co.danielrendall.fractdim.logging.Log;
  */
 public class FDView extends SwingRootView {
 
-    JTabbedPane tabbedPane = new JTabbedPane();
+    final JTabbedPane tabbedPane = new JTabbedPane();
 
-    JSVGCanvas svgCanvas = new JSVGCanvas();
+    final JSVGCanvas svgCanvas = new JSVGCanvas();
 
-    StatisticsPanel statsPanel = new StatisticsPanel();
+    final JPanel settingsTab = new JPanel();
 
-    SettingsPanel settingsPanel = new SettingsPanel();
+    final StatisticsPanel statsPanel = new StatisticsPanel();
 
-    JTable resultTable = new JTable();
+    final SettingsPanel settingsPanel = new SettingsPanel();
 
-    JProgressBar progressBar = new JProgressBar();
+    final JTable resultTable = new JTable();
 
+    final JProgressBar progressBar = new JProgressBar();
 
     public FDView() {
         super();
@@ -40,6 +42,16 @@ public class FDView extends SwingRootView {
 
         tabbedPane.addTab("SVG image", new JScrollPane(svgCanvas));
 
+        Box theBox = Box.createVerticalBox();
+        theBox.add(statsPanel);
+        theBox.add(Box.createVerticalStrut(10));
+        theBox.add(settingsPanel);
+
+        settingsTab.setLayout(new FlowLayout());
+        settingsTab.add(theBox);
+
+        tabbedPane.addTab("Settings", settingsTab);
+        
         add(tabbedPane, BorderLayout.CENTER);
 
         progressBar.setMaximum(100);
@@ -47,6 +59,10 @@ public class FDView extends SwingRootView {
         add(progressBar, BorderLayout.SOUTH);
 
         setPastePossible(false);
+    }
+
+    public void setSettingsModel(CompoundDataModel settingsModel) {
+        settingsPanel.bindToModel(settingsModel);
     }
 
     public Action copy() {
@@ -89,40 +105,12 @@ public class FDView extends SwingRootView {
 
     private void updateStatistics(Statistics statistics) {
         Log.gui.debug("Updating statistics");
-        if (tabbedPane.getTabCount() == 1) {
-            Log.gui.debug("Adding new pane to tabbed pane");
-
-
-//            JPanel thePanel = new JPanel();
-//            thePanel.setLayout(new GridBagLayout());
-
-//            thePanel.add(statsPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.5,
-//                    GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, statsPanel.getInsets(), 0, 0));
-
-            settingsPanel.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder("Settings"),
-                    BorderFactory.createEtchedBorder()
-            ));
-//            thePanel.add(settingsPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.5,
-//                    GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, settingsPanel.getInsets(), 0, 0));
-//
-            Box theBox = Box.createVerticalBox();
-            theBox.add(statsPanel);
-            theBox.add(Box.createVerticalStrut(10));
-            theBox.add(settingsPanel);
-
-            JPanel aPanel = new JPanel(new FlowLayout());
-            aPanel.add(theBox);
-
-            tabbedPane.addTab("Settings", aPanel);
-            tabbedPane.repaint();
-        } else {
-            Log.gui.debug("Just updating statistics");
-        }
         statsPanel.update(statistics);
     }
 
     private void updateSettings(CalculationSettings settings) {
+        Log.gui.debug("Updating settings");
+        settingsPanel.update(settings);
     }
 
     private void updateResult(SquareCountingResult result) {
@@ -132,4 +120,5 @@ public class FDView extends SwingRootView {
     public void updateProgressBar(int i) {
         progressBar.setValue(i);
     }
+
 }
