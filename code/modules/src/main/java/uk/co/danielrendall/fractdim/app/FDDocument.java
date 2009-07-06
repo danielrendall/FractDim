@@ -1,4 +1,4 @@
-package uk.co.danielrendall.fractdim;
+package uk.co.danielrendall.fractdim.app;
 
 import org.bs.mdi.Document;
 import org.bs.mdi.Application;
@@ -11,6 +11,7 @@ import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
 import uk.co.danielrendall.fractdim.app.datamodel.ModelStatusListener;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -61,7 +62,9 @@ public class FDDocument extends Document {
         final FDData data = ((FDData) getData());
         addModelStatusListener(new ModelStatusListener() {
             public void modelIsGood() {
+                Log.gui.debug("Setting settings from model");
                 data.setSettings((CalculationSettings)settingsModel.getNewModel());
+                Log.gui.debug(data.getSettings().toString());
 
             }
 
@@ -90,7 +93,11 @@ public class FDDocument extends Document {
     }
 
     public void setSquareCountingResult(SquareCountingResult squareCountingResult) {
-        //To change body of created methods use File | Settings | File Templates.
+        FDData data = ((FDData) getData());
+        data.setResult(squareCountingResult);
+
+        FDView view = (FDView) getView(0);
+        view.syncWithData();
     }
 
 

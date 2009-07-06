@@ -2,12 +2,10 @@ package uk.co.danielrendall.fractdim.app.workers;
 
 import uk.co.danielrendall.fractdim.app.FDData;
 import uk.co.danielrendall.fractdim.app.FDView;
+import uk.co.danielrendall.fractdim.app.FDDocument;
 import uk.co.danielrendall.fractdim.calculation.StatisticsCalculator;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.logging.Log;
-import uk.co.danielrendall.fractdim.FDDocument;
-
-import org.bs.mdi.Document;
 
 import java.util.concurrent.ExecutionException;
 import java.util.List;

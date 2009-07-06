@@ -6,18 +6,11 @@ import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
-import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
-import uk.co.danielrendall.fractdim.app.workers.Notifiable;
-import uk.co.danielrendall.fractdim.app.workers.NotifyingWorker;
 import uk.co.danielrendall.fractdim.app.datamodel.ModelStatusListener;
 import uk.co.danielrendall.fractdim.logging.Log;
-import uk.co.danielrendall.fractdim.FDDocument;
+import uk.co.danielrendall.fractdim.app.FDDocument;
 
 import javax.swing.*;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.LinkedList;
 
 /**
  * Hello world!
@@ -95,7 +88,7 @@ public class FractDim extends Application {
         setBusy(true);
 
         Generator gen = new Generator();
-        SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 4);
+        SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000.0, 1000.0), 3);
 
         Document doc = Document.createNew();
         ((FDData) doc.getData()).setSvgDoc(svg);

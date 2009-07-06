@@ -9,7 +9,7 @@ import org.bs.mdi.swing.SwingDefaultCommands;
 import javax.swing.*;
 
 import uk.co.danielrendall.fractdim.app.workers.SquareCountingWorker;
-import uk.co.danielrendall.fractdim.FDDocument;
+import uk.co.danielrendall.fractdim.app.FDDocument;
 
 /**
  * @author Daniel Rendall

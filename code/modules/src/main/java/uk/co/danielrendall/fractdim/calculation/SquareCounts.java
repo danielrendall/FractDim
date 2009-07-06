@@ -11,21 +11,20 @@ import java.util.Set;
 */
 public class SquareCounts {
 
-    private final int[] squareCounts;
+    private final double squareCount;
 
     public SquareCounts(Set<Grid> grids) {
-        squareCounts = new int[grids.size()];
+        double c = 0.0d;
         int i=0;
         for (Grid grid : grids) {
-            squareCounts[i++] = grid.getSquareCount();
+            c += (double)grid.getSquareCount();
+            i++;
         }
+        squareCount = c / (double) i;
     }
 
     public double getNumberOfSquares() {
-        double d=0.0;
-        for (int squareCount : squareCounts) {
-            d += (double) squareCount;
-        }
-        return d / (double) squareCounts.length;
+        return squareCount;
     }
+
 }

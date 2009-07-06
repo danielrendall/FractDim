@@ -195,4 +195,10 @@ public class Statistics {
                 meanFragmentsPerCurve, varianceFragmentsPerCurve,
                 bbox.getWidth(), bbox.getHeight());
     }
+
+    public String toString() {
+        return "total: " + totalCurveCount +
+                " shortest: " + shortestLine +
+                " longest: " + longestLine;
+    }
 }

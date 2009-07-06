@@ -3,12 +3,26 @@ package uk.co.danielrendall.fractdim.calculation;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.w3c.dom.svg.SVGDocument;
+import org.kohsuke.args4j.CmdLineException;
 import uk.co.danielrendall.fractdim.geom.BezierCubic;
 import uk.co.danielrendall.fractdim.geom.Line;
 import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
+import uk.co.danielrendall.fractdim.generate.Generator;
+import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 
+import javax.xml.transform.*;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.dom.DOMSource;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
+import java.io.File;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 
 /**
  * @author Daniel Rendall
@@ -51,26 +65,26 @@ public class SquareCounterTest {
         }
 
         Iterator<GridSquare> it = pg.squareIterator();
-        assertTrue(new GridSquare(0, 0).equals(it.next()));
-        assertTrue(new GridSquare(1, 0).equals(it.next()));
-        assertTrue(new GridSquare(1, 1).equals(it.next()));
-        assertTrue(new GridSquare(2, 1).equals(it.next()));
-        assertTrue(new GridSquare(2, 2).equals(it.next()));
-        assertTrue(new GridSquare(3, 2).equals(it.next()));
-        assertTrue(new GridSquare(3, 3).equals(it.next()));
-        assertTrue(new GridSquare(3, 4).equals(it.next()));
-        assertTrue(new GridSquare(2, 5).equals(it.next()));
-        assertTrue(new GridSquare(3, 5).equals(it.next()));
-        assertTrue(new GridSquare(4, 5).equals(it.next()));
-        assertTrue(new GridSquare(5, 5).equals(it.next()));
-        assertTrue(new GridSquare(6, 5).equals(it.next()));
-        assertTrue(new GridSquare(7, 5).equals(it.next()));
-        assertTrue(new GridSquare(2, 6).equals(it.next()));
-        assertTrue(new GridSquare(3, 6).equals(it.next()));
-        assertTrue(new GridSquare(4, 6).equals(it.next()));
-        assertTrue(new GridSquare(8, 6).equals(it.next()));
-        assertTrue(new GridSquare(9, 6).equals(it.next()));
-        assertTrue(new GridSquare(9, 7).equals(it.next()));
+        assertTrue(GridSquare.create(0, 0).equals(it.next()));
+        assertTrue(GridSquare.create(1, 0).equals(it.next()));
+        assertTrue(GridSquare.create(1, 1).equals(it.next()));
+        assertTrue(GridSquare.create(2, 1).equals(it.next()));
+        assertTrue(GridSquare.create(2, 2).equals(it.next()));
+        assertTrue(GridSquare.create(3, 2).equals(it.next()));
+        assertTrue(GridSquare.create(3, 3).equals(it.next()));
+        assertTrue(GridSquare.create(3, 4).equals(it.next()));
+        assertTrue(GridSquare.create(2, 5).equals(it.next()));
+        assertTrue(GridSquare.create(3, 5).equals(it.next()));
+        assertTrue(GridSquare.create(4, 5).equals(it.next()));
+        assertTrue(GridSquare.create(5, 5).equals(it.next()));
+        assertTrue(GridSquare.create(6, 5).equals(it.next()));
+        assertTrue(GridSquare.create(7, 5).equals(it.next()));
+        assertTrue(GridSquare.create(2, 6).equals(it.next()));
+        assertTrue(GridSquare.create(3, 6).equals(it.next()));
+        assertTrue(GridSquare.create(4, 6).equals(it.next()));
+        assertTrue(GridSquare.create(8, 6).equals(it.next()));
+        assertTrue(GridSquare.create(9, 6).equals(it.next()));
+        assertTrue(GridSquare.create(9, 7).equals(it.next()));
     }
 
     @Test
@@ -96,33 +110,33 @@ public class SquareCounterTest {
         }
 
         Iterator<GridSquare> it = pg.squareIterator();
-        assertTrue(new GridSquare(0, 0).equals(it.next()));
-        assertTrue(new GridSquare(1, 0).equals(it.next()));
-        assertTrue(new GridSquare(1, 1).equals(it.next()));
-        assertTrue(new GridSquare(2, 1).equals(it.next()));
-        assertTrue(new GridSquare(2, 2).equals(it.next()));
-        assertTrue(new GridSquare(3, 2).equals(it.next()));
-        assertTrue(new GridSquare(4, 3).equals(it.next()));
-        assertTrue(new GridSquare(4, 4).equals(it.next()));
-        assertTrue(new GridSquare(4, 5).equals(it.next()));
-        assertTrue(new GridSquare(4, 6).equals(it.next()));
-        assertTrue(new GridSquare(4, 7).equals(it.next()));
-        assertTrue(new GridSquare(7, 7).equals(it.next()));
-        assertTrue(new GridSquare(8, 7).equals(it.next()));
-        assertTrue(new GridSquare(9, 7).equals(it.next()));
-        assertTrue(new GridSquare(10, 7).equals(it.next()));
-        assertTrue(new GridSquare(4, 8).equals(it.next()));
-        assertTrue(new GridSquare(5, 8).equals(it.next()));
-        assertTrue(new GridSquare(6, 8).equals(it.next()));
-        assertTrue(new GridSquare(7, 8).equals(it.next()));
-        assertTrue(new GridSquare(10, 8).equals(it.next()));
-        assertTrue(new GridSquare(11, 8).equals(it.next()));
-        assertTrue(new GridSquare(4, 9).equals(it.next()));
-        assertTrue(new GridSquare(5, 9).equals(it.next()));
-        assertTrue(new GridSquare(12, 9).equals(it.next()));
-        assertTrue(new GridSquare(13, 9).equals(it.next()));
-        assertTrue(new GridSquare(13, 10).equals(it.next()));
-        assertTrue(new GridSquare(14, 10).equals(it.next()));
+        assertTrue(GridSquare.create(0, 0).equals(it.next()));
+        assertTrue(GridSquare.create(1, 0).equals(it.next()));
+        assertTrue(GridSquare.create(1, 1).equals(it.next()));
+        assertTrue(GridSquare.create(2, 1).equals(it.next()));
+        assertTrue(GridSquare.create(2, 2).equals(it.next()));
+        assertTrue(GridSquare.create(3, 2).equals(it.next()));
+        assertTrue(GridSquare.create(4, 3).equals(it.next()));
+        assertTrue(GridSquare.create(4, 4).equals(it.next()));
+        assertTrue(GridSquare.create(4, 5).equals(it.next()));
+        assertTrue(GridSquare.create(4, 6).equals(it.next()));
+        assertTrue(GridSquare.create(4, 7).equals(it.next()));
+        assertTrue(GridSquare.create(7, 7).equals(it.next()));
+        assertTrue(GridSquare.create(8, 7).equals(it.next()));
+        assertTrue(GridSquare.create(9, 7).equals(it.next()));
+        assertTrue(GridSquare.create(10, 7).equals(it.next()));
+        assertTrue(GridSquare.create(4, 8).equals(it.next()));
+        assertTrue(GridSquare.create(5, 8).equals(it.next()));
+        assertTrue(GridSquare.create(6, 8).equals(it.next()));
+        assertTrue(GridSquare.create(7, 8).equals(it.next()));
+        assertTrue(GridSquare.create(10, 8).equals(it.next()));
+        assertTrue(GridSquare.create(11, 8).equals(it.next()));
+        assertTrue(GridSquare.create(4, 9).equals(it.next()));
+        assertTrue(GridSquare.create(5, 9).equals(it.next()));
+        assertTrue(GridSquare.create(12, 9).equals(it.next()));
+        assertTrue(GridSquare.create(13, 9).equals(it.next()));
+        assertTrue(GridSquare.create(13, 10).equals(it.next()));
+        assertTrue(GridSquare.create(14, 10).equals(it.next()));
     }
 
     @Test
@@ -310,5 +324,66 @@ public class SquareCounterTest {
         assertEquals(7, pg60_30_x1_y1.getSquareCount());
         assertEquals(7, pg60_70_x1_y1.getSquareCount());
 
+    }
+
+    @Test
+    public void testCalculateFractalDimension() {
+
+        for (int i=0; i< 4; i++) {
+            Generator gen = new Generator();
+
+            double angle = (Math.PI / 2.0) * (double) i;
+
+            double startX = 0.1d * Math.cos(angle);
+            double startY = 0.1d * Math.sin(angle);
+
+            double endX = 1001.0d * Math.cos(angle);
+            double endY = 1001.0d * Math.sin(angle);
+
+            SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(startX, startY).rotate(Math.PI / 90d), new Point(endX, endY).rotate(Math.PI / 90d), 3);
+
+
+            try {
+                // Prepare the DOM document for writing
+                Source source = new DOMSource(svg);
+
+                // Prepare the output file
+                File file = new File("/tmp/mem/koch" + i + ".svg");
+
+                OutputStream fos = new FileOutputStream(file);
+
+                Result result = new StreamResult(fos);
+
+                // Write the DOM document to the file
+                Transformer xformer = TransformerFactory.newInstance().newTransformer();
+                xformer.transform(source, result);
+            } catch (TransformerConfigurationException e) {
+                e.printStackTrace();
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            StatisticsCalculator sc = new StatisticsCalculator(Math.PI / 90.0d);
+
+            Statistics stats = sc.process(svg);
+
+            Log.test.info(stats.toString());
+
+            CalculationSettings settings = new CalculationSettings(stats);
+
+            Log.test.info(settings.toString());
+
+            SquareCounter counter = SquareCounter.createSquareCounter(30,
+                    settings.getMinimumSquareSize(),
+                    settings.getMaximumSquareSize(),
+                    settings.getNumberOfResolutions(),
+                    settings.getNumberOfAngles(),
+                    3);
+
+            SquareCountingResult result = counter.process(svg);
+            GridSquare.resetCount();
+        }
     }
 }

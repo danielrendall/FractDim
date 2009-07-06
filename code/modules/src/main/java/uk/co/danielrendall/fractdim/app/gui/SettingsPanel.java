@@ -48,7 +48,7 @@ public class SettingsPanel  extends GenericFormPanel {
         spnNumberOfAngles.setModel(new SpinnerNumberModel(1, 1, 18, 1));
         add("Number of angles", spnNumberOfAngles);
 
-        spnNumberOfDisplacements.setModel(new SpinnerNumberModel(1, 1, 3, 1));
+        spnNumberOfDisplacements.setModel(new SpinnerNumberModel(1, 1, 10, 1));
         add("Number of sub-points", spnNumberOfDisplacements);
 
     }

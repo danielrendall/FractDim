@@ -12,13 +12,13 @@ public class GridSquareTest {
 
     @Test
     public void testDirection() {
-        GridSquare one = new GridSquare(5, 8);
-        GridSquare two = new GridSquare(1, 2);
-        GridSquare three = new GridSquare(6, 8);
-        GridSquare four = new GridSquare(2, 3);
-        GridSquare five = new GridSquare(5, 8);
-        GridSquare six = new GridSquare(5, 7);
-        GridSquare seven = new GridSquare(6, 6);
+        GridSquare one = GridSquare.create(5, 8);
+        GridSquare two = GridSquare.create(1, 2);
+        GridSquare three = GridSquare.create(6, 8);
+        GridSquare four = GridSquare.create(2, 3);
+        GridSquare five = GridSquare.create(5, 8);
+        GridSquare six = GridSquare.create(5, 7);
+        GridSquare seven = GridSquare.create(6, 6);
 
         assertEquals(GridSquare.NO_TOUCH, one.direction(two));
         assertEquals(GridSquare.SAME, five.direction(one));

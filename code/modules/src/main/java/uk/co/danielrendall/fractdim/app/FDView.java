@@ -14,6 +14,7 @@ import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
 import uk.co.danielrendall.fractdim.app.gui.StatisticsPanel;
 import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
+import uk.co.danielrendall.fractdim.app.gui.ResultPanel;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 /**
@@ -22,36 +23,40 @@ import uk.co.danielrendall.fractdim.logging.Log;
  */
 public class FDView extends SwingRootView {
 
-    final JTabbedPane tabbedPane = new JTabbedPane();
-
     final JSVGCanvas svgCanvas = new JSVGCanvas();
-
-    final JPanel settingsTab = new JPanel();
-
     final StatisticsPanel statsPanel = new StatisticsPanel();
-
     final SettingsPanel settingsPanel = new SettingsPanel();
-
-    final JTable resultTable = new JTable();
-
+    final ResultPanel resultPanel = new ResultPanel();
+    
     final JProgressBar progressBar = new JProgressBar();
 
     public FDView() {
         super();
         setLayout(new BorderLayout());
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        // first tab - SVG
 
         tabbedPane.addTab("SVG image", new JScrollPane(svgCanvas));
+
+        // second tab - settings and statistics
 
         Box theBox = Box.createVerticalBox();
         theBox.add(statsPanel);
         theBox.add(Box.createVerticalStrut(10));
         theBox.add(settingsPanel);
 
+        JPanel settingsTab = new JPanel();
+
         settingsTab.setLayout(new FlowLayout());
         settingsTab.add(theBox);
 
         tabbedPane.addTab("Settings", settingsTab);
-        
+
+        // third tab - results
+
+        tabbedPane.addTab("Results", resultPanel);
+
         add(tabbedPane, BorderLayout.CENTER);
 
         progressBar.setMaximum(100);
@@ -114,7 +119,8 @@ public class FDView extends SwingRootView {
     }
 
     private void updateResult(SquareCountingResult result) {
-        //To change body of created methods use File | Settings | File Templates.
+        Log.gui.debug("Updating result");
+        resultPanel.update(result);
     }
 
     public void updateProgressBar(int i) {

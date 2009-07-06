@@ -194,7 +194,7 @@ public class Grid {
         // todo - some serious testing!
         int SquareelX = (int) Math.floor(p.x() / resolution);
         int SquareelY = (int) Math.floor(p.y() / resolution);
-        return new GridSquare(SquareelX, SquareelY);
+        return GridSquare.create(SquareelX, SquareelY);
     }
 
     public int getSquareCount() {

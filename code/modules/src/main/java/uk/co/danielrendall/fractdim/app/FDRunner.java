@@ -37,10 +37,10 @@ public class FDRunner {
             // cheat - only one angle at the moment
             double angle = result.getAvailableAngles().iterator().next();
 
-            for (Double resolution : result.getAvailableResolutions(angle)) {
-                SquareCounts stats = result.getStatistics(angle, resolution);
-                Log.gui.debug("Resolution: " + resolution + " Number of squares: " + stats.getNumberOfSquares());
-            }
+//            for (Double resolution : result.getAvailableResolutions(angle)) {
+//                SquareCounts stats = result.getStatistics(angle, resolution);
+//                Log.gui.debug("Resolution: " + resolution + " Number of squares: " + stats.getNumberOfSquares());
+//            }
 
 
         } catch (IOException e) {

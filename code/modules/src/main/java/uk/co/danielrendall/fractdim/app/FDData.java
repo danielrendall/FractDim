@@ -6,15 +6,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
+import uk.co.danielrendall.fractdim.app.datamodel.CalculationResultTableModel;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 
 import javax.swing.table.TableModel;
-import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.print.PageFormat;
-import java.util.Vector;
 
 /**
  * @author Daniel Rendall
@@ -114,11 +113,6 @@ public class FDData extends RootData {
         return resultDirty;
     }
 
-    public TableModel getResultTableModel() {
-        return new CalculationResultTableModel();
-    }
-
-
     public Printer getPrinter() {
         return printer;
     }
@@ -152,60 +146,5 @@ public class FDData extends RootData {
             return true;
         }
     }
-    class CalculationResultTableModel extends AbstractTableModel {
 
-        private final Vector<Double> angleData;
-        private final Vector<Double> resolutionData;
-        private final Vector<Double> squaresData;
-
-        private final int numRows;
-
-        private final String[] columnNames = new String[] {
-                "Angle", "Resolution", "Square Count"
-        };
-
-        public CalculationResultTableModel() {
-            angleData = new Vector<Double>();
-            resolutionData = new Vector<Double>();
-            squaresData = new Vector<Double>();
-
-            for (Double angle : result.getAvailableAngles()) {
-
-                for(Double resolution : result.getAvailableResolutions(angle)) {
-                    angleData.add(angle);
-                    resolutionData.add(resolution);
-                    squaresData.add(result.getStatistics(angle, resolution).getNumberOfSquares());
-                }
-            }
-            numRows = angleData.size();
-        }
-
-        public int getRowCount() {
-            return numRows;
-        }
-
-        public int getColumnCount() {
-            return 3;
-        }
-
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            switch (columnIndex) {
-                case 0:
-                    return angleData.get(rowIndex);
-                case 1:
-                    return resolutionData.get(rowIndex);
-                case 2:
-                    return squaresData.get(rowIndex);
-                default:
-                    return "FAIL";
-            }
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnNames[column];
-        }
-
-    }
-
-  }
+}

@@ -1,5 +1,8 @@
 package uk.co.danielrendall.fractdim.calculation;
 
+import java.util.Map;
+import java.util.HashMap;
+
 /**
  * @author Daniel Rendall
 * @created 30-May-2009 19:25:42
@@ -17,15 +20,32 @@ class GridSquare implements Comparable {
     static final int BELOW_LEFT = 7;
     static final int LEFT = 8;
 
+    static final Map<String, GridSquare> squares = new HashMap<String, GridSquare>();
+
     // maybe better to have a factory method which returns flyweight squares?
     public static int createCount = 0;
 
     public final int xIndex, yIndex;
 
-    GridSquare(int xIndex, int yIndex) {
+    private GridSquare(int xIndex, int yIndex) {
         this.xIndex = xIndex;
         this.yIndex = yIndex;
         createCount++;
+    }
+
+    public static GridSquare create(int xIndex, int yIndex) {
+        String key = "" + xIndex + "," + yIndex;
+        GridSquare square = squares.get(key);
+        if (square == null) {
+            square = new GridSquare(xIndex, yIndex);
+            squares.put(key, square);
+        }
+        return square;
+    }
+
+    public static void resetCount() {
+        createCount = 0;
+        squares.clear();
     }
 
     @Override
@@ -113,4 +133,5 @@ class GridSquare implements Comparable {
         if (yDiff != 0) return yDiff;
         return xIndex - other.xIndex;
     }
+
 }

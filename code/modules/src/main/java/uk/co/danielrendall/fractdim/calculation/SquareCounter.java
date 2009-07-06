@@ -35,7 +35,7 @@ public class SquareCounter extends AbstractNotifyingGraphics {
 
     public void addGrid(double angle, double resolution, double fractionalXDisplacement, double fractionalYDisplacement) {
         Grid aGrid = new Grid(angle, resolution, fractionalXDisplacement, fractionalYDisplacement);
-        setForResolution(resolution, mapForAngle(angle)).add(aGrid);
+        setForAngleAndResolution(angle, resolution).add(aGrid);
         grids.add(aGrid);
     }
 
@@ -56,8 +56,8 @@ public class SquareCounter extends AbstractNotifyingGraphics {
         return mapForAngle(angle).keySet();
     }
 
-
-    Set<Grid> setForResolution(double resolution, SortedMap<Double, Set<Grid>> angleMap) {
+    Set<Grid> setForAngleAndResolution(double angle, double resolution) {
+        SortedMap<Double, Set<Grid>> angleMap = mapForAngle(angle);
         Set<Grid> theSet = angleMap.get(resolution);
         if (theSet == null) {
             theSet = new HashSet<Grid>();
@@ -65,6 +65,7 @@ public class SquareCounter extends AbstractNotifyingGraphics {
         }
         return theSet;
     }
+
     // Intended for testing with single grids
     @Deprecated
     void addGrid(Grid grid) {
@@ -151,12 +152,17 @@ public class SquareCounter extends AbstractNotifyingGraphics {
 
         double angleIncrement = Math.PI / (2.0d * (double) numberOfAngles);
         double fractionalDisplacementIncrement = 1.0d / (double) numberOfDisplacementPoints;
-        double resolutionIncrement = ((maxResolution - minResolution) / (double) numberOfResolutionSteps);
+
+        double logMinResolutionReciprocal = Math.log(1.0d / minResolution);
+        double logMaxResolutionReciprocal = Math.log(1.0d / maxResolution);
+
+        double resolutionIncrement = ((logMinResolutionReciprocal - logMaxResolutionReciprocal) / (double) numberOfResolutionSteps);
 
         for (int angleCount = 0; angleCount < numberOfAngles; angleCount++) {
             double angle = angleIncrement * (double) angleCount;
             for (int resolutionCount = 0; resolutionCount <= numberOfResolutionSteps; resolutionCount++) {
-                double resolution = minResolution + (resolutionIncrement * (double) resolutionCount);
+                double logResolutionReciprocal = logMaxResolutionReciprocal + (resolutionIncrement * (double) resolutionCount);
+                double resolution = 1.0d / Math.exp(logResolutionReciprocal);
                 for (int displacementXCount = 0; displacementXCount < numberOfDisplacementPoints; displacementXCount++) {
                     double fractionalXDisplacement = fractionalDisplacementIncrement * (double) displacementXCount;
                     for (int displacementYCount = 0; displacementYCount < numberOfDisplacementPoints; displacementYCount++) {

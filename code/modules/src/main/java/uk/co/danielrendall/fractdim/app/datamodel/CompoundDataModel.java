@@ -19,6 +19,8 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.awt.*;
 
+import uk.co.danielrendall.fractdim.logging.Log;
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -78,6 +80,7 @@ public class CompoundDataModel {
 
         tc.getDocument().addDocumentListener(new ComponentListener(tc, propertyName, getConverter(fieldType), new ComponentValueExtractor(){
             public Object getValue(JComponent component) {
+                Log.gui.debug("Got value '" + ((JTextComponent) component).getText() + "'");                
                 return ((JTextComponent) component).getText();
             }
         }));
@@ -148,9 +151,8 @@ public class CompoundDataModel {
                 component.setBackground(Color.RED);
             }
             boolean modelIsNowValid = modelIsValid();
-            if (modelIsInitallyValid != modelIsNowValid) {
-                pcs.firePropertyChange(MODEL_VALIDITY, modelIsInitallyValid, modelIsNowValid);
-            }
+//            pcs.firePropertyChange(MODEL_VALIDITY, modelIsInitallyValid, modelIsNowValid);
+            pcs.firePropertyChange(MODEL_VALIDITY, false, modelIsNowValid);
         }
 
         public void insertUpdate(DocumentEvent e) {
