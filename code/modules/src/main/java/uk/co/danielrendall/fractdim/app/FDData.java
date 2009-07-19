@@ -6,12 +6,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
-import uk.co.danielrendall.fractdim.app.datamodel.CalculationResultTableModel;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.print.PageFormat;
 

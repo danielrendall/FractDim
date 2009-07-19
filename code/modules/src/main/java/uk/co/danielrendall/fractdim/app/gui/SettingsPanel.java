@@ -65,7 +65,7 @@ public class SettingsPanel  extends GenericFormPanel {
         txtSmallestSquareSize.setText(String.format("%9.2f", settings.getMinimumSquareSize()));
 
         txtLargestSquareSize.setText(String.format("%9.2f", settings.getMaximumSquareSize()));
-        txtNumberOfSizes.setText(String.format("%d", settings.getNumberOfResolutions()));
+        txtNumberOfSizes.setText(String.format("%3d", settings.getNumberOfResolutions()));
 
         spnNumberOfAngles.setValue(settings.getNumberOfAngles());
         spnNumberOfDisplacements.setValue(settings.getNumberOfDisplacementPoints());

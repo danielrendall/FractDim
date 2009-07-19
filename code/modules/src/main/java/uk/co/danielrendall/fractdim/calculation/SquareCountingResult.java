@@ -28,8 +28,8 @@ public class SquareCountingResult {
     }
 
     // using SortedMap means that the iterator returns these in order
-    public Set<Double> getAvailableAngles() {
-        return Collections.unmodifiableSet(results.keySet());
+    public List<Double> getAvailableAngles() {
+        return Collections.unmodifiableList(new ArrayList<Double>(results.keySet()));
     }
 
     // TODO - handle the case where there are no such statistics
@@ -41,8 +41,8 @@ public class SquareCountingResult {
     public static class FixedAngleSquareCountingResult {
         private final SortedMap<Double, SquareCounts> results;
 
-        public Set<Double> getAvailableResolutions() {
-            return Collections.unmodifiableSet(results.keySet());
+        public List<Double> getAvailableResolutions() {
+            return Collections.unmodifiableList(new ArrayList<Double>(results.keySet()));
         }
 
         public FixedAngleSquareCountingResult() {
