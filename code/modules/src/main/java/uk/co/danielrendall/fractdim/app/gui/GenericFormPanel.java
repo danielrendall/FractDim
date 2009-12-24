@@ -1,5 +1,7 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
+import se.datadosen.component.RiverLayout;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,23 +15,25 @@ import java.awt.*;
 public class GenericFormPanel extends JPanel {
     private final ComponentPreparer labelPreparer, componentPreparer;
 
-    private final int padding = 5;
+    private boolean isFirst = true;
 
     public GenericFormPanel(ComponentPreparer labelPreparer, ComponentPreparer componentPreparer) {
         this.labelPreparer = labelPreparer;
         this.componentPreparer = componentPreparer;
-        setLayout(new GridLayout(0, 2, padding, padding));
+//        setLayout(new GridLayout(0, 2, padding, padding));
+        setLayout(new RiverLayout());
     }
 
-    public void add(String labelText, JComponent component) {
+    public void addLabelAndComponent(String labelText, JComponent component) {
 
         JLabel label = new JLabel(labelText);
 
         labelPreparer.prepare(label);
         componentPreparer.prepare(component);
 
-        add(label);
-        add(component);
+        add(isFirst ? "p left" : "br", label);
+        add("tab hfill", component);
+        isFirst = false;
 
     }
 

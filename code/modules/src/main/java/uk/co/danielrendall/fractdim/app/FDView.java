@@ -16,6 +16,7 @@ import uk.co.danielrendall.fractdim.app.gui.StatisticsPanel;
 import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
 import uk.co.danielrendall.fractdim.app.gui.ResultPanel;
 import uk.co.danielrendall.fractdim.logging.Log;
+import se.datadosen.component.RiverLayout;
 
 /**
  * @author Daniel Rendall
@@ -48,8 +49,8 @@ public class FDView extends SwingRootView {
 
         JPanel settingsTab = new JPanel();
 
-        settingsTab.setLayout(new FlowLayout());
-        settingsTab.add(theBox);
+        settingsTab.setLayout(new RiverLayout());
+        settingsTab.add("p left", theBox);
 
         tabbedPane.addTab("Settings", settingsTab);
 

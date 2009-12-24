@@ -5,10 +5,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
+import javax.swing.event.*;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -81,7 +78,7 @@ public class CompoundDataModel {
         tc.getDocument().addDocumentListener(new ComponentListener(tc, propertyName, getConverter(fieldType), new ComponentValueExtractor(){
             public Object getValue(JComponent component) {
                 Log.gui.debug("Got value '" + ((JTextComponent) component).getText() + "'");                
-                return ((JTextComponent) component).getText();
+                return ((JTextComponent) component).getText().trim();
             }
         }));
     }
@@ -99,6 +96,20 @@ public class CompoundDataModel {
         }));
     }
 
+    public void bind(String propertyName, JList list) {
+        Class fieldType = fieldTypes.get(propertyName);
+        if (fieldType == null) {
+            throw new IllegalArgumentException("Property " + propertyName + " doesn't exist in the model");
+        }
+
+        list.addListSelectionListener(new ComponentListener(list, propertyName, getConverter(fieldType), new ComponentValueExtractor(){
+            public Object getValue(JComponent component) {
+                Log.gui.debug("Got value '" + ((JList) component).getSelectedValue().toString().trim() + "'");
+                return ((JList) component).getSelectedValue().toString().trim();
+            }
+        }));
+    }
+
     public boolean modelIsValid() {
         for(boolean valid : fieldIsValid.values()) {
             if (!valid) return false;
@@ -111,6 +122,8 @@ public class CompoundDataModel {
             return new DoubleConverter();
         } else if (clazz == int.class) {
             return new IntegerConverter();
+        } else if (clazz == String.class) {
+            return new StringConverter();
         } else {
             return new Converter() {
                 public Object convert(Object value) throws Exception {
@@ -120,7 +133,7 @@ public class CompoundDataModel {
         }
     }
 
-    private class ComponentListener implements DocumentListener, ChangeListener {
+    private class ComponentListener implements DocumentListener, ChangeListener, ListSelectionListener {
 
         protected final JComponent component;
         private final String propertyName;
@@ -146,6 +159,7 @@ public class CompoundDataModel {
                 component.setBackground(Color.WHITE);
                 if (!fieldIsInitiallyValid) pcs.fireIndexedPropertyChange(FIELD_VALIDITY, index, false, true);
             } catch (Exception e) {
+                Log.misc.debug(e.getMessage());
                 fieldIsValid.put(propertyName, false);
                 if (fieldIsInitiallyValid) pcs.fireIndexedPropertyChange(FIELD_VALIDITY, index, true, false);
                 component.setBackground(Color.RED);
@@ -168,6 +182,10 @@ public class CompoundDataModel {
         }
 
         public void stateChanged(ChangeEvent e) {
+            handleChange();
+        }
+
+        public void valueChanged(ListSelectionEvent e) {
             handleChange();
         }
     }
@@ -197,6 +215,12 @@ public class CompoundDataModel {
             } catch (NumberFormatException e) {
                 throw new Exception(e);
             }
+        }
+    }
+
+    private static class StringConverter implements Converter {
+        public Object convert(Object value) throws Exception {
+            return value.toString();
         }
     }
 

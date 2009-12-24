@@ -3,51 +3,88 @@ package uk.co.danielrendall.fractdim.app.gui;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.generate.fractals.Messy;
 import uk.co.danielrendall.fractdim.generate.fractals.SquareKoch;
+import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
+import uk.co.danielrendall.fractdim.app.datamodel.GenerateSettings;
 
 import javax.swing.*;
+
+import se.datadosen.component.RiverLayout;
+
+import java.awt.*;
 
 /**
  * @author Daniel Rendall
  * @created 30-May-2009 11:29:59
  */
-public class GenerateDialog {
+public class GenerateDialog extends GenericFormPanel {
 
-    private final JDialog delegate;
+    private final JTextField txtX = new JTextField();
+    private final JTextField txtY = new JTextField();
+    private final JList lstFractalType = new JList();
 
-    private final JComboBox typeCombo;
-    private final JTextField depthField;
+    private final JSpinner spnDepth = new JSpinner();
 
-    public static void main(String[] args) {
 
-        JFrame frame = new JFrame();
-        GenerateDialog gd = new GenerateDialog(frame);
+    public GenerateDialog() {
+        super(new GenericFormPanel.ComponentPreparer() {
+            public void prepare(JComponent component) {
+                ((JLabel) component).setHorizontalAlignment(JLabel.RIGHT);
+            }
+        }, new GenericFormPanel.ComponentPreparer() {
+            public void prepare(JComponent component) {
+                component.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            }
+        });
+
+        setBorder(BorderFactory.createTitledBorder("Settings"));
+
+        lstFractalType.setModel(new AbstractListModel() {
+
+            public int getSize() {
+                return 3;
+            }
+
+            public Object getElementAt(int index) {
+                switch (index) {
+                    case 0:
+                        return "KochCurve";
+                    case 1:
+                        return "Messy";
+                    case 2:
+                        return "SquareKoch";
+                    default:
+                        return "Error";
+                }
+            }
+        });
+        addLabelAndComponent("Fractal type", lstFractalType);
+        addLabelAndComponent("End point x", txtX);
+        addLabelAndComponent("End point y", txtY);
+
+        spnDepth.setModel(new SpinnerNumberModel(1, 1, 6, 1));
+        addLabelAndComponent("Depth", spnDepth);
+
+
     }
 
-    public GenerateDialog(JFrame parent) {
-        delegate = new JDialog(parent, true);
-        JPanel myPanel = new JPanel();
-
-
-        myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
-        typeCombo = new JComboBox(new FractalTypeComboBoxModel());
-        depthField = new JTextField();
-        myPanel.add(typeCombo);
-        myPanel.add(depthField);
-
-        delegate.add(myPanel);
-        delegate.pack();
-        delegate.setVisible(true);
-
+    public void bindToModel(CompoundDataModel model) {
+        model.bind("fractalType", lstFractalType);
+        model.bind("endX", txtX);
+        model.bind("endY", txtY);
+        model.bind("depth", spnDepth);
     }
 
-    static class FractalTypeComboBoxModel extends DefaultComboBoxModel {
-        FractalTypeComboBoxModel() {
-            super();
-            addElement(new FractalType(KochCurve.class, "Koch curve"));
-            addElement(new FractalType(Messy.class, "Messy"));
-            addElement(new FractalType(SquareKoch.class, "Square Koch"));
-        }
+    public void update(GenerateSettings settings) {
+        lstFractalType.setSelectedValue(settings.getFractalType(), true);
+        txtX.setText("" + settings.getEndX());
+        txtY.setText("" + settings.getEndY());
+        spnDepth.setValue(settings.getDepth());
     }
+
+    public void setModel(GenerateSettings settings) {
+        update(settings);
+    }
+
 
     static class FractalType {
         private final Class clazz;

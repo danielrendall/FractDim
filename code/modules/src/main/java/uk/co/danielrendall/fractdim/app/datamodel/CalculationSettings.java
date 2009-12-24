@@ -25,8 +25,8 @@ public class CalculationSettings {
     }
 
     public CalculationSettings(Statistics statistics) {
-        minimumSquareSize = statistics.getShortestLine() / 2;
-        maximumSquareSize = minimumSquareSize * 10;
+        minimumSquareSize = !Double.isNaN(statistics.getMeanLineLength()) ? statistics.getMeanLineLength() * 2 : statistics.getShortestLine() * 2;
+        maximumSquareSize = minimumSquareSize * 20;
         numberOfResolutions = (int) ((Math.log10(maximumSquareSize) - Math.log10(minimumSquareSize)) * 10.0d);
         numberOfAngles = 2;
         numberOfDisplacementPoints = 2;

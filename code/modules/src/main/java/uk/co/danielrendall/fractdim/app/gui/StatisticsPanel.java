@@ -40,16 +40,16 @@ public class StatisticsPanel extends GenericFormPanel {
         });
         setBorder(BorderFactory.createTitledBorder("Statistics"));
         
-        add("Total number of lines", txtTotalCurveCount);
-        add("Total number of non-straight lines", txtFragmentedCurveCount);
-        add("Shortest line or fragment", txtShortestLine);
-        add("Longest line or fragment", txtLongestLine);
-        add("Mean line or fragment length", txtMeanLineLength);
-        add("Variance of line or fragment length", txtVarianceLineLength);
-        add("Mean length of approximating fragments", txtMeanFragmentOnlyLength);
-        add("Variance of approximating fragments", txtVarianceFragmentOnlyLength);
-        add("Mean number of fragments per line", txtMeanFragmentsPerCurve);
-        add("Variance of fragments per line", txtVarianceFragmentsPerCurve);
+        addLabelAndComponent("Total number of lines", txtTotalCurveCount);
+        addLabelAndComponent("Total number of non-straight lines", txtFragmentedCurveCount);
+        addLabelAndComponent("Shortest line or fragment", txtShortestLine);
+        addLabelAndComponent("Longest line or fragment", txtLongestLine);
+        addLabelAndComponent("Mean line or fragment length", txtMeanLineLength);
+        addLabelAndComponent("Variance of line or fragment length", txtVarianceLineLength);
+        addLabelAndComponent("Mean length of approximating fragments", txtMeanFragmentOnlyLength);
+        addLabelAndComponent("Variance of approximating fragments", txtVarianceFragmentOnlyLength);
+        addLabelAndComponent("Mean number of fragments per line", txtMeanFragmentsPerCurve);
+        addLabelAndComponent("Variance of fragments per line", txtVarianceFragmentsPerCurve);
 
         Log.gui.debug("Added components");
     }

@@ -4,11 +4,15 @@ import org.apache.log4j.Logger;
 import org.bs.mdi.*;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.generate.Generator;
+import uk.co.danielrendall.fractdim.generate.Procedure;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.app.datamodel.ModelStatusListener;
+import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
+import uk.co.danielrendall.fractdim.app.datamodel.GenerateSettings;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.app.FDDocument;
+import uk.co.danielrendall.fractdim.app.gui.GenerateDialog;
 
 import javax.swing.*;
 
@@ -83,24 +87,44 @@ public class FractDim extends Application {
         return super.close();    //To change body of overridden methods use File | Settings | File Templates.
     }
 
-    public Document generateNewFractal() {
-        setStatus(tr("Generating..."));
-        setBusy(true);
+    public void generateNewFractal() {
+        CompoundDataModel model = new CompoundDataModel(GenerateSettings.class);
 
-        Generator gen = new Generator();
-        SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000.0, 1000.0), 3);
+        GenerateDialog gd = new GenerateDialog();
+        gd.bindToModel(model);
+        gd.setModel(new GenerateSettings());
 
-        Document doc = Document.createNew();
-        ((FDData) doc.getData()).setSvgDoc(svg);
-        documents.add(doc);
-        doc.syncViewsWithData();
+        int res = JOptionPane.showOptionDialog((JFrame) getMainWindow(), gd, "Fractal options", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 
-        setStatus(tr("Ready"));
-        setBusy(false);
-        Application.getMessageDispatcher().dispatch(
-                doc, FractDim.DOCUMENT_GENERATED, doc);
 
-        return doc;
+        if (res == JOptionPane.YES_OPTION) {
+            setStatus(tr("Generating..."));
+            setBusy(true);
+
+            Generator gen = new Generator();
+
+            GenerateSettings settings = (GenerateSettings) model.getNewModel();
+
+            String type = settings.getFractalType();
+            Document doc = null;
+            try {
+                Class clazz = Class.forName("uk.co.danielrendall.fractdim.generate.fractals." + type);
+
+                SVGDocument svg = gen.generateFractal(((Procedure)clazz.newInstance()), new Point(0, 0), new Point(settings.getEndX(), settings.getEndY()), settings.getDepth());
+
+                doc = Document.createNew();
+                ((FDData) doc.getData()).setSvgDoc(svg);
+                documents.add(doc);
+                doc.syncViewsWithData();
+                setStatus(tr("Ready"));
+            } catch (Exception e) {
+                Log.app.warn("Couldn't load fractal type '" + type + "' - " + e.getMessage());
+            }
+
+            setBusy(false);
+            Application.getMessageDispatcher().dispatch(
+                    doc, FractDim.DOCUMENT_GENERATED, doc);
+        }
     }
 
     @Override

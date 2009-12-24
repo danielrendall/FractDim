@@ -7,9 +7,11 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.AbstractTableModel;
-import java.util.Vector;
 import java.util.List;
+import java.util.ArrayList;
 import java.awt.*;
+
+import se.datadosen.component.RiverLayout;
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,49 +22,125 @@ import java.awt.*;
  */
 public class ResultPanel extends JPanel {
     final JTable resultTable = new JTable();
+    final JTable anglesTable = new JTable();
+    final JTable squaresTable = new JTable();
 
-    final JList list = new JList();
 
     private SquareCountingResult result;
 
     public ResultPanel() {
-        super();
-        Box vertBox = Box.createVerticalBox();
+        super(new RiverLayout());
 
-        JPanel listPanel = new JPanel();
-        listPanel.setBorder(BorderFactory.createTitledBorder("Available angles"));
-        listPanel.add(new JScrollPane(list), BorderLayout.CENTER);
+        resultTable.setEnabled(false);
+        resultTable.setPreferredScrollableViewportSize(new Dimension(300, resultTable.getRowHeight() * 3));
 
-        vertBox.add(listPanel);
+        anglesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        anglesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent e) {
+                squaresTable.setModel(new ResolutionAndSquaresTableModel(anglesTable.getSelectedRow()));
+                Dimension preferredSize = squaresTable.getPreferredSize();
+                int height = preferredSize.height > 300 ? 300 : preferredSize.height;
+                squaresTable.setPreferredScrollableViewportSize(new Dimension(300, height));
+                squaresTable.invalidate();
+            }
+        });
+        anglesTable.setPreferredScrollableViewportSize(new Dimension(300, 40));
 
-        JPanel tablePanel = new JPanel();
-        tablePanel.setBorder(BorderFactory.createTitledBorder("Square counts for selected angle"));
-        tablePanel.add(new JScrollPane(resultTable), BorderLayout.CENTER);
+        squaresTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        squaresTable.setPreferredScrollableViewportSize(new Dimension(300, 40));
 
-        vertBox.add(tablePanel);
+        JScrollPane resultScrollPane = new JScrollPane(resultTable);
+        resultScrollPane.setBorder(BorderFactory.createTitledBorder("Results"));
+        add("p left", resultScrollPane);
 
-        vertBox.add(new JLabel("Final result goes here"));
+        JScrollPane angleScrollPane = new JScrollPane(anglesTable);
+        angleScrollPane.setBorder(BorderFactory.createTitledBorder("Angles calculated"));
+        add("br", angleScrollPane);
 
-        add(vertBox, BorderLayout.CENTER);
+        JScrollPane squaresScrollPane = new JScrollPane(squaresTable);
+        squaresScrollPane.setBorder(BorderFactory.createTitledBorder("Square counts for selected angle"));
+        add("br", squaresScrollPane);
 
     }
 
     public void update(SquareCountingResult result) {
         this.result = result;
-//        resultTable.setModel(new ResolutionAndSquaresTableModel(result));
-        list.setModel(new CalculationResultListModel());
-        list.addListSelectionListener(new ListSelectionListener() {
+        resultTable.setModel(new ResultTableModel());
+        anglesTable.setModel(new AnglesAndDimensionsTableModel());
+        Dimension preferredSize = anglesTable.getPreferredSize();
+        int height = preferredSize.height > 300 ? 300 : preferredSize.height;
+        anglesTable.setPreferredScrollableViewportSize(new Dimension(300, height));
+        anglesTable.invalidate();
+    }
 
-            public void valueChanged(ListSelectionEvent e) {
-                resultTable.setModel(new ResolutionAndSquaresTableModel(list.getSelectedIndex()));
+    private class ResultTableModel extends AbstractTableModel {
+
+        private final double fractalDimension;
+        private final double variance;
+        private final double sd;
+
+        public ResultTableModel() {
+            List<Double> availableAngles = result.getAvailableAngles();
+            int numRows = availableAngles.size();
+            List<Double> fractalDimensions = new ArrayList<Double>(numRows);
+
+            double totalFractalDimension = 0.0d;
+            double totalFractalDimensionSquared = 0.0d;
+
+            for (Double angle : availableAngles) {
+                double fractalDimension = result.getResultsForAngle(angle).getFractalDimension();
+                totalFractalDimension += fractalDimension;
+                totalFractalDimensionSquared += (fractalDimension * fractalDimension);
             }
-        });
+            fractalDimension = totalFractalDimension / ((double) numRows);
+            variance = totalFractalDimensionSquared / ((double) numRows) - (fractalDimension * fractalDimension);
+            sd = Math.sqrt(variance);
+            
+        }
+
+        public int getRowCount() {
+            return 3;
+        }
+
+        public int getColumnCount() {
+            return 2;
+        }
+
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    switch(rowIndex) {
+                        case 0:
+                            return "Mean";
+                        case 1:
+                            return "Variance";
+                        case 2:
+                            return "Standard Deviation";
+                        default:
+                            return "Error";
+
+                    }
+                default:
+                    switch(rowIndex) {
+                        case 0:
+                            return String.format("%9.3f", fractalDimension);
+                        case 1:
+                            return String.format("%9.3f", variance);
+                        case 2:
+                            return String.format("%9.3f", sd);
+                        default:
+                            return "Error";
+
+                    }
+            }
+        }
+
     }
 
     private class ResolutionAndSquaresTableModel extends AbstractTableModel {
 
-        private final Vector<Double> resolutionData;
-        private final Vector<Double> squaresData;
+        private final List<Double> resolutionData;
+        private final List<Double> squaresData;
 
         private final int numRows;
 
@@ -72,19 +150,16 @@ public class ResultPanel extends JPanel {
 
         public ResolutionAndSquaresTableModel(int angleSelection) {
             Log.gui.debug("Selected angle: " + angleSelection);
-            resolutionData = new Vector<Double>();
-            squaresData = new Vector<Double>();
-
             double angle = result.getAvailableAngles().get(angleSelection);
-
             SquareCountingResult.FixedAngleSquareCountingResult resultForAngle = result.getResultsForAngle(angle);
-            for(Double resolution : resultForAngle.getAvailableResolutions()) {
-                resolutionData.add(resolution);
+
+            resolutionData = resultForAngle.getAvailableResolutions();
+            numRows = resolutionData.size();
+            squaresData = new ArrayList<Double>(resolutionData.size());
+
+            for(Double resolution : resolutionData) {
                 squaresData.add(resultForAngle.getCountsForResolution(resolution).getNumberOfSquares());
             }
-
-            numRows = resolutionData.size();
-            Log.gui.debug(String.format("Table has %d rows", numRows));
         }
 
         public int getRowCount() {
@@ -98,9 +173,9 @@ public class ResultPanel extends JPanel {
         public Object getValueAt(int rowIndex, int columnIndex) {
             switch (columnIndex) {
                 case 0:
-                    return String.format("%9.2f", resolutionData.get(rowIndex));
+                    return String.format("%9.3f", resolutionData.get(rowIndex));
                 case 1:
-                    return String.format("%9.2f", squaresData.get(rowIndex));
+                    return String.format("%9.3f", squaresData.get(rowIndex));
                 default:
                     return "FAIL";
             }
@@ -113,19 +188,54 @@ public class ResultPanel extends JPanel {
 
     }
 
-    private class CalculationResultListModel extends AbstractListModel {
+    private class AnglesAndDimensionsTableModel extends AbstractTableModel {
 
         private final List<Double> availableAngles;
-        public CalculationResultListModel() {
+        private final List<Double> fractalDimensions;
+
+        private final int numRows;
+
+        private final String[] columnNames = new String[] {
+                "Angle", "Fractal Dimension"
+        };
+
+        public AnglesAndDimensionsTableModel() {
             availableAngles = result.getAvailableAngles();
+            numRows = availableAngles.size();
+            fractalDimensions = new ArrayList<Double>(numRows);
+            for (Double angle : availableAngles) {
+                fractalDimensions.add(result.getResultsForAngle(angle).getFractalDimension());
+            }
         }
 
         public int getSize() {
             return availableAngles.size();
         }
 
-        public Object getElementAt(int index) {
-            return String.format("%9.2f", availableAngles.get(index) * 180d / Math.PI);
+        public int getRowCount() {
+            return numRows;
         }
+
+        public int getColumnCount() {
+            return 2;
+        }
+
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return String.format("%9.2f", availableAngles.get(rowIndex) * 180d / Math.PI);
+                case 1:
+                    return String.format("%9.3f", fractalDimensions.get(rowIndex));
+                default:
+                    return "FAIL";
+            }
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return columnNames[column];
+        }
+
     }
+
 }

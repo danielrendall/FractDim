@@ -2,14 +2,9 @@ package uk.co.danielrendall.fractdim.app.gui;
 
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
-import uk.co.danielrendall.fractdim.app.datamodel.ModelStatusListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import java.util.Set;
-import java.util.HashSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,15 +36,15 @@ public class SettingsPanel  extends GenericFormPanel {
 
         setBorder(BorderFactory.createTitledBorder("Settings"));
 
-        add("Smallest square size", txtSmallestSquareSize);
-        add("Largest square size", txtLargestSquareSize);
-        add("Number of square sizes", txtNumberOfSizes);
+        addLabelAndComponent("Smallest square size", txtSmallestSquareSize);
+        addLabelAndComponent("Largest square size", txtLargestSquareSize);
+        addLabelAndComponent("Number of square sizes", txtNumberOfSizes);
 
         spnNumberOfAngles.setModel(new SpinnerNumberModel(1, 1, 18, 1));
-        add("Number of angles", spnNumberOfAngles);
+        addLabelAndComponent("Number of angles", spnNumberOfAngles);
 
         spnNumberOfDisplacements.setModel(new SpinnerNumberModel(1, 1, 10, 1));
-        add("Number of sub-points", spnNumberOfDisplacements);
+        addLabelAndComponent("Number of sub-points", spnNumberOfDisplacements);
 
     }
 
