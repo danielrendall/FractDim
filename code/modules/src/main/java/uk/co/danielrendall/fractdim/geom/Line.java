@@ -58,6 +58,7 @@ public class Line implements ParametricCurve {
     }
 
     @Override
+    // @TODO - check this is reasonable
     public int hashCode() {
         return start.hashCode() ^ end.hashCode();
     }

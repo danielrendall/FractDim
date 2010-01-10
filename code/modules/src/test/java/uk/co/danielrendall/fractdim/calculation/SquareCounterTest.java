@@ -348,7 +348,7 @@ public class SquareCounterTest {
                 Source source = new DOMSource(svg);
 
                 // Prepare the output file
-                File file = new File("/tmp/mem/koch" + i + ".svg");
+                File file = new File("/tmp/koch" + i + ".svg");
 
                 OutputStream fos = new FileOutputStream(file);
 
