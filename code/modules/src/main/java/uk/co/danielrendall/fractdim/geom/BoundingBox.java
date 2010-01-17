@@ -87,4 +87,9 @@ public class BoundingBox {
     public double getHeight() {
         return maxY - minY;
     }
+
+    @Override
+    public String toString() {
+        return String.format("{minX=%5.3f, maxX=%5.3f, minY=%5.3f, maxY=%5.3f, width=%5.3f, height=%5.3f'}'", minX, maxX, minY, maxY, getWidth(), getHeight());
+    }
 }

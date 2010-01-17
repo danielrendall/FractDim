@@ -23,8 +23,7 @@ public class Statistics {
     private final int totalCurveCount;
     private final int fragmentedCurveCount;
 
-    private final double imageWidth;
-    private final double imageHeight;
+    private final BoundingBox boundingBox;
 
 
     public Statistics(int totalCurveCount, int fragmentedCurveCount,
@@ -32,7 +31,7 @@ public class Statistics {
                       double meanLineLength, double varianceLineLength,
                       double meanFragmentOnlyLength, double varianceFragmentOnlyLength,
                       double meanFragmentsPerCurve, double varianceFragmentsPerCurve,
-                      double imageWidth, double imageHeight) {
+                      BoundingBox boundingBox) {
         //To change body of created methods use File | Settings | File Templates.
         this.totalCurveCount = totalCurveCount;
         this.fragmentedCurveCount = fragmentedCurveCount;
@@ -44,8 +43,7 @@ public class Statistics {
         this.varianceFragmentOnlyLength = varianceFragmentOnlyLength;
         this.meanFragmentsPerCurve = meanFragmentsPerCurve;
         this.varianceFragmentsPerCurve = varianceFragmentsPerCurve;
-        this.imageWidth = imageWidth;
-        this.imageHeight = imageHeight;
+        this.boundingBox = boundingBox;
     }
 
     public double getShortestLine() {
@@ -89,11 +87,15 @@ public class Statistics {
     }
 
     public double getImageWidth() {
-        return imageWidth;
+        return boundingBox.getWidth();
     }
 
     public double getImageHeight() {
-        return imageHeight;
+        return boundingBox.getHeight();
+    }
+
+    public BoundingBox getBoundingBox() {
+        return boundingBox;
     }
 
     public static Statistics create(Set<Set<Line>> curveLines) {
@@ -193,7 +195,7 @@ public class Statistics {
                 meanLineLength, varianceLineLength,
                 meanFragmentOnlyLength, varianceFragmentOnlyLength,
                 meanFragmentsPerCurve, varianceFragmentsPerCurve,
-                bbox.getWidth(), bbox.getHeight());
+                bbox);
     }
 
     public String toString() {

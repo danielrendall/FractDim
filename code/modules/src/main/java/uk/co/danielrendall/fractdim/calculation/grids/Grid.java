@@ -1,4 +1,4 @@
-package uk.co.danielrendall.fractdim.calculation;
+package uk.co.danielrendall.fractdim.calculation.grids;
 
 import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.geom.Vec;
@@ -15,14 +15,19 @@ import java.util.TreeSet;
  */
 public class Grid {
 
-    final double resolution;
+    private final double angle;
+    private final double resolution;
+    private final Vec fractionalDisplacement;
+
     final Vec displacement;
-    final double angle;
 
     private final GridSquareStore masterStore;
     private final GridSquareStore temporaryStore;
 
     private final static boolean[] NO_RECURSE = new boolean[] {false, false};
+    private final static boolean[] START_TO_MID = new boolean[] {true, false};
+    private final static boolean[] MID_TO_END = new boolean[] {false, true};
+    private final static boolean[] RECURSE_BOTH = new boolean[] {true, true};
 
     private final Map<Point, GridSquare> squaresMet;
     private final double proximityThreshold;
@@ -30,30 +35,46 @@ public class Grid {
     private final boolean doDisplace, doRotate;
 
     public Grid(double resolution) {
-        this(0.0d, resolution, 0.0d, 0.0d);
+        this(0.0d, resolution, new Vec(Point.ORIGIN));
     }
 
-    public Grid(double resolution, double fractionalXDisp, double fractionalYDisp) {
-        this(0.0d, resolution, fractionalXDisp, fractionalYDisp);
+    public Grid(double resolution, Vec fractionalDisplacement) {
+        this(0.0d, resolution, fractionalDisplacement);
     }
 
     public Grid(double angle, double resolution) {
-        this(angle, resolution, 0.0d, 0.0d);
+        this(angle, resolution, new Vec(Point.ORIGIN));
     }
 
-    public Grid(double angle, double resolution, double fractionalXDisp, double fractionalYDisp) {
+    public Grid(double angle, double resolution, Vec fractionalDisplacement) {
+        this.angle = angle;
         this.resolution = resolution;
+        this.fractionalDisplacement = fractionalDisplacement;
+
+        double fractionalXDisp = fractionalDisplacement.x();
+        double fractionalYDisp = fractionalDisplacement.y();
+
         proximityThreshold = resolution / 1000.0d;
         Log.points.debug(String.format("Resolution: %09.9f Proximity Threshold: %09.9f", resolution, proximityThreshold));
         masterStore = new GridSquareStore(new TreeSet<GridSquare>()); // sorted
         temporaryStore = new GridSquareStore(); // use the default hashset
         squaresMet = new HashMap<Point, GridSquare>();
         displacement = new Vec(new Point(fractionalXDisp * resolution, fractionalYDisp * resolution));
-        this.angle = angle;
         doDisplace = (fractionalXDisp != 0.0d || fractionalYDisp != 0.0d);
         doRotate = (angle != 0.0d);
     }
 
+    public double getAngle() {
+        return angle;
+    }
+
+    public double getResolution() {
+        return resolution;
+    }
+
+    public Vec getFractionalDisplacement() {
+        return fractionalDisplacement;
+    }
 
     Point transformPoint(Point p) {
         if (doDisplace) {
@@ -71,7 +92,7 @@ public class Grid {
         }
     }
 
-    void startEvaluation(Point startPoint, Point endPoint) {
+    public void startEvaluation(Point startPoint, Point endPoint) {
         temporaryStore.clear();
 
         // apply transformation
@@ -93,11 +114,11 @@ public class Grid {
         squaresMet.put(endPoint, endSquare);
     }
 
-    void endEvaluation() {
+    public void endEvaluation() {
         masterStore.addAll(temporaryStore);
     }
 
-    boolean[] notifyNewPoint(Point startPoint, Point midPoint, Point endPoint) {
+    public boolean[] notifyNewPoint(Point startPoint, Point midPoint, Point endPoint) {
 
         startPoint = transformPoint(startPoint);
         midPoint = transformPoint(midPoint);
@@ -186,8 +207,12 @@ public class Grid {
                 // for SAME, ABOVE, RIGHT, BELOW, LEFT, leave value as false
             }
         }
+        return recurseStartToMid ?
+                recurseMidToEnd ?
+                        RECURSE_BOTH : START_TO_MID :
+                recurseMidToEnd ?
+                        MID_TO_END : NO_RECURSE;
 
-        return new boolean[] {recurseStartToMid, recurseMidToEnd};
     }
 
     private GridSquare getSquare(Point p) {

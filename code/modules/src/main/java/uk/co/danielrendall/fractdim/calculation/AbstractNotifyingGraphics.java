@@ -1,16 +1,13 @@
 package uk.co.danielrendall.fractdim.calculation;
 
 import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
+import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
 import uk.co.danielrendall.fractdim.app.workers.ProgressListener;
 import uk.co.danielrendall.fractdim.app.workers.OperationAbortedException;
 import uk.co.danielrendall.fractdim.geom.ParametricCurve;
-import uk.co.danielrendall.fractdim.geom.Line;
-import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.HashSet;
 
 import org.w3c.dom.svg.SVGDocument;
 
@@ -25,10 +22,12 @@ public abstract class AbstractNotifyingGraphics extends FDGraphics2D {
 
     private final List<ProgressListener> listeners = new LinkedList<ProgressListener>();
     private int curves = 0;
-    protected int numberOfCurves = 0;
+    protected final SVGWithMetadata svgWithMetadata;
+    protected final int numberOfCurves;
 
-    protected void initCurveCount(SVGDocument svgDoc) {
-        numberOfCurves = new CurveCounter(svgDoc).getCurveCount();
+    protected AbstractNotifyingGraphics(SVGWithMetadata svgWithMetadata) {
+        this.svgWithMetadata = svgWithMetadata;
+        this.numberOfCurves = svgWithMetadata != null ? svgWithMetadata.getCurveCount() : 1;
     }
 
     public final void handleCurve(ParametricCurve curve) {

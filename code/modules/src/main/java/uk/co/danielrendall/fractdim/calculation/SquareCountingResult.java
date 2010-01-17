@@ -1,6 +1,10 @@
 package uk.co.danielrendall.fractdim.calculation;
 
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.calculation.grids.CollectionVisitor;
+import uk.co.danielrendall.fractdim.calculation.grids.AngleGridCollection;
+import uk.co.danielrendall.fractdim.calculation.grids.ResolutionGridCollection;
+import uk.co.danielrendall.fractdim.calculation.grids.DisplacementGridCollection;
 
 import java.util.*;
 
@@ -15,16 +19,34 @@ public class SquareCountingResult {
 
     // makes sense to have this backed by the grids because we may want to display them
     // in the SVG - contrast the approach with Statistics
-    SquareCountingResult(SquareCounter grids) {
+    SquareCountingResult(SquareCounter squareCounter) {
         results = new TreeMap<Double, FixedAngleSquareCountingResult>();
-        for (double angle : grids.getAvailableAngles()) {
-            FixedAngleSquareCountingResult angleResult = new FixedAngleSquareCountingResult();
-            for (double resolution : grids.getAvailableResolutions(angle)) {
-                angleResult.add(resolution, new SquareCounts(grids.setForAngleAndResolution(angle, resolution)));
+        squareCounter.accept(new CollectionVisitor() {
+
+            private FixedAngleSquareCountingResult angleResult;
+            private double currentResolution = 0.0d;
+
+            public void visit(AngleGridCollection collection) {
+                for(double angle : collection.getAvailableAngles()) {
+                    angleResult = new FixedAngleSquareCountingResult();
+                    collection.collectionForAngle(angle).accept(this);
+                    results.put(angle, angleResult);
+                    Log.gui.info(String.format("Fractal dimension is %s", angleResult.getFractalDimension()));
+                }
             }
-            results.put(angle, angleResult);
-            Log.gui.info(String.format("Fractal dimension is %s", angleResult.getFractalDimension()));
-        }
+
+            public void visit(ResolutionGridCollection collection) {
+                for (double resolution: collection.getAvailableResolutions()) {
+                    currentResolution = resolution;
+                    collection.collectionForResolution(resolution).accept(this);
+                }
+            }
+
+            public void visit(DisplacementGridCollection collection) {
+                angleResult.add(currentResolution, collection.getAverageSquareCount());
+            }
+        });
+
     }
 
     // using SortedMap means that the iterator returns these in order
@@ -39,21 +61,21 @@ public class SquareCountingResult {
 
 
     public static class FixedAngleSquareCountingResult {
-        private final SortedMap<Double, SquareCounts> results;
+        private final SortedMap<Double, Double> results;
 
         public List<Double> getAvailableResolutions() {
             return Collections.unmodifiableList(new ArrayList<Double>(results.keySet()));
         }
 
         public FixedAngleSquareCountingResult() {
-            this.results = new TreeMap<Double, SquareCounts>();
+            this.results = new TreeMap<Double, Double>();
         }
 
-        public void add(double resolution, SquareCounts squareCounts) {
+        public void add(double resolution, Double squareCounts) {
             results.put(resolution, squareCounts);
         }
 
-        public SquareCounts getCountsForResolution(double resolution) {
+        public Double getCountsForResolution(double resolution) {
             return results.get(resolution);
         }
 
@@ -67,9 +89,9 @@ public class SquareCountingResult {
             double sumOfXSquared = 0.0d; // logReciprocalResolution
 
             int i=0;
-            for (Map.Entry<Double, SquareCounts> entry : results.entrySet()) {
+            for (Map.Entry<Double, Double> entry : results.entrySet()) {
                 double resolution = entry.getKey();
-                double squareCounts = entry.getValue().getNumberOfSquares();
+                double squareCounts = entry.getValue();
                 // assume no pesky divide by zero errors...
                 double logSquareCount = Math.log(squareCounts);
                 double logReciprocalResolution = Math.log(1.0d/resolution);

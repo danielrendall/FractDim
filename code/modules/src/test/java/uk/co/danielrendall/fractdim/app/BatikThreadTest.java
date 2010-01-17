@@ -10,6 +10,9 @@ import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.calculation.StatisticsCalculator;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
+import uk.co.danielrendall.fractdim.calculation.StatisticsCalculatorBuilder;
+import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
+import uk.co.danielrendall.fractdim.svgbridge.SVGDocumentAnnotator;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,29 +24,37 @@ import uk.co.danielrendall.fractdim.calculation.Statistics;
 public class BatikThreadTest {
 
     @Test @Ignore
-    public void testBatikThreading() {
+    public void testBatikThreading() throws CloneNotSupportedException {
         Generator gen = new Generator();
         final SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 4);
 
+        final SVGWithMetadata svgWithMetadata = SVGDocumentAnnotator.annotate(svg);
 //        DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 //        final SVGDocument svg2 = (SVGDocument) impl.createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
 
         long before = System.currentTimeMillis();
-        final SVGDocument svg2 = (SVGDocument) (svg.cloneNode(false));
+        final SVGWithMetadata svgWithMetadata2 = svgWithMetadata.clone();
         long after = System.currentTimeMillis();
 
         System.out.println("Cloning took " + (after - before) + " ms");
 
+
         Thread thread1 = new Thread(new Runnable() {
             public void run() {
-                StatisticsCalculator sc = new StatisticsCalculator(Math.PI / 90.0d);
-                Statistics stats = sc.process(svg);
+                StatisticsCalculatorBuilder builder = new StatisticsCalculatorBuilder();
+                builder.minAngle(StatisticsCalculator.TWO_DEGREES).
+                        svgWithMetadata(svgWithMetadata);
+                StatisticsCalculator sc = builder.build();
+                Statistics stats = sc.process();
             }
         });
         Thread thread2 = new Thread(new Runnable() {
             public void run() {
-                StatisticsCalculator sc = new StatisticsCalculator(Math.PI / 90.0d);
-                Statistics stats = sc.process(svg2);
+                StatisticsCalculatorBuilder builder = new StatisticsCalculatorBuilder();
+                builder.minAngle(StatisticsCalculator.TWO_DEGREES).
+                        svgWithMetadata(svgWithMetadata2);
+                StatisticsCalculator sc = builder.build();
+                Statistics stats = sc.process();
             }
         });
 

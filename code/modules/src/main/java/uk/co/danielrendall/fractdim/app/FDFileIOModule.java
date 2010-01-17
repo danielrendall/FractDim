@@ -31,7 +31,7 @@ public class FDFileIOModule implements FileLoader, FileSaver, FileExporter {
         SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
 
         try {
-            data.setSvgDoc((SVGDocument)f.createDocument(file.toURI().toString()));
+            data.setSvgWithMetadata((SVGDocument)f.createDocument(file.toURI().toString()));
         } catch (IOException e) {
             throw new FileIOException(FileIOException.ERR_UNKNOWN, filename);
         }
@@ -54,7 +54,7 @@ public class FDFileIOModule implements FileLoader, FileSaver, FileExporter {
     public void save(RootData data, String filename) throws FileIOException {
 
         try {
-            Source source = new DOMSource(((FDData) data).getSvgDoc());
+            Source source = new DOMSource(((FDData) data).getSvgWithMetadata().getSVGDocument());
 
             // Prepare the output file
             File file = new File(filename);

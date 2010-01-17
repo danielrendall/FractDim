@@ -1,4 +1,4 @@
-package uk.co.danielrendall.fractdim.calculation;
+package uk.co.danielrendall.fractdim.calculation.grids;
 
 import java.util.HashSet;
 import java.util.Iterator;

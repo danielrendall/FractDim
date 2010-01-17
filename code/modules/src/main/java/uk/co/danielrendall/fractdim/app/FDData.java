@@ -9,6 +9,8 @@ import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
+import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
+import uk.co.danielrendall.fractdim.svgbridge.SVGDocumentAnnotator;
 
 import java.awt.*;
 import java.awt.print.PageFormat;
@@ -23,7 +25,7 @@ public class FDData extends RootData {
 
     // 4 separate aspects to the data
 
-    private SVGDocument svgDoc;
+    private SVGWithMetadata svgWithMetadata;
     private boolean svgDocDirty = false;
     private Statistics statistics;
     private boolean statisticsDirty = false;
@@ -33,24 +35,29 @@ public class FDData extends RootData {
     private boolean resultDirty = false;
 
 
-    public void setSvgDoc(SVGDocument svgDoc) {
-        this.svgDoc = svgDoc;
+    public void setSvgWithMetadata(SVGDocument svgWithMetadata) {
+        this.svgWithMetadata = SVGDocumentAnnotator.annotate(svgWithMetadata);
         svgDocDirty = true;
     }
 
-    public SVGDocument getSvgDoc() {
+    public SVGWithMetadata getSvgWithMetadata() {
         return getSvgDoc(false);
     }
 
-    public SVGDocument getSvgDoc(boolean resetDirty) {
+    public SVGWithMetadata getSvgDoc(boolean resetDirty) {
         if (resetDirty) svgDocDirty = false;
-        return svgDoc;
+        return svgWithMetadata;
     }
 
     // annoyingly, Batik has threading issues if you try to traverse the same SVGdoc simultaneously
     // in two threads
-    public SVGDocument getSvgDocForCalculation() {
-        return (SVGDocument) svgDoc.cloneNode(true);
+    public SVGWithMetadata getSvgDocForCalculation() {
+        try {
+            return svgWithMetadata.clone();
+        } catch (CloneNotSupportedException e) {
+            
+            throw new RuntimeException(e);
+        }
     }
 
     public void setStatistics(Statistics statistics) {
@@ -123,7 +130,7 @@ public class FDData extends RootData {
 
     private void updateFractalDimension() {
         // todo - consider running this in a separate thread...
-//        result = squareCounter.process(svgDoc);
+//        result = squareCounter.process(svgWithMetadata);
     }
 
     private void prettyPrint(Node aNode, int depth) {

@@ -110,6 +110,7 @@
                 <artifactId>onejar-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>App</id>
                         <configuration>
                             <mainClass>uk.co.danielrendall.fractdim.app.FractDim</mainClass>
                             <onejarVersion>0.96</onejarVersion>
@@ -119,18 +120,17 @@
                             <goal>one-jar</goal>
                         </goals>
                     </execution>
-                    <!--
                     <execution>
+                        <id>Cmd</id>
                         <configuration>
-                            <mainClass>uk.co.danielrendall.fractdim.generate.Generator</mainClass>
+                            <mainClass>uk.co.danielrendall.fractdim.cmd.FractDim</mainClass>
                             <onejarVersion>0.96</onejarVersion>
-                            <filename>Generator.jar</filename>
+                            <filename>FractDimCmd.jar</filename>
                         </configuration>
                         <goals>
                             <goal>one-jar</goal>
                         </goals>
                     </execution>
-                    -->
                 </executions>
                 <version>1.2.1</version>
             </plugin>

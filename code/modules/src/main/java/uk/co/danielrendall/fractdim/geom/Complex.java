@@ -103,14 +103,27 @@ public final class Complex implements XY {
     }
 
     @Override
-    public final boolean equals(Object obj) {
-        Complex other = (Complex) obj;
-        return other == this || (other.x == this.x && other.y == this.y);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Complex complex = (Complex) o;
+
+        if (Double.compare(complex.x, x) != 0) return false;
+        if (Double.compare(complex.y, y) != 0) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return new Double(x).hashCode() ^ new Double(y).hashCode();
+        int result;
+        long temp;
+        temp = x != +0.0d ? Double.doubleToLongBits(x) : 0L;
+        result = (int) (temp ^ (temp >>> 32));
+        temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 
     public final double x() {

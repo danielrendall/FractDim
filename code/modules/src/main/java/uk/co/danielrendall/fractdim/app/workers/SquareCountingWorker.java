@@ -2,6 +2,10 @@ package uk.co.danielrendall.fractdim.app.workers;
 
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.calculation.SquareCounter;
+import uk.co.danielrendall.fractdim.calculation.SquareCounterBuilder;
+import uk.co.danielrendall.fractdim.calculation.iterators.UniformAngleIterator;
+import uk.co.danielrendall.fractdim.calculation.iterators.UniformResolutionIterator;
+import uk.co.danielrendall.fractdim.calculation.iterators.UniformDisplacementIterator;
 import uk.co.danielrendall.fractdim.app.FDDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.app.FDData;
@@ -30,15 +34,19 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
     protected SquareCountingResult doInBackground() throws Exception {
         FDData data = ((FDData) document.getData());
         CalculationSettings settings = data.getSettings(false);
-        SquareCounter sc = SquareCounter.createSquareCounter(30,
-                settings.getMinimumSquareSize(),
-                settings.getMaximumSquareSize(),
-                settings.getNumberOfResolutions(),
-                settings.getNumberOfAngles(),
-                settings.getNumberOfDisplacementPoints());
+
+        SquareCounterBuilder builder = new SquareCounterBuilder();
+        builder.maxDepth(30).
+                angleIterator(new UniformAngleIterator(settings.getNumberOfAngles())).
+                resolutionIterator(new UniformResolutionIterator(settings.getMinimumSquareSize(), settings.getMaximumSquareSize(), settings.getNumberOfResolutions())).
+                displacementIterator(new UniformDisplacementIterator(settings.getNumberOfDisplacementPoints())).
+                svgWithMetadata(data.getSvgDocForCalculation());
+
+
+        SquareCounter sc = builder.build();
         sc.addProgressListener(this);
         try {
-            return sc.process(data.getSvgDocForCalculation());
+            return sc.process();
         } catch (OperationAbortedException e) {
             useful = false;
             Log.thread.debug("Operation aborted - caught exception");

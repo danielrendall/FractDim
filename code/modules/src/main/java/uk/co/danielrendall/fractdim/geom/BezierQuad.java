@@ -28,7 +28,7 @@ public class BezierQuad implements ParametricCurve {
     }
 
     public String toString() {
-        return String.format("BezierQuad from %s to %s via %s", start, end, control);
+        return String.format("BezierQuad { %s , %s , %s }", start, control, end);
     }
 
 }

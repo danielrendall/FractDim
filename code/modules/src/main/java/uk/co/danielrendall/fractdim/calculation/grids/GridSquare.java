@@ -1,4 +1,4 @@
-package uk.co.danielrendall.fractdim.calculation;
+package uk.co.danielrendall.fractdim.calculation.grids;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.HashMap;
  * @author Daniel Rendall
 * @created 30-May-2009 19:25:42
 */
-class GridSquare implements Comparable {
+public class GridSquare implements Comparable {
 
     static final int NO_TOUCH = -1;
     static final int SAME = 0;

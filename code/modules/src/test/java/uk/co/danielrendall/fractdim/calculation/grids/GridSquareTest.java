@@ -1,7 +1,8 @@
-package uk.co.danielrendall.fractdim.calculation;
+package uk.co.danielrendall.fractdim.calculation.grids;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import uk.co.danielrendall.fractdim.calculation.grids.GridSquare;
 
 /**
  * @author Daniel Rendall

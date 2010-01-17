@@ -49,7 +49,7 @@ public class Line implements ParametricCurve {
     }
 
     public String toString() {
-        return String.format("Line from %s to %s", start, end);
+        return String.format("Line { %s , %s }", start, end);
     }
 
     @Override

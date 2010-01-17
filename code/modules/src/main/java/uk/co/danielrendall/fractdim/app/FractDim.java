@@ -5,7 +5,6 @@ import org.bs.mdi.*;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.generate.Procedure;
-import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.app.datamodel.ModelStatusListener;
 import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
@@ -17,7 +16,7 @@ import uk.co.danielrendall.fractdim.app.gui.GenerateDialog;
 import javax.swing.*;
 
 /**
- * Hello world!
+ * Run Fractal Dimension as a GUI app
  */
 public class FractDim extends Application {
 
@@ -113,7 +112,7 @@ public class FractDim extends Application {
                 SVGDocument svg = gen.generateFractal(((Procedure)clazz.newInstance()), new Point(0, 0), new Point(settings.getEndX(), settings.getEndY()), settings.getDepth());
 
                 doc = Document.createNew();
-                ((FDData) doc.getData()).setSvgDoc(svg);
+                ((FDData) doc.getData()).setSvgWithMetadata(svg);
                 documents.add(doc);
                 doc.syncViewsWithData();
                 setStatus(tr("Ready"));

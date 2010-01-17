@@ -16,6 +16,7 @@ import uk.co.danielrendall.fractdim.app.gui.StatisticsPanel;
 import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
 import uk.co.danielrendall.fractdim.app.gui.ResultPanel;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
 import se.datadosen.component.RiverLayout;
 
 /**
@@ -105,8 +106,8 @@ public class FDView extends SwingRootView {
     }
 
 
-    private void updateSvgDoc(SVGDocument svgDoc) {
-        svgCanvas.setDocument(svgDoc);
+    private void updateSvgDoc(SVGWithMetadata svgWithMetadata) {
+        svgCanvas.setDocument(svgWithMetadata.getSVGDocument());
     }
 
     private void updateStatistics(Statistics statistics) {

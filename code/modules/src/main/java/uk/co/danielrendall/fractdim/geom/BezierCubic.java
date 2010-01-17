@@ -30,7 +30,7 @@ public class BezierCubic implements ParametricCurve {
     }
 
     public String toString() {
-        return String.format("BezierCubic from %s to %s via %s and %s", start, end, control1, control2);
+        return String.format("BezierCubic { %s , %s , %s , %s }", start, control1, control2, end);
     }
 
 }

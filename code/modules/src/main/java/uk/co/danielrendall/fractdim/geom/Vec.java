@@ -12,6 +12,10 @@ public final class Vec implements XY {
         rep = c;
     }
 
+    public Vec(double x, double y) {
+        rep = new Complex(x, y);
+    }
+
     public Vec(Point to) {
         rep = new Complex(to.rep.x, to.rep.y);
     }
@@ -62,7 +66,7 @@ public final class Vec implements XY {
     }
 
     public final String toString() {
-        return rep.toString();
+        return (String.format("(%5.3f, %5.3f)", rep.x, rep.y));
     }
 
     public final double x() {
@@ -82,13 +86,19 @@ public final class Vec implements XY {
     }
 
     @Override
-    public final boolean equals(Object obj) {
-        return obj == this || ((Vec) obj).rep.equals(this.rep);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Vec vec = (Vec) o;
+
+        if (!rep.equals(vec.rep)) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
         return rep.hashCode();
     }
-    
 }

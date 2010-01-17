@@ -22,30 +22,30 @@ public class FDRunner {
     private static final String filename = "C:\\SVG\\closed_curves.svg";
 
     public static void main(String[] args) {
-        try {
-            File file = new File(filename);
-
-            String parser = XMLResourceDescriptor.getXMLParserClassName();
-            SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-
-            SVGDocument doc = (SVGDocument) f.createDocument(file.toURI().toString());
-
-            SquareCounter calc = SquareCounter.createSquareCounter(1, 1, 1, 1, 1, 1);
-
-            SquareCountingResult result = calc.process(doc);
-
-            // cheat - only one angle at the moment
-            double angle = result.getAvailableAngles().iterator().next();
-
-//            for (Double resolution : result.getAvailableResolutions(angle)) {
-//                SquareCounts stats = result.getStatistics(angle, resolution);
-//                Log.gui.debug("Resolution: " + resolution + " Number of squares: " + stats.getNumberOfSquares());
-//            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+//        try {
+//            File file = new File(filename);
+//
+//            String parser = XMLResourceDescriptor.getXMLParserClassName();
+//            SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+//
+//            SVGDocument doc = (SVGDocument) f.createDocument(file.toURI().toString());
+//
+//            SquareCounter calc = SquareCounter.createSquareCounter(1, 1, 1, 1, 1, 1);
+//
+//            SquareCountingResult result = calc.process(doc);
+//
+//            // cheat - only one angle at the moment
+//            double angle = result.getAvailableAngles().iterator().next();
+//
+////            for (Double resolution : result.getAvailableResolutions(angle)) {
+////                SquareCounts stats = result.getStatistics(angle, resolution);
+////                Log.gui.debug("Resolution: " + resolution + " Number of squares: " + stats.getNumberOfSquares());
+////            }
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
     }
 
     private static void prettyPrint(Node aNode, int depth) {

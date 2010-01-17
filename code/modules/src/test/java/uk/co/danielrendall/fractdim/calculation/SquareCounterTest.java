@@ -4,21 +4,28 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.w3c.dom.svg.SVGDocument;
-import org.kohsuke.args4j.CmdLineException;
 import uk.co.danielrendall.fractdim.geom.BezierCubic;
 import uk.co.danielrendall.fractdim.geom.Line;
 import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.fractdim.geom.Vec;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
+import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
+import uk.co.danielrendall.fractdim.svgbridge.SVGDocumentAnnotator;
+import uk.co.danielrendall.fractdim.calculation.grids.Grid;
+import uk.co.danielrendall.fractdim.calculation.grids.GridSquare;
+import uk.co.danielrendall.fractdim.calculation.grids.GridCollectionBuilder;
+import uk.co.danielrendall.fractdim.calculation.iterators.UniformAngleIterator;
+import uk.co.danielrendall.fractdim.calculation.iterators.LogarithmicResolutionIterator;
+import uk.co.danielrendall.fractdim.calculation.iterators.DisplacementIterator;
+import uk.co.danielrendall.fractdim.calculation.iterators.UniformDisplacementIterator;
 
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMSource;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.HashSet;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -34,10 +41,12 @@ public class SquareCounterTest {
     public void testStraightLine() {
         Point start = new Point(50.0, 30.0);
         Point end = new Point(250.0, 90.0);
-
-        SquareCounter gc = new SquareCounter(1000);
         Grid pg = new Grid(100.0d);
-        gc.addGrid(pg);
+
+        GridCollectionBuilder builder = new GridCollectionBuilder();
+        builder.grid(pg);
+
+        SquareCounter gc = new SquareCounter(null, builder.build(), 1000);
         gc.handleCurve(new Line(start, end));
         assertEquals(3, pg.getSquareCount());
     }
@@ -50,10 +59,12 @@ public class SquareCounterTest {
         Point p2 = new Point(283.49364905389035, 663.6751345948129);
         Point p3 = new Point(666.6666666666667, 500.0);
         Point end = new Point(999.999999999, 749.9999999999); // no spill over
-
-        SquareCounter gc = new SquareCounter(1000);
         Grid pg = new Grid(100.0d);
-        gc.addGrid(pg);
+
+        GridCollectionBuilder builder = new GridCollectionBuilder();
+        builder.grid(pg);
+
+        SquareCounter gc = new SquareCounter(null, builder.build(), 1000);
 
         gc.handleCurve(new Line(start, p1));
         gc.handleCurve(new Line(p1, p2));
@@ -95,10 +106,12 @@ public class SquareCounterTest {
         Point p2 = new Point(283.49364905389035, 663.6751345948129);
         Point p3 = new Point(666.6666666666667, 500.0);
         Point end = new Point(999.999999999, 749.9999999999); // no spill over
-
-        SquareCounter gc = new SquareCounter(1000);
         Grid pg = new Grid(69.0d);
-        gc.addGrid(pg);
+
+        GridCollectionBuilder builder = new GridCollectionBuilder();
+        builder.grid(pg);
+
+        SquareCounter gc = new SquareCounter(null, builder.build(), 1000);
 
         gc.handleCurve(new Line(start, p1));
         gc.handleCurve(new Line(p1, p2));
@@ -143,20 +156,23 @@ public class SquareCounterTest {
     public void testMultipleGridsWithLine() {
         Point start = new Point(50.001, 30.001);
         Point end = new Point(249.999, 89.999);
-
-        SquareCounter gc = new SquareCounter(1000);
         Grid pg100 = new Grid(100.0d);
         Grid pg80 = new Grid(80);
         Grid pg60 = new Grid(60);
         Grid pg40 = new Grid(40);
         Grid pg20 = new Grid(20);
         Grid pg10 = new Grid(10);
-        gc.addGrid(pg100);
-        gc.addGrid(pg80);
-        gc.addGrid(pg60);
-        gc.addGrid(pg40);
-        gc.addGrid(pg20);
-        gc.addGrid(pg10);
+
+        GridCollectionBuilder builder = new GridCollectionBuilder();
+        builder.grid(pg100).
+                grid(pg80).
+                grid(pg60).
+                grid(pg40).
+                grid(pg20).
+                grid(pg10);
+
+        SquareCounter gc = new SquareCounter(null, builder.build(), 1000);
+
         gc.handleCurve(new Line(start, end));
         assertEquals(3, pg100.getSquareCount());
         assertEquals(5, pg80.getSquareCount());
@@ -172,20 +188,23 @@ public class SquareCounterTest {
         Point control1 = new Point(100.0, 150.0);
         Point control2 = new Point(210.0, 160.0);
         Point end = new Point(249.999, 90.001);
-
-        SquareCounter gc = new SquareCounter(1000);
         Grid pg100 = new Grid(100.0d);
         Grid pg80 = new Grid(80);
         Grid pg60 = new Grid(60);
         Grid pg40 = new Grid(40);
         Grid pg20 = new Grid(20);
         Grid pg10 = new Grid(10);
-        gc.addGrid(pg100);
-        gc.addGrid(pg80);
-        gc.addGrid(pg60);
-        gc.addGrid(pg40);
-        gc.addGrid(pg20);
-        gc.addGrid(pg10);
+
+        GridCollectionBuilder builder = new GridCollectionBuilder();
+        builder.grid(pg100).
+                grid(pg80).
+                grid(pg60).
+                grid(pg40).
+                grid(pg20).
+                grid(pg10);
+
+        SquareCounter gc = new SquareCounter(null, builder.build(), 1000);
+
         gc.handleCurve(new BezierCubic(start, control1, control2, end));
         assertEquals(5, pg100.getSquareCount());
         assertEquals(5, pg80.getSquareCount());
@@ -197,15 +216,25 @@ public class SquareCounterTest {
 
     @Test
     public void testCreateCollection() {
-        SquareCounter collection = SquareCounter.createSquareCounter(1000, 1.0d, 10.0d, 9, 1, 1);
+        SquareCounterBuilder squareCounterBuilder = new SquareCounterBuilder();
+
+        squareCounterBuilder.maxDepth(1000).
+                angleIterator(new UniformAngleIterator(1)).
+                resolutionIterator(new LogarithmicResolutionIterator(1.0d, 10.0d, 9)).
+                displacementIterator(new UniformDisplacementIterator(1)).
+                svgWithMetadata(null);
+
+        SquareCounter collection = squareCounterBuilder.build();
         assertEquals(10, collection.count());
 
         // four angles
-        collection = SquareCounter.createSquareCounter(1000, 1.0d, 10.0d, 9, 4, 1);
+        squareCounterBuilder.angleIterator(new UniformAngleIterator(4));
+        collection = squareCounterBuilder.build();
         assertEquals(40, collection.count());
 
         // four angles, 3 displacement points (= 9 displacement vectors)
-        collection = SquareCounter.createSquareCounter(1000, 1.0d, 10.0d, 9, 4, 3);
+        squareCounterBuilder.displacementIterator(new UniformDisplacementIterator(3));
+        collection = squareCounterBuilder.build();
         assertEquals(360, collection.count());
     }
 
@@ -214,19 +243,19 @@ public class SquareCounterTest {
         Point start = new Point(29.198, 29.198);
         Point end = new Point(286.171, 88.963);
 
-        SquareCounter gc = new SquareCounter(1000);
         Grid pg100 = new Grid(100.0d);
+        Grid pg100_x1 = new Grid(100.0d, new Vec(0.5d, 0.0d));
+        Grid pg100_y1 = new Grid(100.0d, new Vec(0.0d, 0.5d));
+        Grid pg100_x1_y1 = new Grid(100.0d, new Vec(0.5d, 0.5d));
 
-        Grid pg100_x1 = new Grid(100.0d, 0.5d, 0.0d);
+        GridCollectionBuilder builder = new GridCollectionBuilder();
+        builder.grid(pg100).
+                grid(pg100_x1).
+                grid(pg100_y1).
+                grid(pg100_x1_y1);
 
-        Grid pg100_y1 = new Grid(100.0d, 0.0d, 0.5d);
+        SquareCounter gc = new SquareCounter(null, builder.build(), 1000);
 
-        Grid pg100_x1_y1 = new Grid(100.0d, 0.5d, 0.5d);
-
-        gc.addGrid(pg100);
-        gc.addGrid(pg100_x1);
-        gc.addGrid(pg100_y1);
-        gc.addGrid(pg100_x1_y1);
         gc.handleCurve(new Line(start, end));
 
         assertEquals(3, pg100.getSquareCount());
@@ -243,7 +272,6 @@ public class SquareCounterTest {
         Point control2 = new Point(210.0, 160.0);
         Point end = new Point(249.999, 90.001);
 
-        SquareCounter gc = new SquareCounter(1000);
         Grid pg100 = new Grid(100.0d);
         Grid pg100_10 = new Grid(Math.PI / 18.0d, 100.0d);
         Grid pg100_20 = new Grid(2.0d * Math.PI / 18.0d, 100.0d);
@@ -254,16 +282,22 @@ public class SquareCounterTest {
         Grid pg100_70 = new Grid(7.0d * Math.PI / 18.0d, 100.0d);
         Grid pg100_80 = new Grid(8.0d * Math.PI / 18.0d, 100.0d);
         Grid pg100_90 = new Grid(9.0d * Math.PI / 18.0d, 100.0d);
-        gc.addGrid(pg100);
-        gc.addGrid(pg100_10);
-        gc.addGrid(pg100_20);
-        gc.addGrid(pg100_30);
-        gc.addGrid(pg100_40);
-        gc.addGrid(pg100_50);
-        gc.addGrid(pg100_60);
-        gc.addGrid(pg100_70);
-        gc.addGrid(pg100_80);
-        gc.addGrid(pg100_90);
+
+        GridCollectionBuilder builder = new GridCollectionBuilder();
+        builder.grid(pg100).
+                grid(pg100_10).
+                grid(pg100_20).
+                grid(pg100_30).
+                grid(pg100_40).
+                grid(pg100_50).
+                grid(pg100_60).
+                grid(pg100_70).
+                grid(pg100_80).
+                grid(pg100_90).
+                grid(pg100_10);
+
+        SquareCounter gc = new SquareCounter(null, builder.build(), 1000);
+
         gc.handleCurve(new BezierCubic(start, control1, control2, end));
         assertEquals(5, pg100.getSquareCount());
         assertEquals(4, pg100_10.getSquareCount());
@@ -285,31 +319,36 @@ public class SquareCounterTest {
         Point control2 = new Point(210.0, 160.0);
         Point end = new Point(249.999, 90.001);
 
-        SquareCounter gc = new SquareCounter(1000);
         Grid pg60 = new Grid(60.0d);
         Grid pg60_30 = new Grid(3.0d * Math.PI / 18.0d, 60.0d);
         Grid pg60_70 = new Grid(7.0d * Math.PI / 18.0d, 60.0d);
-        Grid pg60_x1 = new Grid(60.0d, 0.5d, 0.0d);
-        Grid pg60_30_x1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, 0.5d, 0.0d);
-        Grid pg60_70_x1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, 0.5d, 0.0d);
-        Grid pg60_y1 = new Grid(60.0d, 0.0d, 0.5d);
-        Grid pg60_30_y1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, 0.0d, 0.5d);
-        Grid pg60_70_y1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, 0.0d, 0.5d);
-        Grid pg60_x1_y1 = new Grid(60.0d, 0.5d, 0.5d);
-        Grid pg60_30_x1_y1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, 0.5d, 0.5d);
-        Grid pg60_70_x1_y1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, 0.5d, 0.5d);
-        gc.addGrid(pg60);
-        gc.addGrid(pg60_30);
-        gc.addGrid(pg60_70);
-        gc.addGrid(pg60_x1);
-        gc.addGrid(pg60_30_x1);
-        gc.addGrid(pg60_70_x1);
-        gc.addGrid(pg60_y1);
-        gc.addGrid(pg60_30_y1);
-        gc.addGrid(pg60_70_y1);
-        gc.addGrid(pg60_x1_y1);
-        gc.addGrid(pg60_30_x1_y1);
-        gc.addGrid(pg60_70_x1_y1);
+        Grid pg60_x1 = new Grid(60.0d, new Vec(0.5d, 0.0d));
+        Grid pg60_30_x1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, new Vec(0.5d, 0.0d));
+        Grid pg60_70_x1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, new Vec(0.5d, 0.0d));
+        Grid pg60_y1 = new Grid(60.0d, new Vec(0.0d, 0.5d));
+        Grid pg60_30_y1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, new Vec(0.0d, 0.5d));
+        Grid pg60_70_y1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, new Vec(0.0d, 0.5d));
+        Grid pg60_x1_y1 = new Grid(60.0d, new Vec(0.5d, 0.5d));
+        Grid pg60_30_x1_y1 = new Grid(3.0d * Math.PI / 18.0d, 60.0d, new Vec(0.5d, 0.5d));
+        Grid pg60_70_x1_y1 = new Grid(7.0d * Math.PI / 18.0d, 60.0d, new Vec(0.5d, 0.5d));
+
+        GridCollectionBuilder builder = new GridCollectionBuilder();
+        builder.grid(pg60).
+                grid(pg60_30).
+                grid(pg60_70).
+                grid(pg60_x1).
+                grid(pg60_30_x1).
+                grid(pg60_70_x1).
+                grid(pg60_y1).
+                grid(pg60_30_y1).
+                grid(pg60_70_y1).
+                grid(pg60_x1_y1).
+                grid(pg60_30_x1_y1).
+                grid(pg60_70_x1_y1);
+
+
+        SquareCounter gc = new SquareCounter(null, builder.build(), 1000);
+
         gc.handleCurve(new BezierCubic(start, control1, control2, end));
         assertEquals(8, pg60.getSquareCount());
         assertEquals(6, pg60_30.getSquareCount());
@@ -365,9 +404,16 @@ public class SquareCounterTest {
                 e.printStackTrace();
             }
 
-            StatisticsCalculator sc = new StatisticsCalculator(Math.PI / 90.0d);
+            final SVGWithMetadata svgWithMetadata = SVGDocumentAnnotator.annotate(svg);
 
-            Statistics stats = sc.process(svg);
+            StatisticsCalculatorBuilder statisticsCalculatorBuilder = new StatisticsCalculatorBuilder();
+
+            statisticsCalculatorBuilder.minAngle(StatisticsCalculator.TWO_DEGREES).
+                    svgWithMetadata(svgWithMetadata);
+
+            StatisticsCalculator sc = statisticsCalculatorBuilder.build();
+
+            Statistics stats = sc.process();
 
             Log.test.info(stats.toString());
 
@@ -375,14 +421,17 @@ public class SquareCounterTest {
 
             Log.test.info(settings.toString());
 
-            SquareCounter counter = SquareCounter.createSquareCounter(30,
-                    settings.getMinimumSquareSize(),
-                    settings.getMaximumSquareSize(),
-                    settings.getNumberOfResolutions(),
-                    settings.getNumberOfAngles(),
-                    3);
+            SquareCounterBuilder squareCounterBuilder = new SquareCounterBuilder();
 
-            SquareCountingResult result = counter.process(svg);
+            squareCounterBuilder.maxDepth(30).
+                    angleIterator(new UniformAngleIterator(settings.getNumberOfAngles())).
+                    resolutionIterator(new LogarithmicResolutionIterator(settings.getMinimumSquareSize(), settings.getMaximumSquareSize(), settings.getNumberOfResolutions())).
+                    displacementIterator(new UniformDisplacementIterator(settings.getNumberOfDisplacementPoints())).
+                    svgWithMetadata(svgWithMetadata);
+
+            SquareCounter counter = squareCounterBuilder.build();
+
+            SquareCountingResult result = counter.process();
             GridSquare.resetCount();
         }
     }

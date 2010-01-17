@@ -158,7 +158,7 @@ public class ResultPanel extends JPanel {
             squaresData = new ArrayList<Double>(resolutionData.size());
 
             for(Double resolution : resolutionData) {
-                squaresData.add(resultForAngle.getCountsForResolution(resolution).getNumberOfSquares());
+                squaresData.add(resultForAngle.getCountsForResolution(resolution));
             }
         }
 

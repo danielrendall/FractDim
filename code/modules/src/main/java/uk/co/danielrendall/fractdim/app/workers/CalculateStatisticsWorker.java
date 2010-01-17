@@ -5,6 +5,7 @@ import uk.co.danielrendall.fractdim.app.FDView;
 import uk.co.danielrendall.fractdim.app.FDDocument;
 import uk.co.danielrendall.fractdim.calculation.StatisticsCalculator;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
+import uk.co.danielrendall.fractdim.calculation.StatisticsCalculatorBuilder;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.util.concurrent.ExecutionException;
@@ -28,10 +29,13 @@ public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integ
 
     protected Statistics doInBackground() throws Exception {
         FDData data = ((FDData) document.getData());
-        StatisticsCalculator sc = new StatisticsCalculator(Math.PI / 90.0d);
+        StatisticsCalculator sc = new StatisticsCalculatorBuilder().
+            minAngle(StatisticsCalculator.TWO_DEGREES).
+            svgWithMetadata(data.getSvgDocForCalculation()).
+                build();
         sc.addProgressListener(this);
         try {
-            return sc.process(data.getSvgDocForCalculation());
+            return sc.process();
         } catch (OperationAbortedException e) {
             useful = false;
             Log.thread.debug("Operation aborted - caught exception");

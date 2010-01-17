@@ -3,20 +3,15 @@ package uk.co.danielrendall.fractdim.calculation;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
-import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.geom.Line;
 import uk.co.danielrendall.fractdim.geom.ParametricCurve;
 import uk.co.danielrendall.fractdim.geom.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
-import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
 import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
-import uk.co.danielrendall.fractdim.app.workers.ProgressListener;
-import uk.co.danielrendall.fractdim.app.workers.OperationAbortedException;
+import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.List;
-import java.util.LinkedList;
 
 /**
  * @author Daniel Rendall
@@ -24,19 +19,21 @@ import java.util.LinkedList;
  */
 public class StatisticsCalculator extends AbstractNotifyingGraphics  {
 
-    private final Set<Set<Line>> curveLines;
+    public static final double TWO_DEGREES = Math.PI / 90.0d;
+
+    private final Set<Set<Line>> curveLines = new HashSet<Set<Line>>();
     private final double minCosine;
 
-    public StatisticsCalculator(double minAngle) {
-        curveLines = new HashSet<Set<Line>>();
+
+    StatisticsCalculator(SVGWithMetadata svgWithMetadata, double minAngle) {
+        super(svgWithMetadata);
         minCosine = Math.cos(minAngle);
     }
 
-    public Statistics process(SVGDocument svgDoc) {
-        initCurveCount(svgDoc);
+    public Statistics process() {
 
         Log.calc.info(String.format("Calculating stats for a shape wih %d curves with a minCosine of %s", numberOfCurves, minCosine));
-        TranscoderInput input = new TranscoderInput(svgDoc);
+        TranscoderInput input = new TranscoderInput(svgWithMetadata.getSVGDocument());
         FDTranscoder transcoder = new FDTranscoder(this);
         try {
             transcoder.transcode(input, new TranscoderOutput());
