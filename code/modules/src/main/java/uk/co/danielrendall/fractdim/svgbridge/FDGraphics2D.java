@@ -2,8 +2,8 @@ package uk.co.danielrendall.fractdim.svgbridge;
 
 import org.apache.batik.ext.awt.g2d.DefaultGraphics2D;
 import org.apache.batik.ext.awt.g2d.GraphicContext;
-import uk.co.danielrendall.fractdim.geom.*;
-import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.mathlib.geom2d.*;
+import uk.co.danielrendall.mathlib.geom2d.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.awt.*;

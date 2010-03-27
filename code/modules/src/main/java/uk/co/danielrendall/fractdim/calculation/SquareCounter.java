@@ -6,9 +6,9 @@ import org.apache.batik.transcoder.TranscoderOutput;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
 import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
-import uk.co.danielrendall.fractdim.geom.ParametricCurve;
-import uk.co.danielrendall.fractdim.geom.Point;
-import uk.co.danielrendall.fractdim.geom.Vec;
+import uk.co.danielrendall.mathlib.geom2d.ParametricCurve;
+import uk.co.danielrendall.mathlib.geom2d.Point;
+import uk.co.danielrendall.mathlib.geom2d.Vec;
 import uk.co.danielrendall.fractdim.calculation.grids.*;
 
 import java.util.Set;

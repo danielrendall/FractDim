@@ -8,6 +8,11 @@
   <name>Fractal Dimension</name>
   <url>http://www.danielrendall.co.uk/fractdim/</url>
   <dependencies>
+      <dependency>
+          <groupId>uk.co.danielrendall</groupId>
+          <artifactId>mathlib</artifactId>
+          <version>1.0</version>
+      </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

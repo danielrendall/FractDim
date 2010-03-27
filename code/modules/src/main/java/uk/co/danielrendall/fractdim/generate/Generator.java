@@ -5,8 +5,8 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.w3c.dom.svg.SVGDocument;
-import uk.co.danielrendall.fractdim.geom.Line;
-import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.mathlib.geom2d.Line;
+import uk.co.danielrendall.mathlib.geom2d.Point;
 
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;

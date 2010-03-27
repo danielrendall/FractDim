@@ -1,6 +1,6 @@
 package uk.co.danielrendall.fractdim.generate;
 
-import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.mathlib.geom2d.Point;
 
 import java.util.Iterator;
 

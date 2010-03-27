@@ -5,7 +5,7 @@ import uk.co.danielrendall.fractdim.calculation.iterators.*;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.calculation.grids.GridCollection;
 import uk.co.danielrendall.fractdim.calculation.grids.GridCollectionBuilder;
-import uk.co.danielrendall.fractdim.geom.Vec;
+import uk.co.danielrendall.mathlib.geom2d.Vec;
 
 /**
  * Created by IntelliJ IDEA.

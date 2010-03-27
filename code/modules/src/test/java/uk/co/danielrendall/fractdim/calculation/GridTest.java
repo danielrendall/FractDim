@@ -3,7 +3,7 @@ package uk.co.danielrendall.fractdim.calculation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.mathlib.geom2d.Point;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 
 /**

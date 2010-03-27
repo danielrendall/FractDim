@@ -1,7 +1,7 @@
 package uk.co.danielrendall.fractdim.calculation.grids;
 
-import uk.co.danielrendall.fractdim.geom.Point;
-import uk.co.danielrendall.fractdim.geom.Vec;
+import uk.co.danielrendall.mathlib.geom2d.Point;
+import uk.co.danielrendall.mathlib.geom2d.Vec;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.util.HashMap;

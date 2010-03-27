@@ -1,6 +1,6 @@
 package uk.co.danielrendall.fractdim.generate;
 
-import uk.co.danielrendall.fractdim.geom.Line;
+import uk.co.danielrendall.mathlib.geom2d.Line;
 
 /**
  * @author Daniel Rendall

@@ -5,7 +5,7 @@ import org.bs.mdi.*;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.generate.Procedure;
-import uk.co.danielrendall.fractdim.geom.Point;
+import uk.co.danielrendall.mathlib.geom2d.Point;
 import uk.co.danielrendall.fractdim.app.datamodel.ModelStatusListener;
 import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
 import uk.co.danielrendall.fractdim.app.datamodel.GenerateSettings;

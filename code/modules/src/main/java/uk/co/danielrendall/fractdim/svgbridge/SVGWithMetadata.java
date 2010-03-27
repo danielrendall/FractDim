@@ -4,7 +4,7 @@ import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
 import org.w3c.dom.*;
 import org.w3c.dom.events.Event;
-import uk.co.danielrendall.fractdim.geom.BoundingBox;
+import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 /**
  * Created by IntelliJ IDEA.

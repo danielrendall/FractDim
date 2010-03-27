@@ -1,7 +1,7 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import uk.co.danielrendall.fractdim.geom.Line;
-import uk.co.danielrendall.fractdim.geom.BoundingBox;
+import uk.co.danielrendall.mathlib.geom2d.Line;
+import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 import java.util.Set;
 

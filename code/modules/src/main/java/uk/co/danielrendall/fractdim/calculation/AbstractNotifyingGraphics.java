@@ -4,7 +4,7 @@ import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
 import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
 import uk.co.danielrendall.fractdim.app.workers.ProgressListener;
 import uk.co.danielrendall.fractdim.app.workers.OperationAbortedException;
-import uk.co.danielrendall.fractdim.geom.ParametricCurve;
+import uk.co.danielrendall.mathlib.geom2d.ParametricCurve;
 
 import java.util.List;
 import java.util.LinkedList;

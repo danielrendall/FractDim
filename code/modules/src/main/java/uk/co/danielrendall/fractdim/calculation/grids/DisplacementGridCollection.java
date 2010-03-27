@@ -1,6 +1,6 @@
 package uk.co.danielrendall.fractdim.calculation.grids;
 
-import uk.co.danielrendall.fractdim.geom.Vec;
+import uk.co.danielrendall.mathlib.geom2d.Vec;
 
 import java.util.*;
 

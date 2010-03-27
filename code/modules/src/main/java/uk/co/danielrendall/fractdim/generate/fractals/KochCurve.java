@@ -1,8 +1,8 @@
 package uk.co.danielrendall.fractdim.generate.fractals;
 
 import uk.co.danielrendall.fractdim.generate.Procedure;
-import uk.co.danielrendall.fractdim.geom.Line;
-import uk.co.danielrendall.fractdim.geom.Vec;
+import uk.co.danielrendall.mathlib.geom2d.Line;
+import uk.co.danielrendall.mathlib.geom2d.Vec;
 
 /**
  * @author Daniel Rendall
