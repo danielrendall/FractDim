@@ -1,10 +1,16 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.JSVGScrollPane;
+import org.apache.batik.swing.gvt.AbstractZoomInteractor;
 import org.w3c.dom.svg.SVGDocument;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,8 +36,7 @@ public class FractalPanel extends JPanel {
         leftColumn.add(settings);
         leftColumn.add(statistics);
 
-
-        JSplitPane rightComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(svgCanvas), result);
+        JSplitPane rightComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JSVGScrollPane(svgCanvas), result);
         rightComponent.setResizeWeight(1.0d);
         JSplitPane mainComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftColumn, rightComponent);
         this.setLayout(new BorderLayout());
@@ -41,5 +46,22 @@ public class FractalPanel extends JPanel {
     public void updateSvgDocument(SVGDocument doc) {
         svgCanvas.setSVGDocument(doc);
     }
-    
+
+
+    public void zoomIn() {
+        AffineTransform currentTransform = (AffineTransform) svgCanvas.getRenderingTransform().clone();
+        Log.gui.debug(String.format("Before: translate (%s, %s) Scale (%s, %s)", currentTransform.getTranslateX(), currentTransform.getTranslateY(), currentTransform.getScaleX(), currentTransform.getScaleY()));
+        currentTransform.scale(1.5d, 1.5d);
+        svgCanvas.setRenderingTransform(currentTransform);
+        Log.gui.debug(String.format("ZoomIn: translate (%s, %s) Scale (%s, %s)", currentTransform.getTranslateX(), currentTransform.getTranslateY(), currentTransform.getScaleX(), currentTransform.getScaleY()));
+    }
+
+    public void zoomOut() {
+        AffineTransform currentTransform = (AffineTransform) svgCanvas.getRenderingTransform().clone();
+        Log.gui.debug(String.format("Before: translate (%s, %s) Scale (%s, %s)", currentTransform.getTranslateX(), currentTransform.getTranslateY(), currentTransform.getScaleX(), currentTransform.getScaleY()));
+        double scale = (currentTransform.getScaleX() + currentTransform.getScaleY()) / 2.0d;
+        currentTransform.scale(1.0d / 1.5d, 1.0d / 1.5d);
+        svgCanvas.setRenderingTransform(currentTransform);
+        Log.gui.debug(String.format("ZoomOut: translate (%s, %s) Scale (%s, %s)", currentTransform.getTranslateX(), currentTransform.getTranslateY(), currentTransform.getScaleX(), currentTransform.getScaleY()));
+    }
 }

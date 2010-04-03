@@ -153,23 +153,29 @@ public class FractDim {
         if (panel == null) {
             // all closed
             currentController = null;
-            disableMenuItems();
+            window.disableMenuItems();
 
         } else {
             FractalController controller = controllers.get(panel);
             if (controller == null) {
                 Log.app.warn("Controller shouldn't be null!");
             }
-            enableMenuItems();
+            window.enableMenuItems();
             currentController = controller;
         }
     }
 
-    private void disableMenuItems() {
-        ActionRepository.instance().getFileClose().setEnabled(false);
+    public void zoomIn(ActionEvent e) {
+        Log.app.debug("Zoom in");
+        if (currentController != null) {
+            currentController.zoomIn(this);
+        }
     }
 
-    private void enableMenuItems() {
-        ActionRepository.instance().getFileClose().setEnabled(true);
+    public void zoomOut(ActionEvent e) {
+        Log.app.debug("Zoom out");
+        if (currentController != null) {
+            currentController.zoomOut(this);
+        }
     }
 }

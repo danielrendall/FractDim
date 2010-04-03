@@ -1,5 +1,6 @@
 package uk.co.danielrendall.fractdim.app.gui.actions;
 
+import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,9 @@ public class ActionRepository {
         actions.put("FileOpen", new FileOpen());
         actions.put("FileClose", new FileClose());
         actions.put("FileExit", new FileExit());
+
+        actions.put("DiagramZoomIn", new DiagramZoomIn());
+        actions.put("DiagramZoomOut", new DiagramZoomOut());
     }
 
     public FractDimAction getFileOpen() {
@@ -38,4 +42,11 @@ public class ActionRepository {
         return actions.get("FileExit");
     }
 
+    public FractDimAction getDiagramZoomIn() {
+        return actions.get("DiagramZoomIn");
+    }
+
+    public FractDimAction getDiagramZoomOut() {
+        return actions.get("DiagramZoomOut");
+    }
 }

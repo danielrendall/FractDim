@@ -51,4 +51,12 @@ public class FractalController {
         // check we're in a fit state to close
         fractDim.remove(this);
     }
+
+    public void zoomIn(FractDim fractDim) {
+        panel.zoomIn();
+    }
+
+    public void zoomOut(FractDim fractDim) {
+        panel.zoomOut();
+    }
 }

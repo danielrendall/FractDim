@@ -69,16 +69,24 @@ public class MainWindow extends JFrame {
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createFileMenu());
+        menuBar.add(createDiagramMenu());
         return menuBar;
     }
 
     private JMenu createFileMenu() {
-        JMenu fileMenu = new JMenu("File");
-        fileMenu.add(repository.getFileOpen());
-        fileMenu.add(repository.getFileClose());
-        fileMenu.addSeparator();
-        fileMenu.add(repository.getFileExit());
-        return fileMenu;
+        JMenu menu = new JMenu("File");
+        menu.add(repository.getFileOpen());
+        menu.add(repository.getFileClose());
+        menu.addSeparator();
+        menu.add(repository.getFileExit());
+        return menu;
+    }
+
+    private JMenu createDiagramMenu() {
+        JMenu menu = new JMenu("Diagram");
+        menu.add(repository.getDiagramZoomIn());
+        menu.add(repository.getDiagramZoomOut());
+        return menu;
     }
 
     private JToolBar createToolBar() {
@@ -87,6 +95,9 @@ public class MainWindow extends JFrame {
         toolBar.add(repository.getFileClose());
         toolBar.addSeparator();
         toolBar.add(repository.getFileExit());
+        toolBar.addSeparator();
+        toolBar.add(repository.getDiagramZoomIn());
+        toolBar.add(repository.getDiagramZoomOut());
         return toolBar;
     }
 
@@ -110,4 +121,19 @@ public class MainWindow extends JFrame {
     public void removeTab(FractalPanel panel) {
         tabPane.remove(panel);
     }
+
+    public void disableMenuItems() {
+        ActionRepository repository = ActionRepository.instance();
+        repository.getFileClose().setEnabled(false);
+        repository.getDiagramZoomIn().setEnabled(false);
+        repository.getDiagramZoomOut().setEnabled(false);
+    }
+
+    public void enableMenuItems() {
+        ActionRepository repository = ActionRepository.instance();
+        repository.getFileClose().setEnabled(true);
+        repository.getDiagramZoomIn().setEnabled(true);
+        repository.getDiagramZoomOut().setEnabled(true);
+    }
+
 }
