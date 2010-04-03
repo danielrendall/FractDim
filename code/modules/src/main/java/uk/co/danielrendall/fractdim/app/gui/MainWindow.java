@@ -5,6 +5,8 @@ import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -49,6 +51,13 @@ public class MainWindow extends JFrame {
         getContentPane().setLayout(new BorderLayout());
         JToolBar toolBar = createToolBar();
         tabPane = createTabPane();
+        tabPane.addChangeListener(new ChangeListener() {
+
+            public void stateChanged(ChangeEvent e) {
+                FractalPanel panel = (FractalPanel) tabPane.getSelectedComponent();
+                FractDim.instance().notifyCurrentPanel(panel);
+            }
+        });
         getContentPane().add(toolBar, BorderLayout.NORTH);
         getContentPane().add(tabPane, BorderLayout.CENTER);
     }
@@ -85,8 +94,17 @@ public class MainWindow extends JFrame {
         return new JTabbedPane();
     }
 
-    public void addTab(FractalPanel panel) {
-        tabPane.add(panel);
+    public void addTab(String title, FractalPanel panel) {
+        tabPane.add(title, panel);
+    }
+
+    public void updateTabTitle(String title, FractalPanel panel) {
+        int index = tabPane.indexOfComponent(panel);
+        if (index > -1) {
+            tabPane.setTitleAt(index, title);
+        } else {
+            Log.gui.warn("Asked to set title for non-existent panel");
+        }
     }
 
     public void removeTab(FractalPanel panel) {

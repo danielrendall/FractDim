@@ -1,18 +1,20 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.apache.log4j.Logger;
+import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.MainWindow;
+import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Run Fractal Dimension as a GUI app
@@ -26,6 +28,8 @@ public class FractDim {
 
     private final MainWindow window;
     private final JFileChooser chooser;
+    private final Map<FractalPanel, FractalController> controllers = new HashMap<FractalPanel, FractalController>();
+    private FractalController currentController = null;
 
     public static void main(String[] args) throws Exception {
         System.out.println("Fractal Dimension Calculator");
@@ -106,14 +110,24 @@ public class FractDim {
         chooser.setFileFilter(new FileNameExtensionFilter("SVG Files", "svg"));
         int returnVal = chooser.showOpenDialog(window);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
-           Log.app.debug("Chosen file: " +
-                chooser.getSelectedFile().getName());
-            
+            File selectedFile = chooser.getSelectedFile();
+            Log.app.debug("Chosen file: " +
+                selectedFile.getName());
+            try {
+                FractalController controller = FractalController.fromFile(selectedFile);
+                add(controller);
+            } catch (IOException ex) {
+                Log.app.warn("Unable to load document: " + ex.getMessage());
+            }
+
         }
     }
 
     public void closeFile(ActionEvent e) {
         Log.app.debug("Close File");
+        if (currentController != null) {
+            currentController.closeFile(this);
+        }
     }
 
     public void quit(ActionEvent e) {
@@ -122,11 +136,40 @@ public class FractDim {
         window.close();
     }
 
-    public void add(FractalPanel panel) {
-        window.addTab(panel);
+    public void add(FractalController controller) {
+        FractalDocument document = controller.getDocument();
+        FractalPanel panel = controller.getPanel();
+        controllers.put(panel, controller);
+        window.addTab(document.getName(), panel);
     }
 
-    public void remove(FractalPanel panel) {
+    public void remove(FractalController controller) {
+        FractalPanel panel = controller.getPanel();
         window.removeTab(panel);
+        controllers.remove(panel);
+    }
+
+    public void notifyCurrentPanel(FractalPanel panel) {
+        if (panel == null) {
+            // all closed
+            currentController = null;
+            disableMenuItems();
+
+        } else {
+            FractalController controller = controllers.get(panel);
+            if (controller == null) {
+                Log.app.warn("Controller shouldn't be null!");
+            }
+            enableMenuItems();
+            currentController = controller;
+        }
+    }
+
+    private void disableMenuItems() {
+        ActionRepository.instance().getFileClose().setEnabled(false);
+    }
+
+    private void enableMenuItems() {
+        ActionRepository.instance().getFileClose().setEnabled(true);
     }
 }

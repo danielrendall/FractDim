@@ -11,7 +11,7 @@ import javax.swing.*;
  * Time: 19:21:47
  * To change this template use File | Settings | File Templates.
  */
-abstract class FractDimAction extends AbstractAction {
+public abstract class FractDimAction extends AbstractAction {
 
     protected FractDimAction() {
     }

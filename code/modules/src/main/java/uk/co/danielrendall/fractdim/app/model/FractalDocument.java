@@ -18,16 +18,21 @@ import java.io.IOException;
 public class FractalDocument {
 
     private final SVGDocument svgDoc;
+    private String name;
 
-    public static FractalDocument createFromFile(File file) throws IOException {
-        String parser = XMLResourceDescriptor.getXMLParserClassName();
-        SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
-        SVGDocument doc = factory.createSVGDocument(file.toURI().toString());
-        return new FractalDocument(doc);
-    }
-
-    private FractalDocument(SVGDocument svgDoc) {
+    public FractalDocument(SVGDocument svgDoc) {
         this.svgDoc = svgDoc;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public SVGDocument getSvgDoc() {
+        return svgDoc;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
