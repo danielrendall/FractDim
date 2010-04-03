@@ -1,0 +1,2 @@
+alias 'fractdim=java -jar ~/Development/FractDim/code/modules/target/FractDim.jar'
+alias 'fractdimcmd=java -jar ~/Development/FractDim/code/modules/target/FractDimCmd.jar'
