@@ -24,6 +24,7 @@ public class ActionRepository {
     private ActionRepository() {
         actions.put("FileOpen", new FileOpen());
         actions.put("FileClose", new FileClose());
+        actions.put("FileCalculate", new FileCalculate());
         actions.put("FileExit", new FileExit());
 
         actions.put("DiagramZoomIn", new DiagramZoomIn());
@@ -36,6 +37,10 @@ public class ActionRepository {
 
     public FractDimAction getFileClose() {
         return actions.get("FileClose");
+    }
+
+    public FractDimAction getFileCalculate() {
+        return actions.get("FileCalculate");
     }
 
     public FractDimAction getFileExit() {

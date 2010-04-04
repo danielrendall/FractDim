@@ -130,6 +130,13 @@ public class FractDim {
         }
     }
 
+    public void calculate(ActionEvent e) {
+        Log.app.debug("Calculate");
+        if (currentController != null) {
+            currentController.calculate(this);
+        }
+    }
+
     public void quit(ActionEvent e) {
         Log.app.debug("Quit");
         // TODO - some cleanup
@@ -149,7 +156,7 @@ public class FractDim {
         controllers.remove(panel);
     }
 
-    public void notifyCurrentPanel(FractalPanel panel) {
+    public synchronized void notifyCurrentPanel(FractalPanel panel) {
         if (panel == null) {
             // all closed
             currentController = null;
@@ -160,8 +167,8 @@ public class FractDim {
             if (controller == null) {
                 Log.app.warn("Controller shouldn't be null!");
             }
-            window.enableMenuItems();
             currentController = controller;
+            currentController.enableMenuItems();
         }
     }
 
@@ -176,6 +183,15 @@ public class FractDim {
         Log.app.debug("Zoom out");
         if (currentController != null) {
             currentController.zoomOut(this);
+        }
+    }
+
+    // called when a controller has done something (which may have been running in the background) and may want
+    // to update global state (i.e. selected menu items). If the controller doing the calling is current, it gets
+    // to do the update, otherwise it can wait until its panel is next selected.
+    public synchronized void updateGlobal(FractalController fractalController) {
+        if (fractalController == currentController) {
+            fractalController.enableMenuItems();
         }
     }
 }

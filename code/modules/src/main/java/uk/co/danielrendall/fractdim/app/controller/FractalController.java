@@ -4,7 +4,9 @@ import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.FractDim;
+import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
+import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.app.model.FractalDocumentMetadata;
 import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
@@ -81,12 +83,28 @@ public class FractalController {
         return panel;
     }
 
+    // called when our panel becomes active
+    public void enableMenuItems() {
+        ActionRepository repository = ActionRepository.instance();
+        repository.getFileClose().setEnabled(true);
+        repository.getDiagramZoomIn().setEnabled(true);
+        repository.getDiagramZoomOut().setEnabled(true);
+        if (status < STATS_CALCULATED) {
+            repository.getFileCalculate().setEnabled(false);
+        } else {
+            repository.getFileCalculate().setEnabled(true);
+        }
+    }
 
     public void closeFile(FractDim fractDim) {
         // check we're in a fit state to close
         fractDim.remove(this);
     }
 
+    public void calculate(FractDim fractDim) {
+        //To change body of created methods use File | Settings | File Templates.
+    }
+    
     public void zoomIn(FractDim fractDim) {
         panel.zoomIn();
     }
@@ -101,10 +119,15 @@ public class FractalController {
 
     public void setStatistics(Statistics statistics) {
         if (status == DOC_LOADED) {
+            // todo - some nicer way of selecting the algorithm for this...
+            CalculationSettings settings = new CalculationSettings(statistics);
             panel.getStatisticsPanel().update(statistics);
+            panel.getSettingsPanel().update(settings);
             status = STATS_CALCULATED;
+            FractDim.instance().updateGlobal(this);
         } else {
             Log.app.warn("Wasn't expecting statistics when status was " + status);
         }
     }
+
 }

@@ -78,6 +78,8 @@ public class MainWindow extends JFrame {
         menu.add(repository.getFileOpen());
         menu.add(repository.getFileClose());
         menu.addSeparator();
+        menu.add(repository.getFileCalculate());
+        menu.addSeparator();
         menu.add(repository.getFileExit());
         return menu;
     }
@@ -93,6 +95,8 @@ public class MainWindow extends JFrame {
         JToolBar toolBar = new JToolBar();
         toolBar.add(repository.getFileOpen());
         toolBar.add(repository.getFileClose());
+        toolBar.addSeparator();
+        toolBar.add(repository.getFileCalculate());
         toolBar.addSeparator();
         toolBar.add(repository.getFileExit());
         toolBar.addSeparator();
@@ -126,15 +130,9 @@ public class MainWindow extends JFrame {
     public void disableMenuItems() {
         ActionRepository repository = ActionRepository.instance();
         repository.getFileClose().setEnabled(false);
+        repository.getFileCalculate().setEnabled(false);
         repository.getDiagramZoomIn().setEnabled(false);
         repository.getDiagramZoomOut().setEnabled(false);
-    }
-
-    public void enableMenuItems() {
-        ActionRepository repository = ActionRepository.instance();
-        repository.getFileClose().setEnabled(true);
-        repository.getDiagramZoomIn().setEnabled(true);
-        repository.getDiagramZoomOut().setEnabled(true);
     }
 
 }
