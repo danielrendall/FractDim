@@ -2,14 +2,11 @@ package uk.co.danielrendall.fractdim.app.gui;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
-import org.apache.batik.swing.gvt.AbstractZoomInteractor;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 
 /**
@@ -21,22 +18,22 @@ import java.awt.geom.AffineTransform;
  */
 public class FractalPanel extends JPanel {
 
-    private final SettingsPanel settings;
-    private final StatisticsPanel statistics;
+    private final SettingsPanel settingsPanel;
+    private final StatisticsPanel statisticsPanel;
     private final JSVGCanvas svgCanvas;
-    private final ResultPanel result;
+    private final ResultPanel resultPanel;
 
     public FractalPanel() {
-        settings = new SettingsPanel();
-        statistics = new StatisticsPanel();
+        settingsPanel = new SettingsPanel();
+        statisticsPanel = new StatisticsPanel();
         svgCanvas = new JSVGCanvas();
-        result = new ResultPanel();
+        resultPanel = new ResultPanel();
 
         Box leftColumn = Box.createVerticalBox();
-        leftColumn.add(settings);
-        leftColumn.add(statistics);
+        leftColumn.add(settingsPanel);
+        leftColumn.add(statisticsPanel);
 
-        JSplitPane rightComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JSVGScrollPane(svgCanvas), result);
+        JSplitPane rightComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JSVGScrollPane(svgCanvas), resultPanel);
         rightComponent.setResizeWeight(1.0d);
         JSplitPane mainComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftColumn, rightComponent);
         this.setLayout(new BorderLayout());
@@ -62,5 +59,17 @@ public class FractalPanel extends JPanel {
         currentTransform.scale(1.0d / 1.5d, 1.0d / 1.5d);
         svgCanvas.setRenderingTransform(currentTransform);
         Log.gui.debug(String.format("ZoomOut: translate (%s, %s) Scale (%s, %s)", currentTransform.getTranslateX(), currentTransform.getTranslateY(), currentTransform.getScaleX(), currentTransform.getScaleY()));
+    }
+
+    public StatisticsPanel getStatisticsPanel() {
+        return statisticsPanel;
+    }
+
+    public SettingsPanel getSettingsPanel() {
+        return settingsPanel;
+    }
+
+    public ResultPanel getResultPanel() {
+        return resultPanel;
     }
 }

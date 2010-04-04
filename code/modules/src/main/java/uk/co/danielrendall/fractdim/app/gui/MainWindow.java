@@ -107,6 +107,7 @@ public class MainWindow extends JFrame {
 
     public void addTab(String title, FractalPanel panel) {
         tabPane.add(title, panel);
+        tabPane.setSelectedComponent(panel);
     }
 
     public void updateTabTitle(String title, FractalPanel panel) {

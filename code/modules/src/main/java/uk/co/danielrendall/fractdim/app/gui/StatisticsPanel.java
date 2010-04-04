@@ -66,5 +66,6 @@ public class StatisticsPanel extends GenericFormPanel {
         txtVarianceFragmentOnlyLength.setText(String.format("%9.2f", stats.getVarianceFragmentOnlyLength()));
         txtMeanFragmentsPerCurve.setText(String.format("%9.2f", stats.getMeanFragmentsPerCurve()));
         txtVarianceFragmentsPerCurve.setText(String.format("%9.2f", stats.getVarianceFragmentsPerCurve()));
+        this.setEnabled(true);
     }
 }

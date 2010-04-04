@@ -1,7 +1,5 @@
 package uk.co.danielrendall.fractdim.app.workers;
 
-import org.bs.mdi.Document;
-
 import javax.swing.*;
 import java.util.Set;
 import java.util.HashSet;

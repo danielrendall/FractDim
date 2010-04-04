@@ -1,16 +1,8 @@
 package uk.co.danielrendall.fractdim.app.workers;
 
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
-import uk.co.danielrendall.fractdim.calculation.SquareCounter;
-import uk.co.danielrendall.fractdim.calculation.SquareCounterBuilder;
-import uk.co.danielrendall.fractdim.calculation.iterators.UniformAngleIterator;
-import uk.co.danielrendall.fractdim.calculation.iterators.UniformResolutionIterator;
-import uk.co.danielrendall.fractdim.calculation.iterators.UniformDisplacementIterator;
-import uk.co.danielrendall.fractdim.logging.Log;
-import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,7 +22,7 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
 
     protected SquareCountingResult doInBackground() throws Exception {
 //        FDData data = ((FDData) document.getData());
-//        CalculationSettings settings = data.getSettings(false);
+//        CalculationSettings settings = data.getSettingsPanel(false);
 //
 //        SquareCounterBuilder builder = new SquareCounterBuilder();
 //        builder.maxDepth(30).
