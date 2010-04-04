@@ -1,7 +1,7 @@
 package uk.co.danielrendall.fractdim.calculation;
 
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
-import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
 import uk.co.danielrendall.fractdim.app.workers.ProgressListener;
 import uk.co.danielrendall.fractdim.app.workers.OperationAbortedException;
 import uk.co.danielrendall.mathlib.geom2d.ParametricCurve;
@@ -22,12 +22,16 @@ public abstract class AbstractNotifyingGraphics extends FDGraphics2D {
 
     private final List<ProgressListener> listeners = new LinkedList<ProgressListener>();
     private int curves = 0;
-    protected final SVGWithMetadata svgWithMetadata;
+    protected final FractalDocument fractalDocument;
     protected final int numberOfCurves;
 
-    protected AbstractNotifyingGraphics(SVGWithMetadata svgWithMetadata) {
-        this.svgWithMetadata = svgWithMetadata;
-        this.numberOfCurves = svgWithMetadata != null ? svgWithMetadata.getCurveCount() : 1;
+    protected AbstractNotifyingGraphics(FractalDocument fractalDocument) {
+        this.fractalDocument = fractalDocument;
+        if (fractalDocument != null) { // for testing - a bit nasty...
+            this.numberOfCurves = fractalDocument.getMetadata().getCurveCount();
+        } else {
+            this.numberOfCurves = 0;
+        }
     }
 
     public final void handleCurve(ParametricCurve curve) {

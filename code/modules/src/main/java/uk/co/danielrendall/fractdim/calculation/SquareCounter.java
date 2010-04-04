@@ -3,9 +3,9 @@ package uk.co.danielrendall.fractdim.calculation;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
-import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
 import uk.co.danielrendall.mathlib.geom2d.ParametricCurve;
 import uk.co.danielrendall.mathlib.geom2d.Point;
 import uk.co.danielrendall.mathlib.geom2d.Vec;
@@ -25,8 +25,8 @@ public class SquareCounter extends AbstractNotifyingGraphics {
     private final int maxDepth;
 
 
-    public SquareCounter(SVGWithMetadata svgWithMetadata, GridCollection gridCollection, int maxDepth) {
-        super(svgWithMetadata);
+    public SquareCounter(FractalDocument fractalDocument, GridCollection gridCollection, int maxDepth) {
+        super(fractalDocument);
         this.gridCollection = gridCollection;
         this.maxDepth = maxDepth;
 
@@ -121,7 +121,7 @@ public class SquareCounter extends AbstractNotifyingGraphics {
 
     public SquareCountingResult process() {
 
-        TranscoderInput input = new TranscoderInput(svgWithMetadata.getSVGDocument());
+        TranscoderInput input = new TranscoderInput(fractalDocument.getSvgDoc());
 
         FDTranscoder transcoder = new FDTranscoder(this);
 

@@ -1,10 +1,10 @@
-package uk.co.danielrendall.fractdim.svgbridge;
+package uk.co.danielrendall.fractdim.calculation;
 
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.log4j.Logger;
 import org.w3c.dom.svg.SVGDocument;
+import uk.co.danielrendall.fractdim.app.model.FractalDocumentMetadata;
 import uk.co.danielrendall.mathlib.geom2d.ParametricCurve;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import uk.co.danielrendall.fractdim.logging.Log;
@@ -15,19 +15,23 @@ import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
  * @author Daniel Rendall
  * @created 04-Jun-2009 21:11:05
  */
-public class SVGDocumentAnnotator extends FDGraphics2D {
+public class FractalMetadataUtil extends FDGraphics2D {
 
+    private final SVGDocument svgDoc;
     private int curveCount = 0;
     private BoundingBox boundingBox = new BoundingBox();
 
-    public static SVGWithMetadata annotate(SVGDocument svgdoc) {
-        if (svgdoc instanceof SVGWithMetadata) return (SVGWithMetadata) svgdoc;
-        SVGDocumentAnnotator annotator = new SVGDocumentAnnotator();
-        annotator.analyse(svgdoc);
-        return new SVGWithMetadata(svgdoc, annotator.getCurveCount(), annotator.getBoundingBox());
+
+    public static FractalDocumentMetadata getMetadata(SVGDocument svgDocument) {
+        FractalMetadataUtil annotator = new FractalMetadataUtil(svgDocument);
+        return annotator.analyse(svgDocument);
     }
 
-    private void analyse(SVGDocument svgDoc) {
+    public FractalMetadataUtil(SVGDocument svgDoc) {
+        this.svgDoc = svgDoc;
+    }
+
+    private FractalDocumentMetadata analyse(SVGDocument svgDoc) {
         TranscoderInput input = new TranscoderInput(svgDoc);
         FDTranscoder transcoder = new FDTranscoder(this);
         try {
@@ -37,6 +41,7 @@ public class SVGDocumentAnnotator extends FDGraphics2D {
         } catch (Exception e) {
             Log.app.warn("Exception - couldn't transcode at - " + e.getMessage());
         }
+        return new FractalDocumentMetadata(curveCount, boundingBox);
     }
 
     public void handleCurve(ParametricCurve curve) {

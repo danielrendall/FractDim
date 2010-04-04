@@ -59,7 +59,6 @@ public class FractalPanel extends JPanel {
     public void zoomOut() {
         AffineTransform currentTransform = (AffineTransform) svgCanvas.getRenderingTransform().clone();
         Log.gui.debug(String.format("Before: translate (%s, %s) Scale (%s, %s)", currentTransform.getTranslateX(), currentTransform.getTranslateY(), currentTransform.getScaleX(), currentTransform.getScaleY()));
-        double scale = (currentTransform.getScaleX() + currentTransform.getScaleY()) / 2.0d;
         currentTransform.scale(1.0d / 1.5d, 1.0d / 1.5d);
         svgCanvas.setRenderingTransform(currentTransform);
         Log.gui.debug(String.format("ZoomOut: translate (%s, %s) Scale (%s, %s)", currentTransform.getTranslateX(), currentTransform.getTranslateY(), currentTransform.getScaleX(), currentTransform.getScaleY()));

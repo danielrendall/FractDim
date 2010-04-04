@@ -3,6 +3,7 @@ package uk.co.danielrendall.fractdim.app.model;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.svg.SVGDocument;
+import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 import java.io.File;
@@ -18,10 +19,12 @@ import java.io.IOException;
 public class FractalDocument {
 
     private final SVGDocument svgDoc;
+    private final FractalDocumentMetadata metadata;
     private String name;
 
-    public FractalDocument(SVGDocument svgDoc) {
+    public FractalDocument(SVGDocument svgDoc, FractalDocumentMetadata metadata) {
         this.svgDoc = svgDoc;
+        this.metadata = metadata;
     }
 
     public void setName(String name) {
@@ -35,4 +38,15 @@ public class FractalDocument {
     public String getName() {
         return name;
     }
+
+    public FractalDocumentMetadata getMetadata() {
+        return metadata;
+    }
+
+    public FractalDocument clone() {
+        FractalDocument clone = new FractalDocument(svgDoc, metadata);
+        clone.setName(name);
+        return clone;
+    }
+
 }

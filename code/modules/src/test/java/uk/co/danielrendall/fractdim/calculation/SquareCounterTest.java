@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.w3c.dom.svg.SVGDocument;
+import uk.co.danielrendall.fractdim.app.controller.FractalController;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.mathlib.geom2d.BezierCubic;
 import uk.co.danielrendall.mathlib.geom2d.Line;
 import uk.co.danielrendall.mathlib.geom2d.Point;
@@ -12,14 +14,12 @@ import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
-import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
-import uk.co.danielrendall.fractdim.svgbridge.SVGDocumentAnnotator;
+import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.calculation.grids.GridSquare;
 import uk.co.danielrendall.fractdim.calculation.grids.GridCollectionBuilder;
 import uk.co.danielrendall.fractdim.calculation.iterators.UniformAngleIterator;
 import uk.co.danielrendall.fractdim.calculation.iterators.LogarithmicResolutionIterator;
-import uk.co.danielrendall.fractdim.calculation.iterators.DisplacementIterator;
 import uk.co.danielrendall.fractdim.calculation.iterators.UniformDisplacementIterator;
 
 import javax.xml.transform.*;
@@ -222,7 +222,7 @@ public class SquareCounterTest {
                 angleIterator(new UniformAngleIterator(1)).
                 resolutionIterator(new LogarithmicResolutionIterator(1.0d, 10.0d, 9)).
                 displacementIterator(new UniformDisplacementIterator(1)).
-                svgWithMetadata(null);
+                fractalDocument(null);
 
         SquareCounter collection = squareCounterBuilder.build();
         assertEquals(10, collection.count());
@@ -380,7 +380,8 @@ public class SquareCounterTest {
             double endY = 1001.0d * Math.sin(angle);
 
             SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(startX, startY).rotate(Math.PI / 90d), new Point(endX, endY).rotate(Math.PI / 90d), 3);
-
+            FractalController controller =  FractalController.fromDocument(svg);
+            FractalDocument fractalDocument = controller.getDocument();
 
             try {
                 // Prepare the DOM document for writing
@@ -404,12 +405,11 @@ public class SquareCounterTest {
                 e.printStackTrace();
             }
 
-            final SVGWithMetadata svgWithMetadata = SVGDocumentAnnotator.annotate(svg);
 
             StatisticsCalculatorBuilder statisticsCalculatorBuilder = new StatisticsCalculatorBuilder();
 
             statisticsCalculatorBuilder.minAngle(StatisticsCalculator.TWO_DEGREES).
-                    svgWithMetadata(svgWithMetadata);
+                    fractalDocument(fractalDocument);
 
             StatisticsCalculator sc = statisticsCalculatorBuilder.build();
 
@@ -427,7 +427,7 @@ public class SquareCounterTest {
                     angleIterator(new UniformAngleIterator(settings.getNumberOfAngles())).
                     resolutionIterator(new LogarithmicResolutionIterator(settings.getMinimumSquareSize(), settings.getMaximumSquareSize(), settings.getNumberOfResolutions())).
                     displacementIterator(new UniformDisplacementIterator(settings.getNumberOfDisplacementPoints())).
-                    svgWithMetadata(svgWithMetadata);
+                    fractalDocument(fractalDocument);
 
             SquareCounter counter = squareCounterBuilder.build();
 

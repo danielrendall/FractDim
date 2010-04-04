@@ -1,6 +1,6 @@
 package uk.co.danielrendall.fractdim.calculation;
 
-import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.calculation.iterators.*;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.calculation.grids.GridCollection;
@@ -20,7 +20,7 @@ public class SquareCounterBuilder {
     private AngleIterator angleIterator = new UniformAngleIterator(1);
     private ResolutionIterator resolutionIterator = new UniformResolutionIterator(1.0d, 1000.0d, 1);
     private DisplacementIterator displacementIterator = new UniformDisplacementIterator(1);
-    private SVGWithMetadata svgWithMetadata = null;
+    private FractalDocument fractalDocument = null;
 
     public SquareCounterBuilder maxDepth(int maxDepth) {
         this.maxDepth = maxDepth;
@@ -42,8 +42,8 @@ public class SquareCounterBuilder {
         return this;
     }
 
-    public SquareCounterBuilder svgWithMetadata(SVGWithMetadata svgWithMetadata) {
-        this.svgWithMetadata = svgWithMetadata;
+    public SquareCounterBuilder fractalDocument(FractalDocument fractalDocument) {
+        this.fractalDocument = fractalDocument;
         return this;
     }
 
@@ -60,7 +60,7 @@ public class SquareCounterBuilder {
                 }
             }
         }
-        return new SquareCounter(svgWithMetadata, builder.build(), maxDepth);
+        return new SquareCounter(fractalDocument, builder.build(), maxDepth);
     }
 
 }

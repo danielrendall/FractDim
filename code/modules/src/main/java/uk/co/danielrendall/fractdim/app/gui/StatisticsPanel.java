@@ -52,6 +52,7 @@ public class StatisticsPanel extends GenericFormPanel {
         addLabelAndComponent("Variance of fragments per line", txtVarianceFragmentsPerCurve);
 
         Log.gui.debug("Added components");
+        this.setEnabled(false);
     }
 
     public void update(Statistics stats) {

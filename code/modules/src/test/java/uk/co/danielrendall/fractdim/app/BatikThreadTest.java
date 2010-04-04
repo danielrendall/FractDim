@@ -3,16 +3,15 @@ package uk.co.danielrendall.fractdim.app;
 import org.junit.Test;
 import org.junit.Ignore;
 import org.w3c.dom.svg.SVGDocument;
-import org.w3c.dom.DOMImplementation;
-import org.apache.batik.dom.svg.SVGDOMImplementation;
+import uk.co.danielrendall.fractdim.app.controller.FractalController;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.generate.Generator;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.mathlib.geom2d.Point;
 import uk.co.danielrendall.fractdim.calculation.StatisticsCalculator;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.StatisticsCalculatorBuilder;
-import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
-import uk.co.danielrendall.fractdim.svgbridge.SVGDocumentAnnotator;
+import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,13 +26,13 @@ public class BatikThreadTest {
     public void testBatikThreading() throws CloneNotSupportedException {
         Generator gen = new Generator();
         final SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 4);
-
-        final SVGWithMetadata svgWithMetadata = SVGDocumentAnnotator.annotate(svg);
+        FractalController controller = FractalController.fromDocument(svg);
+        final FractalDocument fractalDocument = controller.getDocument();
 //        DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 //        final SVGDocument svg2 = (SVGDocument) impl.createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
 
         long before = System.currentTimeMillis();
-        final SVGWithMetadata svgWithMetadata2 = svgWithMetadata.clone();
+        final FractalDocument fractalDocument2 = fractalDocument.clone();
         long after = System.currentTimeMillis();
 
         System.out.println("Cloning took " + (after - before) + " ms");
@@ -43,7 +42,7 @@ public class BatikThreadTest {
             public void run() {
                 StatisticsCalculatorBuilder builder = new StatisticsCalculatorBuilder();
                 builder.minAngle(StatisticsCalculator.TWO_DEGREES).
-                        svgWithMetadata(svgWithMetadata);
+                        fractalDocument(fractalDocument);
                 StatisticsCalculator sc = builder.build();
                 Statistics stats = sc.process();
             }
@@ -52,7 +51,7 @@ public class BatikThreadTest {
             public void run() {
                 StatisticsCalculatorBuilder builder = new StatisticsCalculatorBuilder();
                 builder.minAngle(StatisticsCalculator.TWO_DEGREES).
-                        svgWithMetadata(svgWithMetadata2);
+                        fractalDocument(fractalDocument);
                 StatisticsCalculator sc = builder.build();
                 Statistics stats = sc.process();
             }

@@ -8,10 +8,10 @@ import org.apache.batik.util.XMLResourceDescriptor;
 import java.io.File;
 import java.io.IOException;
 
+import uk.co.danielrendall.fractdim.app.controller.FractalController;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.calculation.*;
 import uk.co.danielrendall.fractdim.calculation.iterators.*;
-import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadataFactory;
-import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
 
 /**
  * Run app from the command line
@@ -73,12 +73,12 @@ public class FractDim {
 
     private void process() {
         try {
-            SVGWithMetadataFactory f = new SVGWithMetadataFactory();
-            SVGWithMetadata doc = f.createFromFile(svgFile);
+            FractalController controller = FractalController.fromFile(svgFile);
+            FractalDocument document = controller.getDocument();
 
             System.out.println("File: " + svgFile.getName());
-            System.out.println("Approximate bounding box: " + doc.getBoundingBox());
-            System.out.println("Number of curves: " + doc.getCurveCount());
+            System.out.println("Approximate bounding box: " + document.getMetadata().getBoundingBox());
+            System.out.println("Number of curves: " + document.getMetadata().getCurveCount());
 
             switch (action) {
 
@@ -88,7 +88,7 @@ public class FractDim {
                             angleIterator(getAngleIterator()).
                             resolutionIterator(getResolutionIterator()).
                             displacementIterator(getDisplacementIterator()).
-                            svgWithMetadata(doc);
+                            fractalDocument(document);
                     SquareCounter calc = squareCounterBuilder.build();
                     SquareCountingResult result = calc.process();
                     System.out.println(result.getAvailableAngles());
@@ -96,7 +96,7 @@ public class FractDim {
                 case Stats:
                     StatisticsCalculatorBuilder statsCalculatorBuilder = new StatisticsCalculatorBuilder();
                     statsCalculatorBuilder.minAngle(StatisticsCalculator.TWO_DEGREES).
-                            svgWithMetadata(doc);
+                            fractalDocument(document);
                     StatisticsCalculator sc = statsCalculatorBuilder.build();
                     Statistics stats = sc.process();
                     System.out.println("Accurate bounding box: " + stats.getBoundingBox());

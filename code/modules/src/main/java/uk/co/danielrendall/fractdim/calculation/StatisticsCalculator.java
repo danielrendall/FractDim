@@ -3,12 +3,12 @@ package uk.co.danielrendall.fractdim.calculation;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.mathlib.geom2d.Line;
 import uk.co.danielrendall.mathlib.geom2d.ParametricCurve;
 import uk.co.danielrendall.mathlib.geom2d.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
-import uk.co.danielrendall.fractdim.svgbridge.SVGWithMetadata;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,15 +25,15 @@ public class StatisticsCalculator extends AbstractNotifyingGraphics  {
     private final double minCosine;
 
 
-    StatisticsCalculator(SVGWithMetadata svgWithMetadata, double minAngle) {
-        super(svgWithMetadata);
+    StatisticsCalculator(FractalDocument fractalDocument, double minAngle) {
+        super(fractalDocument);
         minCosine = Math.cos(minAngle);
     }
 
     public Statistics process() {
 
         Log.calc.info(String.format("Calculating stats for a shape wih %d curves with a minCosine of %s", numberOfCurves, minCosine));
-        TranscoderInput input = new TranscoderInput(svgWithMetadata.getSVGDocument());
+        TranscoderInput input = new TranscoderInput(fractalDocument.getSvgDoc());
         FDTranscoder transcoder = new FDTranscoder(this);
         try {
             transcoder.transcode(input, new TranscoderOutput());
