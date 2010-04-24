@@ -52,8 +52,9 @@ import java.awt.geom.Rectangle2D;
  * Time: 13:14:06
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public class CanvasStackScrollPane extends JPanel {
-    protected final JSVGCanvas canvas;
+    protected final CanvasStack stack;
 
     protected JPanel horizontalPanel;
     protected JScrollBar vertical;
@@ -70,13 +71,13 @@ public class CanvasStackScrollPane extends JPanel {
 
     /**
      * Creates a CanvasStackScrollPane, which will scroll an JSVGCanvas.
-     * @param canvas
+     * @param stack
      */
-    public CanvasStackScrollPane(JSVGCanvas canvas) {
+    public CanvasStackScrollPane(CanvasStack stack) {
         super();
 
-        this.canvas = canvas;
-        canvas.setRecenterOnResize(false);
+        this.stack = stack;
+        stack.setRecenterOnResize(false);
         loadListener = createLoadListener();
 
         // create components
@@ -105,20 +106,20 @@ public class CanvasStackScrollPane extends JPanel {
 
         // layout
         setLayout(new BorderLayout());
-        add(canvas, BorderLayout.CENTER);
+        add(stack, BorderLayout.CENTER);
         add(vertical, BorderLayout.EAST);
         add(horizontalPanel, BorderLayout.SOUTH);
 
         // inform of ZOOM events (to print sizes, such as in a status bar)
-        canvas.addSVGDocumentLoaderListener(loadListener);
+        stack.addSVGDocumentLoaderListener(loadListener);
 
         // canvas listeners
         ScrollListener xlistener = createScrollListener();
         addComponentListener(xlistener);
-        canvas.addGVTTreeRendererListener(xlistener);
-        canvas.addJGVTComponentListener  (xlistener);
-        canvas.addGVTTreeBuilderListener (xlistener);
-        canvas.addUpdateManagerListener  (xlistener);
+        stack.addGVTTreeRendererListener(xlistener);
+        stack.addJGVTComponentListener  (xlistener);
+        stack.addGVTTreeBuilderListener (xlistener);
+        stack.addUpdateManagerListener  (xlistener);
     }// CanvasStackScrollPane()
 
     public boolean getScrollbarsAlwaysVisible() {
@@ -153,8 +154,8 @@ public class CanvasStackScrollPane extends JPanel {
         return new SVGScrollDocumentLoaderListener();
     }
 
-    public JSVGCanvas getCanvas() {
-        return canvas;
+    public CanvasStack getStack() {
+        return stack;
     }
 
 
@@ -199,8 +200,8 @@ public class CanvasStackScrollPane extends JPanel {
         checkAndSetViewBoxRect();
         if (viewBox == null) return;
 
-        AffineTransform crt = canvas.getRenderingTransform();
-        AffineTransform vbt = canvas.getViewBoxTransform();
+        AffineTransform crt = stack.getRenderingTransform();
+        AffineTransform vbt = stack.getViewBoxTransform();
         if (crt == null) crt = new AffineTransform();
         if (vbt == null) vbt = new AffineTransform();
 
@@ -219,7 +220,7 @@ public class CanvasStackScrollPane extends JPanel {
 
         crt.preConcatenate
             (AffineTransform.getTranslateInstance(-deltaX, -deltaY));
-        canvas.setRenderingTransform(crt);
+        stack.setRenderingTransform(crt);
     }// setScrollPosition()
 
 
@@ -310,13 +311,13 @@ public class CanvasStackScrollPane extends JPanel {
                         at = AffineTransform.getTranslateInstance
                             (startValue-val, 0);
                     }
-                    canvas.setPaintingTransform(at);
+                    stack.setPaintingTransform(at);
                 }
             } else {
                 if (inDrag) {
                     inDrag = false;
                     if (val == startValue) {
-                        canvas.setPaintingTransform(new AffineTransform());
+                        stack.setPaintingTransform(new AffineTransform());
                         return;
                     }
                 }
@@ -423,7 +424,7 @@ public class CanvasStackScrollPane extends JPanel {
         checkAndSetViewBoxRect();
         if (viewBox == null) return;
 
-        AffineTransform vbt = canvas.getViewBoxTransform();
+        AffineTransform vbt = stack.getViewBoxTransform();
         if (vbt == null) vbt = new AffineTransform();
 
         Rectangle r2d = vbt.createTransformedShape(viewBox).getBounds();
@@ -477,7 +478,7 @@ public class CanvasStackScrollPane extends JPanel {
         // the effects of making one scroll bar visible on the
         // need for the other scroll bar.
 
-        Dimension vpSize = canvas.getSize();
+        Dimension vpSize = stack.getSize();
         // maxVPW/H is the viewport W/H without scrollbars.
         // minVPW/H is the viewport W/H with scrollbars.
         int maxVPW = vpSize.width;  int minVPW = vpSize.width;
@@ -561,25 +562,26 @@ public class CanvasStackScrollPane extends JPanel {
 
 
     protected Rectangle2D getViewBoxRect() {
-        SVGDocument doc = canvas.getSVGDocument();
-        if (doc == null) return null;
-        SVGSVGElement el = doc.getRootElement();
-        if (el == null) return null;
-
-        String viewBoxStr = el.getAttributeNS
-            (null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE);
-        if (viewBoxStr.length() != 0) {
-            float[] rect = ViewBox.parseViewBoxAttribute(el, viewBoxStr, null);
-            return new Rectangle2D.Float(rect[0], rect[1],
-                                         rect[2], rect[3]);
-        }
-        GraphicsNode gn = canvas.getGraphicsNode();
-        if (gn == null) return null;
-
-        Rectangle2D bounds = gn.getBounds();
-        if (bounds == null) return null;
-
-        return (Rectangle2D) bounds.clone();
+        return null;
+//        SVGDocument doc = stack.getRootCanvas().getSVGDocument();
+//        if (doc == null) return null;
+//        SVGSVGElement el = doc.getRootElement();
+//        if (el == null) return null;
+//
+//        String viewBoxStr = el.getAttributeNS
+//            (null, SVGConstants.SVG_VIEW_BOX_ATTRIBUTE);
+//        if (viewBoxStr.length() != 0) {
+//            float[] rect = ViewBox.parseViewBoxAttribute(el, viewBoxStr, null);
+//            return new Rectangle2D.Float(rect[0], rect[1],
+//                                         rect[2], rect[3]);
+//        }
+//        GraphicsNode gn = stack.getRootCanvas().getGraphicsNode();
+//        if (gn == null) return null;
+//
+//        Rectangle2D bounds = gn.getBounds();
+//        if (bounds == null) return null;
+//
+//        return (Rectangle2D) bounds.clone();
     }
 
     /**

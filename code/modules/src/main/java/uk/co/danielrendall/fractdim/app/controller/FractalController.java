@@ -1,15 +1,8 @@
 package uk.co.danielrendall.fractdim.app.controller;
 
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.apache.batik.dom.svg.SVGDOMImplementation;
-import org.apache.batik.dom.svg.SVGOMDocument;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.util.XMLResourceDescriptor;
-import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
-import org.xml.sax.XMLReader;
 import uk.co.danielrendall.fractdim.app.FractDim;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
@@ -22,6 +15,9 @@ import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.logging.PrettyPrinter;
+import uk.co.danielrendall.fractdim.svg.SVGContentGenerator;
+import uk.co.danielrendall.fractdim.svg.SVGElementCreator;
+import uk.co.danielrendall.fractdim.svg.Utilities;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 import java.io.*;
@@ -50,35 +46,28 @@ public class FractalController {
     private int status = 0;
 
     public static FractalController fromFile(File file) throws IOException {
-        String parser = XMLResourceDescriptor.getXMLParserClassName();
-        SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
+        SAXSVGDocumentFactory factory = Utilities.getDocumentFactory();
         SVGDocument doc = factory.createSVGDocument(file.toURI().toString());
-        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(doc);
+        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(Utilities.cloneSVGDocument(doc));
         FractalDocument document = new FractalDocument(doc, metadata);
         document.setName(file.getName());
         return new FractalController(document);
     }
 
     public static FractalController fromInputStream(InputStream inputStream) throws IOException {
-        String parser = XMLResourceDescriptor.getXMLParserClassName();
-        SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
+        SAXSVGDocumentFactory factory = Utilities.getDocumentFactory();
         SVGDocument doc = factory.createSVGDocument("SomeURI", inputStream);
-        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(doc);
+        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(Utilities.cloneSVGDocument(doc));
         FractalDocument document = new FractalDocument(doc, metadata);
         document.setName("Inputstream " + new Date().getTime());
         return new FractalController(document);
     }
 
     public static FractalController fromDocument(SVGDocument doc) {
-        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(doc);
+        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(Utilities.cloneSVGDocument(doc));
         FractalDocument document = new FractalDocument(doc, metadata);
         document.setName("Document " + new Date().getTime());
         return new FractalController(document);
-    }
-
-    private static SVGDocument createSVGDocument() {
-        DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
-        return (SVGDocument) impl.createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
     }
 
     private FractalController(FractalDocument document) {
@@ -92,6 +81,10 @@ public class FractalController {
 
     public FractalDocument getDocument() {
         return document;
+    }
+
+    public FractalDocument getClonedDocument() {
+        return document.clone();
     }
 
     public FractalPanel getPanel() {
@@ -139,40 +132,36 @@ public class FractalController {
             panel.getStatisticsPanel().update(statistics);
             panel.getSettingsPanel().update(settings);
 
-            SVGDocument minDoc = createSVGDocument();
-            SVGDocument maxDoc = createSVGDocument();
-            SVGDocument bounding = createSVGDocument();
+            final Grid minGrid = new Grid(settings.getMinimumSquareSize());
+            final Grid maxGrid = new Grid(settings.getMaximumSquareSize());
 
-            Grid minGrid = new Grid(settings.getMinimumSquareSize());
-            Grid maxGrid = new Grid(settings.getMaximumSquareSize());
+            final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
 
-            String pathStyle = "fill:#ff0000;fill-rule:evenodd;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:0.1";
+            panel.addOverlay(BOUNDING_BOX, new SVGContentGenerator() {
+                public void generateContent(Element rootElement, SVGElementCreator creator) {
+                    Element path = creator.createPath();
+                    path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s z",
+                            boundingBox.getMinX(), boundingBox.getMinY(),
+                            boundingBox.getMaxX(), boundingBox.getMinY(),
+                            boundingBox.getMaxX(), boundingBox.getMaxY(),
+                            boundingBox.getMinX(), boundingBox.getMaxY()));
+                    rootElement.appendChild(path);
+                }
+            });
 
-            BoundingBox boundingBox = document.getMetadata().getBoundingBox();
+            panel.addOverlay(MIN_GRID, new SVGContentGenerator() {
+                public void generateContent(Element rootElement, SVGElementCreator creator) {
+                    minGrid.writeToSVG(rootElement, creator, boundingBox);
+                }
+            });
 
-            Element root = bounding.getRootElement();
-            root.setAttributeNS(null, "width", "" + boundingBox.getMaxX());
-            root.setAttributeNS(null, "height", "" + boundingBox.getMaxY());
-            Element path = bounding.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "path");
-            path.setAttributeNS(null, "id", "boundingBox");
-            path.setAttributeNS(null, "style", pathStyle);
-            path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s z",
-                    boundingBox.getMinX(), boundingBox.getMinY(),
-                    boundingBox.getMaxX(), boundingBox.getMinY(),
-                    boundingBox.getMaxX(), boundingBox.getMaxY(),
-                    boundingBox.getMinX(), boundingBox.getMaxY()));
-            root.appendChild(path);
+            panel.addOverlay(MAX_GRID, new SVGContentGenerator() {
+                public void generateContent(Element rootElement, SVGElementCreator creator) {
+                    maxGrid.writeToSVG(rootElement, creator, boundingBox);
+                }
+            });
 
-            minGrid.writeToSVG(minDoc, boundingBox);
-//            prettyPrint("Generated min document", minDoc);
-            maxGrid.writeToSVG(maxDoc, boundingBox);
-//            prettyPrint("Generated max document", maxDoc);
-
-            panel.addOverlay(BOUNDING_BOX, bounding);
-            panel.addOverlay(MIN_GRID, minDoc);
-            panel.addOverlay(MAX_GRID, maxDoc);
-
-            panel.repaint();
+//            panel.repaint();
 
             status = STATS_CALCULATED;
             FractDim.instance().updateGlobal(this);

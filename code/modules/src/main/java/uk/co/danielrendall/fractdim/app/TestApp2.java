@@ -59,7 +59,7 @@ public class TestApp2 {
 
         panel.add("North", p);
 
-        final CanvasStack stack = new CanvasStack(new JSVGCanvas());
+        final CanvasStack stack = new CanvasStack();
 
         panel.add("Center", stack);
 
@@ -74,9 +74,8 @@ public class TestApp2 {
                 if (choice == JFileChooser.APPROVE_OPTION) {
                     File f = fc.getSelectedFile();
                     try {
-                        JSVGCanvas svgCanvas = (fileCount[0] == 0) ? stack.getRootCanvas() : new JSVGCanvas();
                         // Set the JSVGCanvas listeners.
-                        svgCanvas.addSVGDocumentLoaderListener(new SVGDocumentLoaderAdapter() {
+                        stack.addSVGDocumentLoaderListener(new SVGDocumentLoaderAdapter() {
                             public void documentLoadingStarted(SVGDocumentLoaderEvent e) {
                                 label.setText("Document Loading...");
                             }
@@ -85,7 +84,7 @@ public class TestApp2 {
                             }
                         });
 
-                        svgCanvas.addGVTTreeBuilderListener(new GVTTreeBuilderAdapter() {
+                        stack.addGVTTreeBuilderListener(new GVTTreeBuilderAdapter() {
                             public void gvtBuildStarted(GVTTreeBuilderEvent e) {
                                 label.setText("Build Started...");
                             }
@@ -95,7 +94,7 @@ public class TestApp2 {
                             }
                         });
 
-                        svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
+                        stack.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
                             public void gvtRenderingPrepare(GVTTreeRendererEvent e) {
                                 label.setText("Rendering Started...");
                             }
@@ -105,9 +104,10 @@ public class TestApp2 {
                         });
 
 
-                        svgCanvas.setURI(f.toURL().toString());
                         if (fileCount[0] > 0) {
-                            stack.addCanvas(svgCanvas);
+                            stack.addFromURI(f.toURL().toString());
+                        } else {
+                            stack.setRootURI(f.toURL().toString());
                         }
                         fileCount[0]++;
 

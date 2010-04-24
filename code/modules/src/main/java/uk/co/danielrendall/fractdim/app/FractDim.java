@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Run Fractal Dimension as a GUI app
@@ -31,6 +32,8 @@ public class FractDim {
     private final JFileChooser chooser;
     private final Map<FractalPanel, FractalController> controllers = new HashMap<FractalPanel, FractalController>();
     private FractalController currentController = null;
+
+    private static AtomicInteger ID = new AtomicInteger(1);
 
     public static void main(String[] args) throws Exception {
         System.out.println("Fractal Dimension Calculator");
@@ -53,6 +56,7 @@ public class FractDim {
     public FractDim() {
         window = new MainWindow();
         chooser = new JFileChooser("/home/daniel/Development/FractDim/resources/samples");
+//        chooser = new JFileChooser("/home/daniel/Development/FractDim/code/modules/src/test/resources/svg");
     }
     
     private void run(String[] args) {
@@ -204,5 +208,9 @@ public class FractDim {
         if (fractalController == currentController) {
             fractalController.enableMenuItems();
         }
+    }
+
+    public static int newId() {
+        return ID.getAndIncrement();
     }
 }

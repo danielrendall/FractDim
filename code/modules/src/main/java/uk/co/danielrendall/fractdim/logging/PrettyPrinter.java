@@ -1,14 +1,11 @@
 package uk.co.danielrendall.fractdim.logging;
 
-import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.svg.SVGDocument;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 
 /**
@@ -20,17 +17,17 @@ import java.io.Writer;
  */
 public class PrettyPrinter {
 
-    private final SVGDocument doc;
+    private final Node root;
     private static final String spaces = "                                                ";
 
-    public PrettyPrinter(SVGDocument doc) {
-        this.doc = doc;
+    public PrettyPrinter(Node root) {
+        this.root = root;
     }
 
     public void prettyPrint(Writer w) {
         BufferedWriter bw = new BufferedWriter(w);
         try {
-            prettyPrint(bw, doc.getRootElement(), 0);
+            prettyPrint(bw, root, 0);
             bw.flush();
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -38,7 +35,7 @@ public class PrettyPrinter {
     }
 
     private void prettyPrint(BufferedWriter bw, Node node, int indent) throws IOException {
-        if (node.getNodeType() == Node.ELEMENT_NODE) {
+        if (node.getNodeType() == Node.ELEMENT_NODE || node.getNodeType() == Node.DOCUMENT_NODE) {
             spaces(bw, indent);
             bw.write("<" + node.getNodeName() + prettyPrint(node.getAttributes()) + ">");
             bw.newLine();
@@ -58,9 +55,11 @@ public class PrettyPrinter {
 
     private String prettyPrint(NamedNodeMap attributes) {
         StringBuffer sb = new StringBuffer();
-        for(int i=0; i<attributes.getLength(); i++) {
-            Node node = attributes.item(i);
-            sb.append(" ").append(node.getNodeName()).append("=\"").append(node.getNodeValue()).append("\"");
+        if (attributes != null) {
+            for(int i=0; i<attributes.getLength(); i++) {
+                Node node = attributes.item(i);
+                sb.append(" ").append(node.getNodeName()).append("=\"").append(node.getNodeValue()).append("\"");
+            }
         }
         return sb.toString();
     }

@@ -4,6 +4,7 @@ import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.svg.Utilities;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 import java.io.File;
@@ -44,7 +45,7 @@ public class FractalDocument {
     }
 
     public FractalDocument clone() {
-        FractalDocument clone = new FractalDocument(svgDoc, metadata);
+        FractalDocument clone = new FractalDocument(Utilities.cloneSVGDocument(svgDoc), metadata);
         clone.setName(name);
         return clone;
     }

@@ -3,6 +3,10 @@ package uk.co.danielrendall.fractdim.calculation.grids;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
+import org.w3c.dom.svg.SVGElement;
+import org.w3c.dom.svg.SVGSVGElement;
+import uk.co.danielrendall.fractdim.app.FractDim;
+import uk.co.danielrendall.fractdim.svg.SVGElementCreator;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import uk.co.danielrendall.mathlib.geom2d.Point;
 import uk.co.danielrendall.mathlib.geom2d.Vec;
@@ -234,7 +238,14 @@ public class Grid {
         return masterStore.squareIterator();
     }
 
-    public void writeToSVG(SVGDocument doc, BoundingBox boundingBox) {
+    /**
+     * Called to ask the grid to write something suitable to the root element provided, using the creator
+     * to create any elements it requires, fitting within the specified boundingbox.
+     * @param rootGroup
+     * @param creator
+     * @param boundingBox
+     */
+    public void writeToSVG(Element rootGroup, SVGElementCreator creator, BoundingBox boundingBox) {
         double centreX = (boundingBox.getMaxX() + boundingBox.getMinX()) / 2.0d;
         double centreY = (boundingBox.getMaxY() + boundingBox.getMinY()) / 2.0d;
         int squaresToTheLeft = (int) Math.ceil((centreX - boundingBox.getMinX()) / resolution);
@@ -247,47 +258,23 @@ public class Grid {
         double bottom = centreY - ((double) squaresToTheBottom) * resolution;
         double top = centreY + ((double) squaresToTheTop) * resolution;
 
-        String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
-        String pathStyle = "fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1";
-
-//        SVGDocument doc = document.getSvgDoc();
-
-        Element root = doc.getRootElement();
-        root.setAttributeNS(null, "width", "" + boundingBox.getMaxX());
-        root.setAttributeNS(null, "height", "" + boundingBox.getMaxY());
-
-        Element rootGroup = doc.createElementNS(svgNS, "g");
-        rootGroup.setAttributeNS(null, "id", "g" + newID());
-        root.appendChild(rootGroup);
-
-        Element horizLines = doc.createElementNS(svgNS, "g");
-        horizLines.setAttributeNS(null, "id", "g" + newID());
+        Element horizLines = creator.createGroup();
 
         for (double y = bottom; y <= top; y += resolution) {
-            Element path = doc.createElementNS(svgNS, "path");
-            path.setAttributeNS(null, "id", "path" + newID());
-            path.setAttributeNS(null, "style", pathStyle);
+            Element path = creator.createPath();
             path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s", left, y, right, y));
             horizLines.appendChild(path);
         }
 
-        Element vertLines = doc.createElementNS(svgNS, "g");
-        vertLines.setAttributeNS(null, "id", "g" + newID());
+        Element vertLines = creator.createGroup();
 
         for (double x = left; x <= right; x += resolution) {
-            Element path = doc.createElementNS(svgNS, "path");
-            path.setAttributeNS(null, "id", "path" + newID());
-            path.setAttributeNS(null, "style", pathStyle);
+            Element path = creator.createPath();
             path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s", x, bottom, x, top));
             vertLines.appendChild(path);
         }
 
         rootGroup.appendChild(horizLines);
         rootGroup.appendChild(vertLines);
-    }
-
-    int id=0;
-    private int newID() {
-        return ++id;
     }
 }

@@ -27,7 +27,7 @@ public class BatikThreadTest {
         Generator gen = new Generator();
         final SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 4);
         FractalController controller = FractalController.fromDocument(svg);
-        final FractalDocument fractalDocument = controller.getDocument();
+        final FractalDocument fractalDocument = controller.getClonedDocument();
 //        DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 //        final SVGDocument svg2 = (SVGDocument) impl.createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
 
