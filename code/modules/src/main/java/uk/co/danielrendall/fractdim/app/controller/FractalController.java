@@ -73,7 +73,7 @@ public class FractalController {
     private FractalController(FractalDocument document) {
         this.document = document;
         panel = new FractalPanel();
-        panel.updateSvgDocument(document.getSvgDoc());
+        panel.updateDocument(document);
         status = DOC_LOADED;
         CalculateStatisticsWorker csw = new CalculateStatisticsWorker(this, CALC_STATS);
         csw.execute();
@@ -110,7 +110,8 @@ public class FractalController {
     }
 
     public void calculate(FractDim fractDim) {
-        //To change body of created methods use File | Settings | File Templates.
+        panel.removeOverlay(MIN_GRID);
+        panel.removeOverlay(MAX_GRID);
     }
     
     public void zoomIn(FractDim fractDim) {
@@ -137,31 +138,32 @@ public class FractalController {
 
             final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
 
+            Log.gui.info("Bounding box is " + boundingBox);
+
             panel.addOverlay(BOUNDING_BOX, new SVGContentGenerator() {
-                public void generateContent(Element rootElement, SVGElementCreator creator) {
-                    Element path = creator.createPath();
+                public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
+                    Element path = creator.createPath("#ff9999");
                     path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s z",
                             boundingBox.getMinX(), boundingBox.getMinY(),
                             boundingBox.getMaxX(), boundingBox.getMinY(),
                             boundingBox.getMaxX(), boundingBox.getMaxY(),
                             boundingBox.getMinX(), boundingBox.getMaxY()));
                     rootElement.appendChild(path);
+                    return boundingBox;
                 }
             });
 
             panel.addOverlay(MIN_GRID, new SVGContentGenerator() {
-                public void generateContent(Element rootElement, SVGElementCreator creator) {
-                    minGrid.writeToSVG(rootElement, creator, boundingBox);
+                public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
+                    return minGrid.writeToSVG(rootElement, creator, boundingBox, "#99ff99");
                 }
             });
 
             panel.addOverlay(MAX_GRID, new SVGContentGenerator() {
-                public void generateContent(Element rootElement, SVGElementCreator creator) {
-                    maxGrid.writeToSVG(rootElement, creator, boundingBox);
+                public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
+                    return maxGrid.writeToSVG(rootElement, creator, boundingBox, "#9999ff");
                 }
             });
-
-//            panel.repaint();
 
             status = STATS_CALCULATED;
             FractDim.instance().updateGlobal(this);

@@ -240,28 +240,37 @@ public class Grid {
 
     /**
      * Called to ask the grid to write something suitable to the root element provided, using the creator
-     * to create any elements it requires, fitting within the specified boundingbox.
+     * to create any elements it requires, covering at least the supplied bounding box. Returns the actual bounding
+     * box of the resulting grid (for large squares, this could overshoot the supplied bounding box considerably)
      * @param rootGroup
      * @param creator
      * @param boundingBox
+     * @param colour
+     * @return The bounding box occupied by enough of the grid to cover the supplied bounding box.
      */
-    public void writeToSVG(Element rootGroup, SVGElementCreator creator, BoundingBox boundingBox) {
+    public BoundingBox writeToSVG(Element rootGroup, SVGElementCreator creator, BoundingBox boundingBox, String colour) {
         double centreX = (boundingBox.getMaxX() + boundingBox.getMinX()) / 2.0d;
         double centreY = (boundingBox.getMaxY() + boundingBox.getMinY()) / 2.0d;
+
+        // Recall that in SVG, the origin is at the top-left and so y increases downwards
+
         int squaresToTheLeft = (int) Math.ceil((centreX - boundingBox.getMinX()) / resolution);
         int squaresToTheRight = (int) Math.ceil((boundingBox.getMaxX() - centreX) / resolution);
-        int squaresToTheBottom = (int) Math.ceil((centreY - boundingBox.getMinY()) / resolution);
-        int squaresToTheTop = (int) Math.ceil((boundingBox.getMaxY() - centreY) / resolution);
+        int squaresToTheTop = (int) Math.ceil((centreY - boundingBox.getMinY()) / resolution);
+        int squaresToTheBottom = (int) Math.ceil((boundingBox.getMaxY() - centreY) / resolution);
 
         double left = centreX - ((double) squaresToTheLeft) * resolution;
         double right = centreX + ((double) squaresToTheRight) * resolution;
-        double bottom = centreY - ((double) squaresToTheBottom) * resolution;
-        double top = centreY + ((double) squaresToTheTop) * resolution;
+        double top = centreY - ((double) squaresToTheTop) * resolution;
+        double bottom = centreY + ((double) squaresToTheBottom) * resolution;
+
+        if (left > right) { throw new RuntimeException("Left should be less than right");}
+        if (top > bottom) { throw new RuntimeException("Top should be less than bottom");}
 
         Element horizLines = creator.createGroup();
 
-        for (double y = bottom; y <= top; y += resolution) {
-            Element path = creator.createPath();
+        for (double y = top; y <= bottom; y += resolution) {
+            Element path = creator.createPath(colour);
             path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s", left, y, right, y));
             horizLines.appendChild(path);
         }
@@ -269,12 +278,13 @@ public class Grid {
         Element vertLines = creator.createGroup();
 
         for (double x = left; x <= right; x += resolution) {
-            Element path = creator.createPath();
-            path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s", x, bottom, x, top));
+            Element path = creator.createPath(colour);
+            path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s", x, top, x, bottom));
             vertLines.appendChild(path);
         }
 
         rootGroup.appendChild(horizLines);
         rootGroup.appendChild(vertLines);
+        return new BoundingBox(left, right, top, bottom);
     }
 }

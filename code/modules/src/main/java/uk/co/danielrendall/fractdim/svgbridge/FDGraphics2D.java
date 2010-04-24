@@ -7,6 +7,7 @@ import uk.co.danielrendall.mathlib.geom2d.Point;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 
 /**
@@ -17,6 +18,7 @@ public abstract class FDGraphics2D extends DefaultGraphics2D {
 
     protected Point start = Point.ORIGIN;
     private final double[] pathSegment = new double[6];
+    private final AffineTransform rawTransform = AffineTransform.getScaleInstance(1.0d, 1.0d);
 
     public FDGraphics2D() {
         super(true);
@@ -25,7 +27,7 @@ public abstract class FDGraphics2D extends DefaultGraphics2D {
 
     @Override
     public void draw(Shape s) {
-        PathIterator pit = s.getPathIterator(gc.getTransform());
+        PathIterator pit = s.getPathIterator(rawTransform);
         int count = 0;
         while (!pit.isDone()) {
             count++;

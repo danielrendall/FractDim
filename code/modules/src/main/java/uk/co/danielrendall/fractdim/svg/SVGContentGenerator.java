@@ -1,6 +1,7 @@
 package uk.co.danielrendall.fractdim.svg;
 
 import org.w3c.dom.Element;
+import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,5 +12,5 @@ import org.w3c.dom.Element;
  */
 public interface SVGContentGenerator {
 
-    public void generateContent(Element rootElement, SVGElementCreator creator);
+    public BoundingBox generateContent(Element rootElement, SVGElementCreator creator);
 }

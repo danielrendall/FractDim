@@ -8,9 +8,11 @@ import org.apache.batik.swing.svg.AbstractJSVGComponent;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svg.SVGContentGenerator;
 import uk.co.danielrendall.fractdim.svg.SVGElementCreator;
+import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,6 +33,10 @@ public class FractalPanel extends JPanel {
     private final ResultPanel resultPanel;
 
     private final Map<String, String> overlayIdMap;
+    private final Map<String, BoundingBox> overlayBoundingBoxes;
+
+    private BoundingBox rootBoundingBox;
+    private BoundingBox currentBoundingBox;
 
     private final Queue<Runnable> temporaryRunnableQueue;
 
@@ -49,6 +55,8 @@ public class FractalPanel extends JPanel {
         resultPanel = new ResultPanel();
 
         overlayIdMap = new HashMap<String, String>();
+        overlayBoundingBoxes = new HashMap<String, BoundingBox>();
+
         temporaryRunnableQueue = new LinkedList<Runnable>();
 
         Box leftColumn = Box.createVerticalBox();
@@ -63,11 +71,11 @@ public class FractalPanel extends JPanel {
         this.add(mainComponent, BorderLayout.CENTER);
     }
 
-    public void updateSvgDocument(SVGDocument doc) {
+    public void updateDocument(FractalDocument doc) {
         canvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
             @Override
             public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
-//                synchronized(lock) {
+                synchronized(lock) {
                     updateManagerIsReady = true;
                     for (Iterator<Runnable> it = temporaryRunnableQueue.iterator(); it.hasNext();) {
                         Runnable next = it.next();
@@ -75,10 +83,13 @@ public class FractalPanel extends JPanel {
                         it.remove();
                     }
 
-//                }
+                }
             }
         });
-        canvas.setSVGDocument(doc);
+        rootBoundingBox = doc.getMetadata().getBoundingBox();
+        currentBoundingBox = rootBoundingBox;
+        canvas.setSVGDocument(doc.getSvgDoc());
+
     }
 
 
@@ -115,13 +126,21 @@ public class FractalPanel extends JPanel {
                 SVGSVGElement root = myDoc.getRootElement();
 
                 Element group = creator.createGroup();
-                generator.generateContent(group, creator);
+                BoundingBox box = generator.generateContent(group, creator);
+
+
                 overlayIdMap.put(overlayId, group.getAttributeNS(null, "id"));
+                overlayBoundingBoxes.put(overlayId, box);
+                currentBoundingBox = currentBoundingBox.expandToInclude(box);
                 root.appendChild(group);
+                String viewBox = currentBoundingBox.forSvg();
+                Log.gui.debug("Setting bounding box to " + viewBox);
+                root.setAttributeNS(null, "viewBox", viewBox);
             }
         };
+
         Log.gui.info("Created runnable, now to try to run it");
-//        synchronized(lock) {
+        synchronized(lock) {
             if (updateManagerIsReady) {
                 Log.gui.debug("Adding overlay with ID " + overlayId);
                 canvas.getUpdateManager().getUpdateRunnableQueue().invokeLater(updater);
@@ -129,15 +148,45 @@ public class FractalPanel extends JPanel {
                 Log.gui.warn("Update manager wasn't ready... - queuing");
                 temporaryRunnableQueue.add(updater);
             }
-//        }
+        }
     }
 
-    public void removeOverlay(String overlayId) {
-//        JSVGCanvas current = overlays.remove(overlayId);
-//        if (current != null) {
-//            canvasStack.removeCanvas(current);
-//        } else {
-//            Log.gui.warn("Asked to remove canvas with ID " + overlayId);
-//        }
+    public void removeOverlay(final String overlayId) {
+        Runnable updater = new Runnable() {
+            public void run() {
+                Log.gui.debug("Removing overlay with ID " + overlayId);
+
+                String overlayGroupId = overlayIdMap.remove(overlayId);
+                if (overlayGroupId != null) {
+                    SVGDocument myDoc = canvas.getSVGDocument();
+                    SVGSVGElement root = myDoc.getRootElement();
+                    Element el = root.getElementById(overlayGroupId);
+                    if (el != null) {
+                        root.removeChild(el);
+                    }
+                    overlayBoundingBoxes.remove(overlayGroupId);
+                    BoundingBox newBoundingBox = rootBoundingBox;
+                    for (BoundingBox box : overlayBoundingBoxes.values()) {
+                        newBoundingBox = newBoundingBox.expandToInclude(box);
+                    }
+                    currentBoundingBox = newBoundingBox;
+                    String viewBox = currentBoundingBox.forSvg();
+                    Log.gui.debug("Setting bounding box to " + viewBox);
+                    root.setAttributeNS(null, "viewBox", viewBox);
+                }
+
+            }
+        };
+
+        Log.gui.info("Created runnable, now to try to run it");
+        synchronized(lock) {
+            if (updateManagerIsReady) {
+                Log.gui.debug("Adding overlay with ID " + overlayId);
+                canvas.getUpdateManager().getUpdateRunnableQueue().invokeLater(updater);
+            } else {
+                Log.gui.warn("Update manager wasn't ready... - queuing");
+                temporaryRunnableQueue.add(updater);
+            }
+        }
     }
 }

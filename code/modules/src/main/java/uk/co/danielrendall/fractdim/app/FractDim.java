@@ -55,8 +55,8 @@ public class FractDim {
     }
     public FractDim() {
         window = new MainWindow();
-        chooser = new JFileChooser("/home/daniel/Development/FractDim/resources/samples");
-//        chooser = new JFileChooser("/home/daniel/Development/FractDim/code/modules/src/test/resources/svg");
+//        chooser = new JFileChooser("/home/daniel/Development/FractDim/resources/samples");
+        chooser = new JFileChooser("/home/daniel/Development/FractDim/code/modules/src/test/resources/svg");
     }
     
     private void run(String[] args) {
