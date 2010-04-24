@@ -8,10 +8,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * Created by IntelliJ IDEA.
@@ -55,7 +53,7 @@ public class MainWindow extends JFrame {
 
             public void stateChanged(ChangeEvent e) {
                 FractalPanel panel = (FractalPanel) tabPane.getSelectedComponent();
-                FractDim.instance().notifyCurrentPanel(panel);
+                FractDim.instance().notifyPanelChange(panel);
             }
         });
         getContentPane().add(toolBar, BorderLayout.NORTH);

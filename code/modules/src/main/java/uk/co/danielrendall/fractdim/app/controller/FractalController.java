@@ -1,8 +1,15 @@
 package uk.co.danielrendall.fractdim.app.controller;
 
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.dom.svg.SVGOMDocument;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
+import org.xml.sax.XMLReader;
 import uk.co.danielrendall.fractdim.app.FractDim;
 import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
@@ -12,11 +19,12 @@ import uk.co.danielrendall.fractdim.app.model.FractalDocumentMetadata;
 import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
 import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
+import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.logging.PrettyPrinter;
+import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Date;
 
 /**
@@ -32,6 +40,9 @@ public class FractalController {
     private final static int STATS_CALCULATED = 2;
 
     private final static String CALC_STATS = "CalcStats";
+    private final static String MIN_GRID = "MinGrid";
+    private final static String MAX_GRID = "MaxGrid";
+    private final static String BOUNDING_BOX = "BoundingBox";
 
 
     private final FractalDocument document;
@@ -65,6 +76,10 @@ public class FractalController {
         return new FractalController(document);
     }
 
+    private static SVGDocument createSVGDocument() {
+        DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
+        return (SVGDocument) impl.createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
+    }
 
     private FractalController(FractalDocument document) {
         this.document = document;
@@ -97,7 +112,7 @@ public class FractalController {
     }
 
     public void closeFile(FractDim fractDim) {
-        // check we're in a fit state to close
+        // TODO - check we're in a fit state to close
         fractDim.remove(this);
     }
 
@@ -120,9 +135,45 @@ public class FractalController {
     public void setStatistics(Statistics statistics) {
         if (status == DOC_LOADED) {
             // todo - some nicer way of selecting the algorithm for this...
-            CalculationSettings settings = new CalculationSettings(statistics);
+            final CalculationSettings settings = new CalculationSettings(statistics);
             panel.getStatisticsPanel().update(statistics);
             panel.getSettingsPanel().update(settings);
+
+            SVGDocument minDoc = createSVGDocument();
+            SVGDocument maxDoc = createSVGDocument();
+            SVGDocument bounding = createSVGDocument();
+
+            Grid minGrid = new Grid(settings.getMinimumSquareSize());
+            Grid maxGrid = new Grid(settings.getMaximumSquareSize());
+
+            String pathStyle = "fill:#ff0000;fill-rule:evenodd;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:0.1";
+
+            BoundingBox boundingBox = document.getMetadata().getBoundingBox();
+
+            Element root = bounding.getRootElement();
+            root.setAttributeNS(null, "width", "" + boundingBox.getMaxX());
+            root.setAttributeNS(null, "height", "" + boundingBox.getMaxY());
+            Element path = bounding.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "path");
+            path.setAttributeNS(null, "id", "boundingBox");
+            path.setAttributeNS(null, "style", pathStyle);
+            path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s z",
+                    boundingBox.getMinX(), boundingBox.getMinY(),
+                    boundingBox.getMaxX(), boundingBox.getMinY(),
+                    boundingBox.getMaxX(), boundingBox.getMaxY(),
+                    boundingBox.getMinX(), boundingBox.getMaxY()));
+            root.appendChild(path);
+
+            minGrid.writeToSVG(minDoc, boundingBox);
+//            prettyPrint("Generated min document", minDoc);
+            maxGrid.writeToSVG(maxDoc, boundingBox);
+//            prettyPrint("Generated max document", maxDoc);
+
+            panel.addOverlay(BOUNDING_BOX, bounding);
+            panel.addOverlay(MIN_GRID, minDoc);
+            panel.addOverlay(MAX_GRID, maxDoc);
+
+            panel.repaint();
+
             status = STATS_CALCULATED;
             FractDim.instance().updateGlobal(this);
         } else {
@@ -130,4 +181,14 @@ public class FractalController {
         }
     }
 
+    private void prettyPrint(String message, SVGDocument doc) {
+        if (Log.gui.isDebugEnabled()) {
+            Log.gui.debug(message);
+
+            StringWriter sw = new StringWriter();
+            PrettyPrinter pp = new PrettyPrinter(doc);
+            pp.prettyPrint(sw);
+            Log.gui.debug(sw.toString());
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package uk.co.danielrendall.fractdim.app;
 
+import org.apache.batik.swing.JSVGCanvas;
 import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.MainWindow;
@@ -23,8 +24,8 @@ public class FractDim {
 
     private final static FractDim fractDim = new FractDim();
 
-    private final static int DEFAULT_WIDTH = 640;
-    private final static int DEFAULT_HEIGHT = 480;
+    private final static int DEFAULT_WIDTH = 800;
+    private final static int DEFAULT_HEIGHT = 600;
 
     private final MainWindow window;
     private final JFileChooser chooser;
@@ -156,7 +157,12 @@ public class FractDim {
         controllers.remove(panel);
     }
 
-    public synchronized void notifyCurrentPanel(FractalPanel panel) {
+    /**
+     * Called when the the user has switched tabs, so we can set the currentController
+     * to be the correct one for the currently visible panel.
+     * @param panel The newly selected panel
+     */
+    public synchronized void notifyPanelChange(FractalPanel panel) {
         if (panel == null) {
             // all closed
             currentController = null;
@@ -164,11 +170,12 @@ public class FractDim {
 
         } else {
             FractalController controller = controllers.get(panel);
+            currentController = controller;
             if (controller == null) {
                 Log.app.warn("Controller shouldn't be null!");
+            } else {
+                currentController.enableMenuItems();
             }
-            currentController = controller;
-            currentController.enableMenuItems();
         }
     }
 
@@ -186,9 +193,13 @@ public class FractDim {
         }
     }
 
-    // called when a controller has done something (which may have been running in the background) and may want
-    // to update global state (i.e. selected menu items). If the controller doing the calling is current, it gets
-    // to do the update, otherwise it can wait until its panel is next selected.
+
+    /**
+     * Called when a controller has done something (which may have been running in the background) and may want
+     * to update global state (i.e. selected menu items). If the controller doing the calling is current, it gets
+     * to do the update, otherwise it can wait until its panel is next selected.
+     * @param fractalController
+     */
     public synchronized void updateGlobal(FractalController fractalController) {
         if (fractalController == currentController) {
             fractalController.enableMenuItems();
