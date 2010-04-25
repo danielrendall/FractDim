@@ -134,8 +134,10 @@ public class FractalPanel extends JPanel {
                 currentBoundingBox = currentBoundingBox.expandToInclude(box);
                 root.appendChild(group);
                 String viewBox = currentBoundingBox.forSvg();
+                Log.gui.debug("Current bounding box is " + root.getAttributeNS(null, "viewBox"));
                 Log.gui.debug("Setting bounding box to " + viewBox);
                 root.setAttributeNS(null, "viewBox", viewBox);
+                root.setAttributeNS(null, "overflow", "visible");
             }
         };
 
