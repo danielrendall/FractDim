@@ -118,77 +118,95 @@ public class FractalPanel extends JPanel {
     }
 
     public void addOverlay(final String overlayId, final SVGContentGenerator generator) {
-        Runnable updater = new Runnable() {
+        runNowOrLater(overlayId, new Runnable() {
             public void run() {
-                Log.gui.debug("Adding overlay with ID " + overlayId);
-                SVGDocument myDoc = canvas.getSVGDocument();
-                SVGElementCreator creator = new SVGElementCreator(myDoc);
-                SVGSVGElement root = myDoc.getRootElement();
-
-                Element group = creator.createGroup();
-                BoundingBox box = generator.generateContent(group, creator);
-
-
-                overlayIdMap.put(overlayId, group.getAttributeNS(null, "id"));
-                overlayBoundingBoxes.put(overlayId, box);
-                currentBoundingBox = currentBoundingBox.expandToInclude(box);
-                root.appendChild(group);
-                String viewBox = currentBoundingBox.forSvg();
-                Log.gui.debug("Current bounding box is " + root.getAttributeNS(null, "viewBox"));
-                Log.gui.debug("Setting bounding box to " + viewBox);
-                root.setAttributeNS(null, "viewBox", viewBox);
-                root.setAttributeNS(null, "overflow", "visible");
+                addOverlayInUpdateManager(overlayId, generator);
             }
-        };
+        });
+    }
 
-        Log.gui.info("Created runnable, now to try to run it");
+
+    public void removeOverlay(final String overlayId) {
+        runNowOrLater(overlayId, new Runnable() {
+            public void run() {
+                removeOverlayInUpdateManager(overlayId);
+
+            }
+        });
+    }
+
+    public void updateOverlay(final String overlayId, final SVGContentGenerator generator) {
+        runNowOrLater(overlayId, new Runnable() {
+            public void run() {
+                removeOverlayInUpdateManager(overlayId);
+                addOverlayInUpdateManager(overlayId, generator);
+            }
+        });
+    }
+
+
+    private void runNowOrLater(String overlayId, Runnable updater) {
         synchronized(lock) {
             if (updateManagerIsReady) {
-                Log.gui.debug("Adding overlay with ID " + overlayId);
+                Log.gui.debug("Running operation on overlay " + overlayId);
                 canvas.getUpdateManager().getUpdateRunnableQueue().invokeLater(updater);
             } else {
-                Log.gui.warn("Update manager wasn't ready... - queuing");
+                Log.gui.debug("Queuing operation on overlay " + overlayId);
                 temporaryRunnableQueue.add(updater);
             }
         }
     }
 
-    public void removeOverlay(final String overlayId) {
-        Runnable updater = new Runnable() {
-            public void run() {
-                Log.gui.debug("Removing overlay with ID " + overlayId);
+    /**
+     * This should only ever be called in the Update Manager thread
+     * @param overlayId
+     * @param generator
+     */
+    private void addOverlayInUpdateManager(String overlayId, SVGContentGenerator generator) {
+        Log.gui.debug("Adding overlay with ID " + overlayId);
+        SVGDocument myDoc = canvas.getSVGDocument();
+        SVGElementCreator creator = new SVGElementCreator(myDoc);
+        SVGSVGElement root = myDoc.getRootElement();
 
-                String overlayGroupId = overlayIdMap.remove(overlayId);
-                if (overlayGroupId != null) {
-                    SVGDocument myDoc = canvas.getSVGDocument();
-                    SVGSVGElement root = myDoc.getRootElement();
-                    Element el = root.getElementById(overlayGroupId);
-                    if (el != null) {
-                        root.removeChild(el);
-                    }
-                    overlayBoundingBoxes.remove(overlayGroupId);
-                    BoundingBox newBoundingBox = rootBoundingBox;
-                    for (BoundingBox box : overlayBoundingBoxes.values()) {
-                        newBoundingBox = newBoundingBox.expandToInclude(box);
-                    }
-                    currentBoundingBox = newBoundingBox;
-                    String viewBox = currentBoundingBox.forSvg();
-                    Log.gui.debug("Setting bounding box to " + viewBox);
-                    root.setAttributeNS(null, "viewBox", viewBox);
-                }
+        Element group = creator.createGroup();
+        BoundingBox box = generator.generateContent(group, creator);
 
+
+        overlayIdMap.put(overlayId, group.getAttributeNS(null, "id"));
+        overlayBoundingBoxes.put(overlayId, box);
+        currentBoundingBox = currentBoundingBox.expandToInclude(box);
+        root.appendChild(group);
+        String viewBox = currentBoundingBox.forSvg();
+        Log.gui.debug("Current bounding box is " + root.getAttributeNS(null, "viewBox"));
+        Log.gui.debug("Setting bounding box to " + viewBox);
+        root.setAttributeNS(null, "viewBox", viewBox);
+        root.setAttributeNS(null, "overflow", "visible");
+    }
+
+    /**
+     * This should only ever be called in the Update Manager thread
+     * @param overlayId
+     */
+    private void removeOverlayInUpdateManager(String overlayId) {
+        Log.gui.debug("Removing overlay with ID " + overlayId);
+
+        String overlayGroupId = overlayIdMap.remove(overlayId);
+        if (overlayGroupId != null) {
+            SVGDocument myDoc = canvas.getSVGDocument();
+            SVGSVGElement root = myDoc.getRootElement();
+            Element el = root.getElementById(overlayGroupId);
+            if (el != null) {
+                root.removeChild(el);
             }
-        };
-
-        Log.gui.info("Created runnable, now to try to run it");
-        synchronized(lock) {
-            if (updateManagerIsReady) {
-                Log.gui.debug("Adding overlay with ID " + overlayId);
-                canvas.getUpdateManager().getUpdateRunnableQueue().invokeLater(updater);
-            } else {
-                Log.gui.warn("Update manager wasn't ready... - queuing");
-                temporaryRunnableQueue.add(updater);
+            overlayBoundingBoxes.remove(overlayGroupId);
+            BoundingBox newBoundingBox = rootBoundingBox;
+            for (BoundingBox box : overlayBoundingBoxes.values()) {
+                newBoundingBox = newBoundingBox.expandToInclude(box);
             }
+            currentBoundingBox = newBoundingBox;
+            String viewBox = currentBoundingBox.forSvg();
+            Log.gui.debug("Setting bounding box to " + viewBox);
+            root.setAttributeNS(null, "viewBox", viewBox);
         }
     }
 }
