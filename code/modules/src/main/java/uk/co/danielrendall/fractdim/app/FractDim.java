@@ -128,20 +128,6 @@ public class FractDim {
         }
     }
 
-    public void closeFile(ActionEvent e) {
-        Log.app.debug("Close File");
-        if (currentController != null) {
-            currentController.closeFile(this);
-        }
-    }
-
-    public void calculate(ActionEvent e) {
-        Log.app.debug("Calculate");
-        if (currentController != null) {
-            currentController.calculate(this);
-        }
-    }
-
     public void quit(ActionEvent e) {
         Log.app.debug("Quit");
         // TODO - some cleanup

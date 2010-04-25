@@ -12,15 +12,11 @@ import java.awt.event.ActionEvent;
  * Time: 20:13:52
  * To change this template use File | Settings | File Templates.
  */
-public class FileClose extends FractDimAction {
+public class FileClose extends FractDimDelegatedAction {
 
     protected FileClose() {
         putValue(Action.NAME, "Close...");
         setEnabled(false);
         setIcons("fileclose");
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        FractDim.instance().closeFile(e);
     }
 }

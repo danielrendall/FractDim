@@ -12,15 +12,11 @@ import java.awt.event.ActionEvent;
  * Time: 21:15:08
  * To change this template use File | Settings | File Templates.
  */
-public class FileCalculate extends FractDimAction {
+public class FileCalculate extends FractDimDelegatedAction {
 
     protected FileCalculate() {
         putValue(Action.NAME, "Calculate");
         setEnabled(false);
         setIcons("calculate");
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        FractDim.instance().calculate(e);
     }
 }

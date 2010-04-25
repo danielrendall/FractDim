@@ -30,10 +30,10 @@ public class ActionRepository {
 
     private ActionRepository() {
         actions.put(FILE_OPEN, new FileOpen());
-        actions.put(FILE_CLOSE, new FileClose());
-        actions.put(FILE_CALCULATE, new FileCalculate());
         actions.put(FILE_EXIT, new FileExit());
 
+        delegatedActions.put(FILE_CLOSE, new FileClose());
+        delegatedActions.put(FILE_CALCULATE, new FileCalculate());
         delegatedActions.put(DIAGRAM_ZOOM_IN, new DiagramZoomIn());
         delegatedActions.put(DIAGRAM_ZOOM_OUT, new DiagramZoomOut());
     }
@@ -42,18 +42,18 @@ public class ActionRepository {
         return actions.get(FILE_OPEN);
     }
 
-    public FractDimAction getFileClose() {
-        return actions.get(FILE_CLOSE);
-    }
-
-    public FractDimAction getFileCalculate() {
-        return actions.get(FILE_CALCULATE);
-    }
-
     public FractDimAction getFileExit() {
         return actions.get(FILE_EXIT);
     }
 
+    public FractDimDelegatedAction getFileClose() {
+        return delegatedActions.get(FILE_CLOSE);
+    }
+
+    public FractDimDelegatedAction getFileCalculate() {
+        return delegatedActions.get(FILE_CALCULATE);
+    }
+    
     public FractDimDelegatedAction getDiagramZoomIn() {
         return delegatedActions.get(DIAGRAM_ZOOM_IN);
     }

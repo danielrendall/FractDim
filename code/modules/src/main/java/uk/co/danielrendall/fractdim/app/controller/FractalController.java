@@ -22,6 +22,7 @@ import uk.co.danielrendall.fractdim.svg.Utilities;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.Date;
 
@@ -45,6 +46,19 @@ public class FractalController {
 
     private final FractalDocument document;
     private final FractalPanel panel;
+
+    private final Action actionCalculateStats = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            actionCalculateStats();
+        }
+    };
+
+    private final Action actionCloseFile = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            actionCloseFile();
+        }
+    };
+
     private int status = 0;
 
     public static FractalController fromFile(File file) throws IOException {
@@ -97,22 +111,22 @@ public class FractalController {
     public void enableMenuItems() {
         ActionMap actionMap = panel.getActionMap();
         ActionRepository repository = ActionRepository.instance();
-        repository.getFileClose().setEnabled(true);
+        repository.getFileClose().setDelegate(actionCloseFile);
         repository.getDiagramZoomIn().setDelegate(actionMap.get(JSVGCanvas.ZOOM_IN_ACTION));
         repository.getDiagramZoomOut().setDelegate(actionMap.get(JSVGCanvas.ZOOM_OUT_ACTION));
         if (status < STATS_CALCULATED) {
-            repository.getFileCalculate().setEnabled(false);
+            repository.getFileCalculate().removeDelegate();
         } else {
-            repository.getFileCalculate().setEnabled(true);
+            repository.getFileCalculate().setDelegate(actionCalculateStats);
         }
     }
 
-    public void closeFile(FractDim fractDim) {
+    public void actionCloseFile() {
         // TODO - check we're in a fit state to close
-        fractDim.remove(this);
+        FractDim.instance().remove(this);
     }
 
-    public void calculate(FractDim fractDim) {
+    public void actionCalculateStats() {
         panel.removeOverlay(MIN_GRID);
         panel.removeOverlay(MAX_GRID);
     }
