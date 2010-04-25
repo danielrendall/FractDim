@@ -49,8 +49,9 @@ public class FractalPanel extends JPanel {
         settingsPanel = new SettingsPanel();
         statisticsPanel = new StatisticsPanel();
         canvas = new JSVGCanvas();
-
         canvas.setDocumentState(AbstractJSVGComponent.ALWAYS_DYNAMIC);
+
+        getActionMap().setParent(canvas.getActionMap());
 
         resultPanel = new ResultPanel();
 
@@ -89,16 +90,6 @@ public class FractalPanel extends JPanel {
         rootBoundingBox = doc.getMetadata().getBoundingBox();
         currentBoundingBox = rootBoundingBox;
         canvas.setSVGDocument(doc.getSvgDoc());
-
-    }
-
-
-    public void zoomIn() {
-//        canvas.zoomIn(1.5d);
-    }
-
-    public void zoomOut() {
-//        canvasStack.zoomOut(1.5d);
     }
 
     public StatisticsPanel getStatisticsPanel() {
@@ -116,6 +107,8 @@ public class FractalPanel extends JPanel {
     public JSVGCanvas getSVGCanvas() {
         return canvas;
     }
+
+
 
     public void addOverlay(final String overlayId, final SVGContentGenerator generator) {
         runNowOrLater(overlayId, new Runnable() {

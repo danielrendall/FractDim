@@ -183,20 +183,6 @@ public class FractDim {
         }
     }
 
-    public void zoomIn(ActionEvent e) {
-        Log.app.debug("Zoom in");
-        if (currentController != null) {
-            currentController.zoomIn(this);
-        }
-    }
-
-    public void zoomOut(ActionEvent e) {
-        Log.app.debug("Zoom out");
-        if (currentController != null) {
-            currentController.zoomOut(this);
-        }
-    }
-
 
     /**
      * Called when a controller has done something (which may have been running in the background) and may want

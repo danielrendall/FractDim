@@ -1,6 +1,7 @@
 package uk.co.danielrendall.fractdim.app.controller;
 
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.swing.JSVGCanvas;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.FractDim;
@@ -20,6 +21,7 @@ import uk.co.danielrendall.fractdim.svg.SVGElementCreator;
 import uk.co.danielrendall.fractdim.svg.Utilities;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.Date;
 
@@ -93,10 +95,11 @@ public class FractalController {
 
     // called when our panel becomes active
     public void enableMenuItems() {
+        ActionMap actionMap = panel.getActionMap();
         ActionRepository repository = ActionRepository.instance();
         repository.getFileClose().setEnabled(true);
-        repository.getDiagramZoomIn().setEnabled(true);
-        repository.getDiagramZoomOut().setEnabled(true);
+        repository.getDiagramZoomIn().setDelegate(actionMap.get(JSVGCanvas.ZOOM_IN_ACTION));
+        repository.getDiagramZoomOut().setDelegate(actionMap.get(JSVGCanvas.ZOOM_OUT_ACTION));
         if (status < STATS_CALCULATED) {
             repository.getFileCalculate().setEnabled(false);
         } else {
@@ -114,14 +117,6 @@ public class FractalController {
         panel.removeOverlay(MAX_GRID);
     }
     
-    public void zoomIn(FractDim fractDim) {
-        panel.zoomIn();
-    }
-
-    public void zoomOut(FractDim fractDim) {
-        panel.zoomOut();
-    }
-
     public void updateProgress(String taskId, int progress) {
         Log.calc.debug("Task " + taskId + " progress " + progress);
     }

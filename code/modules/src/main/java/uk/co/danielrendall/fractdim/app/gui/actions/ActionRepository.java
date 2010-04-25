@@ -14,7 +14,14 @@ import java.util.Map;
 public class ActionRepository {
 
     private final static Map<String, FractDimAction> actions = new HashMap<String, FractDimAction>();
+    private final static Map<String, FractDimDelegatedAction> delegatedActions = new HashMap<String, FractDimDelegatedAction>();
     private final static ActionRepository instance = new ActionRepository();
+    public static final String FILE_OPEN = "FileOpen";
+    public static final String FILE_CLOSE = "FileClose";
+    public static final String FILE_CALCULATE = "FileCalculate";
+    public static final String FILE_EXIT = "FileExit";
+    public static final String DIAGRAM_ZOOM_IN = "DiagramZoomIn";
+    public static final String DIAGRAM_ZOOM_OUT = "DiagramZoomOut";
 
     public static ActionRepository instance() {
         return instance;
@@ -22,36 +29,36 @@ public class ActionRepository {
 
 
     private ActionRepository() {
-        actions.put("FileOpen", new FileOpen());
-        actions.put("FileClose", new FileClose());
-        actions.put("FileCalculate", new FileCalculate());
-        actions.put("FileExit", new FileExit());
+        actions.put(FILE_OPEN, new FileOpen());
+        actions.put(FILE_CLOSE, new FileClose());
+        actions.put(FILE_CALCULATE, new FileCalculate());
+        actions.put(FILE_EXIT, new FileExit());
 
-        actions.put("DiagramZoomIn", new DiagramZoomIn());
-        actions.put("DiagramZoomOut", new DiagramZoomOut());
+        delegatedActions.put(DIAGRAM_ZOOM_IN, new DiagramZoomIn());
+        delegatedActions.put(DIAGRAM_ZOOM_OUT, new DiagramZoomOut());
     }
 
     public FractDimAction getFileOpen() {
-        return actions.get("FileOpen");
+        return actions.get(FILE_OPEN);
     }
 
     public FractDimAction getFileClose() {
-        return actions.get("FileClose");
+        return actions.get(FILE_CLOSE);
     }
 
     public FractDimAction getFileCalculate() {
-        return actions.get("FileCalculate");
+        return actions.get(FILE_CALCULATE);
     }
 
     public FractDimAction getFileExit() {
-        return actions.get("FileExit");
+        return actions.get(FILE_EXIT);
     }
 
-    public FractDimAction getDiagramZoomIn() {
-        return actions.get("DiagramZoomIn");
+    public FractDimDelegatedAction getDiagramZoomIn() {
+        return delegatedActions.get(DIAGRAM_ZOOM_IN);
     }
 
-    public FractDimAction getDiagramZoomOut() {
-        return actions.get("DiagramZoomOut");
+    public FractDimDelegatedAction getDiagramZoomOut() {
+        return delegatedActions.get(DIAGRAM_ZOOM_OUT);
     }
 }

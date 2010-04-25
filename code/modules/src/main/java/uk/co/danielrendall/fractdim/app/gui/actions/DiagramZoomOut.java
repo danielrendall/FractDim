@@ -12,7 +12,7 @@ import java.awt.event.ActionEvent;
  * Time: 22:24:26
  * To change this template use File | Settings | File Templates.
  */
-public class DiagramZoomOut extends FractDimAction {
+public class DiagramZoomOut extends FractDimDelegatedAction {
 
     protected DiagramZoomOut() {
         putValue(Action.NAME, "Zoom out");
@@ -20,7 +20,4 @@ public class DiagramZoomOut extends FractDimAction {
         setIcons("zoomout");
     }
 
-    public void actionPerformed(ActionEvent e) {
-        FractDim.instance().zoomOut(e);
-    }
 }

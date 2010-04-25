@@ -12,7 +12,7 @@ import java.awt.event.ActionEvent;
  * Time: 22:21:49
  * To change this template use File | Settings | File Templates.
  */
-public class DiagramZoomIn extends FractDimAction {
+public class DiagramZoomIn extends FractDimDelegatedAction {
 
     protected DiagramZoomIn() {
         putValue(Action.NAME, "Zoom in");
@@ -20,7 +20,4 @@ public class DiagramZoomIn extends FractDimAction {
         setIcons("zoomin");
     }
 
-    public void actionPerformed(ActionEvent e) {
-        FractDim.instance().zoomIn(e);
-    }
 }
