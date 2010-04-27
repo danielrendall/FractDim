@@ -1,43 +1,36 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
-import se.datadosen.component.RiverLayout;
+import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
  * User: daniel
- * Date: 15-Jun-2009
- * Time: 21:23:30
+ * Date: 27-Apr-2010
+ * Time: 22:59:50
  * To change this template use File | Settings | File Templates.
  */
 public class GenericFormPanel extends JPanel {
-    private final ComponentPreparer labelPreparer, componentPreparer;
+    private final Map<Parameter, JSlider> sliders;
 
-    private boolean isFirst = true;
-
-    public GenericFormPanel(ComponentPreparer labelPreparer, ComponentPreparer componentPreparer) {
-        this.labelPreparer = labelPreparer;
-        this.componentPreparer = componentPreparer;
-//        setLayout(new GridLayout(0, 2, padding, padding));
-        setLayout(new RiverLayout());
+    public GenericFormPanel(Map<Parameter, JSlider> sliders) {
+        super(new GridBagLayout());
+        this.sliders = sliders;
+        GridBagConstraints constraints = new GridBagConstraints(0, 0, 1, 1, 1.0d ,1.0d, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0);
+        for(Map.Entry<Parameter, JSlider> element : sliders.entrySet()) {
+            constraints.gridx = 0;
+            add(new JLabel(element.getKey().getName()), constraints);
+            constraints.gridx = 1;
+            element.getValue().setToolTipText(element.getKey().getDescription());
+            add(element.getValue(), constraints);
+            constraints.gridy = constraints.gridy + 1;
+        }
     }
 
-    public void addLabelAndComponent(String labelText, JComponent component) {
-
-        JLabel label = new JLabel(labelText);
-
-        labelPreparer.prepare(label);
-        componentPreparer.prepare(component);
-
-        add(isFirst ? "p left" : "br", label);
-        add("tab hfill", component);
-        isFirst = false;
-
-    }
-
-    public static interface ComponentPreparer {
-        void prepare(JComponent component);
+    public void setDataModel(Parameter parameter, BoundedRangeModel model) {
+        sliders.get(parameter).setModel(model);
     }
 }

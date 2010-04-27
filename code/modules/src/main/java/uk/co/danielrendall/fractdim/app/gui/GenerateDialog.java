@@ -1,14 +1,9 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
-import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
-import uk.co.danielrendall.fractdim.generate.fractals.Messy;
-import uk.co.danielrendall.fractdim.generate.fractals.SquareKoch;
 import uk.co.danielrendall.fractdim.app.datamodel.CompoundDataModel;
 import uk.co.danielrendall.fractdim.app.datamodel.GenerateSettings;
 
 import javax.swing.*;
-
-import se.datadosen.component.RiverLayout;
 
 import java.awt.*;
 
@@ -16,7 +11,7 @@ import java.awt.*;
  * @author Daniel Rendall
  * @created 30-May-2009 11:29:59
  */
-public class GenerateDialog extends GenericFormPanel {
+public class GenerateDialog extends GenericFormPanelBuilder {
 
     private final JTextField txtX = new JTextField();
     private final JTextField txtY = new JTextField();
@@ -26,43 +21,43 @@ public class GenerateDialog extends GenericFormPanel {
 
 
     public GenerateDialog() {
-        super(new GenericFormPanel.ComponentPreparer() {
-            public void prepare(JComponent component) {
-                ((JLabel) component).setHorizontalAlignment(JLabel.RIGHT);
-            }
-        }, new GenericFormPanel.ComponentPreparer() {
-            public void prepare(JComponent component) {
-                component.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-            }
-        });
-
-        setBorder(BorderFactory.createTitledBorder("Settings"));
-
-        lstFractalType.setModel(new AbstractListModel() {
-
-            public int getSize() {
-                return 3;
-            }
-
-            public Object getElementAt(int index) {
-                switch (index) {
-                    case 0:
-                        return "KochCurve";
-                    case 1:
-                        return "Messy";
-                    case 2:
-                        return "SquareKoch";
-                    default:
-                        return "Error";
-                }
-            }
-        });
-        addLabelAndComponent("Fractal type", lstFractalType);
-        addLabelAndComponent("End point x", txtX);
-        addLabelAndComponent("End point y", txtY);
-
-        spnDepth.setModel(new SpinnerNumberModel(1, 1, 6, 1));
-        addLabelAndComponent("Depth", spnDepth);
+//        super(new GenericFormPanelBuilder.ComponentPreparer() {
+//            public void prepare(JComponent component) {
+//                ((JLabel) component).setHorizontalAlignment(JLabel.RIGHT);
+//            }
+//        }, new GenericFormPanelBuilder.ComponentPreparer() {
+//            public void prepare(JComponent component) {
+//                component.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+//            }
+//        });
+//
+//        setBorder(BorderFactory.createTitledBorder("Settings"));
+//
+//        lstFractalType.setModel(new AbstractListModel() {
+//
+//            public int getSize() {
+//                return 3;
+//            }
+//
+//            public Object getElementAt(int index) {
+//                switch (index) {
+//                    case 0:
+//                        return "KochCurve";
+//                    case 1:
+//                        return "Messy";
+//                    case 2:
+//                        return "SquareKoch";
+//                    default:
+//                        return "Error";
+//                }
+//            }
+//        });
+//        addLabelAndComponent("Fractal type", lstFractalType);
+//        addLabelAndComponent("End point x", txtX);
+//        addLabelAndComponent("End point y", txtY);
+//
+//        spnDepth.setModel(new SpinnerNumberModel(1, 1, 6, 1));
+//        addLabelAndComponent("Depth", spnDepth);
 
 
     }

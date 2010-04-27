@@ -7,6 +7,7 @@ package uk.co.danielrendall.fractdim.app.datamodel;
  * Time: 18:22:37
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public class GenerateSettings {
     private double endX;
     private double endY;

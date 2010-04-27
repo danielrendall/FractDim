@@ -21,11 +21,14 @@ public class FractalDocument {
 
     private final SVGDocument svgDoc;
     private final FractalDocumentMetadata metadata;
+    private final CalculationSettings calculationSettings;
     private String name;
 
     public FractalDocument(SVGDocument svgDoc, FractalDocumentMetadata metadata) {
         this.svgDoc = svgDoc;
         this.metadata = metadata;
+        this.calculationSettings = CalculationSettings.createCalculationSettings(metadata); 
+        
     }
 
     public void setName(String name) {

@@ -13,8 +13,7 @@ import uk.co.danielrendall.mathlib.geom2d.Vec;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.generate.Generator;
-import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
-import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
+import uk.co.danielrendall.fractdim.app.model.CalculationSettings;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.calculation.grids.GridSquare;
 import uk.co.danielrendall.fractdim.calculation.grids.GridCollectionBuilder;
@@ -417,16 +416,16 @@ public class SquareCounterTest {
 
             Log.test.info(stats.toString());
 
-            CalculationSettings settings = new CalculationSettings(stats);
+            CalculationSettings settings = CalculationSettings.createCalculationSettings(fractalDocument.getMetadata());
 
             Log.test.info(settings.toString());
 
             SquareCounterBuilder squareCounterBuilder = new SquareCounterBuilder();
 
             squareCounterBuilder.maxDepth(30).
-                    angleIterator(new UniformAngleIterator(settings.getNumberOfAngles())).
-                    resolutionIterator(new LogarithmicResolutionIterator(settings.getMinimumSquareSize(), settings.getMaximumSquareSize(), settings.getNumberOfResolutions())).
-                    displacementIterator(new UniformDisplacementIterator(settings.getNumberOfDisplacementPoints())).
+                    angleIterator(new UniformAngleIterator(settings.getNumberOfAngles().getValue())).
+                    resolutionIterator(new LogarithmicResolutionIterator(settings.getMinimumSquareSize().getValue(), settings.getMaximumSquareSize().getValue(), settings.getNumberOfResolutions().getValue())).
+                    displacementIterator(new UniformDisplacementIterator(settings.getNumberOfDisplacements().getValue())).
                     fractalDocument(fractalDocument);
 
             SquareCounter counter = squareCounterBuilder.build();

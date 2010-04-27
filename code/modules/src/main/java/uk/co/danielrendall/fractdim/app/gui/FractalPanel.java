@@ -5,9 +5,11 @@ import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.batik.swing.svg.AbstractJSVGComponent;
+import org.apache.bcel.verifier.VerifierFactoryObserver;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
+import uk.co.danielrendall.fractdim.app.model.CalculationSettings;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svg.SVGContentGenerator;
@@ -27,8 +29,8 @@ import java.util.*;
  */
 public class FractalPanel extends JPanel {
 
-    private final SettingsPanel settingsPanel;
-    private final StatisticsPanel statisticsPanel;
+    private final GenericFormPanel settingsPanel;
+    private final GenericFormPanel statisticsPanel;
     private final JSVGCanvas canvas;
     private final ResultPanel resultPanel;
 
@@ -46,8 +48,10 @@ public class FractalPanel extends JPanel {
     private transient boolean updateManagerIsReady = false;
 
     public FractalPanel() {
-        settingsPanel = new SettingsPanel();
-        statisticsPanel = new StatisticsPanel();
+
+        this.settingsPanel = createSettingsPanel();
+        this.statisticsPanel = createStatisticePanel();
+
         canvas = new JSVGCanvas();
         canvas.setDocumentState(AbstractJSVGComponent.ALWAYS_DYNAMIC);
 
@@ -64,7 +68,6 @@ public class FractalPanel extends JPanel {
         leftColumn.add(settingsPanel);
         leftColumn.add(statisticsPanel);
 
-        // Todo - write scrollpane implementation based on JSVGScrollPane optimised for stack
         JSplitPane rightComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JSVGScrollPane(canvas), resultPanel);
         rightComponent.setResizeWeight(1.0d);
         JSplitPane mainComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftColumn, rightComponent);
@@ -90,14 +93,6 @@ public class FractalPanel extends JPanel {
         rootBoundingBox = doc.getMetadata().getBoundingBox();
         currentBoundingBox = rootBoundingBox;
         canvas.setSVGDocument(doc.getSvgDoc());
-    }
-
-    public StatisticsPanel getStatisticsPanel() {
-        return statisticsPanel;
-    }
-
-    public SettingsPanel getSettingsPanel() {
-        return settingsPanel;
     }
 
     public ResultPanel getResultPanel() {
@@ -201,5 +196,33 @@ public class FractalPanel extends JPanel {
             Log.gui.debug("Setting bounding box to " + viewBox);
             root.setAttributeNS(null, "viewBox", viewBox);
         }
+    }
+
+    private static GenericFormPanel createSettingsPanel() {
+        GenericFormPanelBuilder builder = new GenericFormPanelBuilder();
+        builder.addSlider(CalculationSettings.MINIMUM_SQUARES);
+        builder.addSlider(CalculationSettings.MAXIMUM_SQUARES);
+        builder.addSlider(CalculationSettings.NUMBER_RESOLUTIONS);
+        builder.addSlider(CalculationSettings.NUMBER_ANGLES);
+        builder.addSlider(CalculationSettings.NUMBER_DISPLACEMENTS);
+        return builder.build();
+    }
+
+    private static GenericFormPanel createStatisticePanel() {
+        GenericFormPanelBuilder builder = new GenericFormPanelBuilder();
+//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.MINIMUM_SQUARES));
+//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.MAXIMUM_SQUARES));
+//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.NUMBER_RESOLUTIONS));
+//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.NUMBER_ANGLES));
+//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.NUMBER_DISPLACEMENTS));
+        return builder.build();
+    }
+
+    public GenericFormPanel getSettingsPanel() {
+        return settingsPanel;
+    }
+
+    public GenericFormPanel getStatisticsPanel() {
+        return statisticsPanel;
     }
 }

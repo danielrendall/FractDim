@@ -26,6 +26,7 @@ import uk.co.danielrendall.fractdim.logging.Log;
  * Time: 15:44:27
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public class CompoundDataModel {
 
     private final Class dataModelClass;

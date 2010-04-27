@@ -5,7 +5,8 @@ import org.apache.batik.swing.JSVGCanvas;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.FractDim;
-import uk.co.danielrendall.fractdim.app.datamodel.CalculationSettings;
+import uk.co.danielrendall.fractdim.app.gui.GenericFormPanel;
+import uk.co.danielrendall.fractdim.app.model.CalculationSettings;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
@@ -46,6 +47,8 @@ public class FractalController {
 
     private final FractalDocument document;
     private final FractalPanel panel;
+
+    private final CalculationSettings settings;
 
     private final Action actionCalculateStats = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -89,6 +92,13 @@ public class FractalController {
     private FractalController(FractalDocument document) {
         this.document = document;
         panel = new FractalPanel();
+        settings = CalculationSettings.createCalculationSettings(document.getMetadata());
+        GenericFormPanel settingsPanel = panel.getSettingsPanel();
+        settingsPanel.setDataModel(CalculationSettings.MINIMUM_SQUARES, settings.getMinimumSquareSize());
+        settingsPanel.setDataModel(CalculationSettings.MAXIMUM_SQUARES, settings.getMaximumSquareSize());
+        settingsPanel.setDataModel(CalculationSettings.NUMBER_RESOLUTIONS, settings.getNumberOfResolutions());
+        settingsPanel.setDataModel(CalculationSettings.NUMBER_ANGLES, settings.getNumberOfAngles());
+        settingsPanel.setDataModel(CalculationSettings.NUMBER_DISPLACEMENTS, settings.getNumberOfDisplacements());
         panel.updateDocument(document);
         status = DOC_LOADED;
         CalculateStatisticsWorker csw = new CalculateStatisticsWorker(this, CALC_STATS);
@@ -138,12 +148,9 @@ public class FractalController {
     public void setStatistics(Statistics statistics) {
         if (status == DOC_LOADED) {
             // todo - some nicer way of selecting the algorithm for this...
-            final CalculationSettings settings = new CalculationSettings(statistics);
-            panel.getStatisticsPanel().update(statistics);
-            panel.getSettingsPanel().update(settings);
 
-            final Grid minGrid = new Grid(settings.getMinimumSquareSize());
-            final Grid maxGrid = new Grid(settings.getMaximumSquareSize());
+            final Grid minGrid = new Grid(settings.getMinimumSquareSize().getValue());
+            final Grid maxGrid = new Grid(settings.getMaximumSquareSize().getValue());
 
             final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
 

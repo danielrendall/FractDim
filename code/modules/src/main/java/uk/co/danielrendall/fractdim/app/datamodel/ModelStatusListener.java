@@ -7,6 +7,7 @@ package uk.co.danielrendall.fractdim.app.datamodel;
  * Time: 17:42:36
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public interface ModelStatusListener {
 
     void modelIsGood();

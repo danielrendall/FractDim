@@ -46,8 +46,6 @@ public class FractalMetadataUtil extends FDGraphics2D {
 
     public void handleCurve(ParametricCurve curve) {
         curveCount++;
-//        Log.geom.debug("Curve: " + curve);
-
         boundingBox = boundingBox.expandToInclude(curve.getBoundingBox());
     }
 

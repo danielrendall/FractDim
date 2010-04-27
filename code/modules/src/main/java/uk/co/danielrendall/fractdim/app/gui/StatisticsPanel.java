@@ -13,7 +13,8 @@ import java.awt.*;
  * Time: 17:42:43
  * To change this template use File | Settings | File Templates.
  */
-public class StatisticsPanel extends GenericFormPanel {
+@Deprecated
+public class StatisticsPanel extends GenericFormPanelBuilder {
     
     private final JTextField txtTotalCurveCount = new JTextField();
     private final JTextField txtFragmentedCurveCount = new JTextField();
@@ -27,32 +28,32 @@ public class StatisticsPanel extends GenericFormPanel {
     private final JTextField txtVarianceFragmentsPerCurve = new JTextField();
 
     public StatisticsPanel() {
-        super(new ComponentPreparer() {
-            public void prepare(JComponent component) {
-                ((JLabel) component).setHorizontalAlignment(JLabel.RIGHT);
-            }
-        }, new ComponentPreparer() {
-            public void prepare(JComponent component) {
-                ((JTextField) component).setEditable(false);
-                ((JTextField) component).setText("");
-                component.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-            }
-        });
-        setBorder(BorderFactory.createTitledBorder("Statistics"));
-        
-        addLabelAndComponent("Total number of lines", txtTotalCurveCount);
-        addLabelAndComponent("Total number of non-straight lines", txtFragmentedCurveCount);
-        addLabelAndComponent("Shortest line or fragment", txtShortestLine);
-        addLabelAndComponent("Longest line or fragment", txtLongestLine);
-        addLabelAndComponent("Mean line or fragment length", txtMeanLineLength);
-        addLabelAndComponent("Variance of line or fragment length", txtVarianceLineLength);
-        addLabelAndComponent("Mean length of approximating fragments", txtMeanFragmentOnlyLength);
-        addLabelAndComponent("Variance of approximating fragments", txtVarianceFragmentOnlyLength);
-        addLabelAndComponent("Mean number of fragments per line", txtMeanFragmentsPerCurve);
-        addLabelAndComponent("Variance of fragments per line", txtVarianceFragmentsPerCurve);
-
-        Log.gui.debug("Added components");
-        this.setEnabled(false);
+//        super(new ComponentPreparer() {
+//            public void prepare(JComponent component) {
+//                ((JLabel) component).setHorizontalAlignment(JLabel.RIGHT);
+//            }
+//        }, new ComponentPreparer() {
+//            public void prepare(JComponent component) {
+//                ((JTextField) component).setEditable(false);
+//                ((JTextField) component).setText("");
+//                component.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+//            }
+//        });
+//        setBorder(BorderFactory.createTitledBorder("Statistics"));
+//
+//        addLabelAndComponent("Total number of lines", txtTotalCurveCount);
+//        addLabelAndComponent("Total number of non-straight lines", txtFragmentedCurveCount);
+//        addLabelAndComponent("Shortest line or fragment", txtShortestLine);
+//        addLabelAndComponent("Longest line or fragment", txtLongestLine);
+//        addLabelAndComponent("Mean line or fragment length", txtMeanLineLength);
+//        addLabelAndComponent("Variance of line or fragment length", txtVarianceLineLength);
+//        addLabelAndComponent("Mean length of approximating fragments", txtMeanFragmentOnlyLength);
+//        addLabelAndComponent("Variance of approximating fragments", txtVarianceFragmentOnlyLength);
+//        addLabelAndComponent("Mean number of fragments per line", txtMeanFragmentsPerCurve);
+//        addLabelAndComponent("Variance of fragments per line", txtVarianceFragmentsPerCurve);
+//
+//        Log.gui.debug("Added components");
+//        this.setEnabled(false);
     }
 
     public void update(Statistics stats) {
@@ -66,6 +67,6 @@ public class StatisticsPanel extends GenericFormPanel {
         txtVarianceFragmentOnlyLength.setText(String.format("%9.2f", stats.getVarianceFragmentOnlyLength()));
         txtMeanFragmentsPerCurve.setText(String.format("%9.2f", stats.getMeanFragmentsPerCurve()));
         txtVarianceFragmentsPerCurve.setText(String.format("%9.2f", stats.getVarianceFragmentsPerCurve()));
-        this.setEnabled(true);
+//        this.setEnabled(true);
     }
 }
