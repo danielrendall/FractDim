@@ -5,11 +5,10 @@ import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.batik.swing.svg.AbstractJSVGComponent;
-import org.apache.bcel.verifier.VerifierFactoryObserver;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
-import uk.co.danielrendall.fractdim.app.model.CalculationSettings;
+import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svg.SVGContentGenerator;
@@ -29,7 +28,7 @@ import java.util.*;
  */
 public class FractalPanel extends JPanel {
 
-    private final GenericFormPanel settingsPanel;
+    private final SettingsPanel settingsPanel;
     private final GenericFormPanel statisticsPanel;
     private final JSVGCanvas canvas;
     private final ResultPanel resultPanel;
@@ -49,7 +48,7 @@ public class FractalPanel extends JPanel {
 
     public FractalPanel() {
 
-        this.settingsPanel = createSettingsPanel();
+        this.settingsPanel = SettingsPanel.create();
         this.statisticsPanel = createStatisticePanel();
 
         canvas = new JSVGCanvas();
@@ -195,16 +194,18 @@ public class FractalPanel extends JPanel {
             String viewBox = currentBoundingBox.forSvg();
             Log.gui.debug("Setting bounding box to " + viewBox);
             root.setAttributeNS(null, "viewBox", viewBox);
+        } else {
+            Log.gui.debug("Overlay hasn't been set");
         }
     }
 
     private static GenericFormPanel createSettingsPanel() {
         GenericFormPanelBuilder builder = new GenericFormPanelBuilder();
-        builder.addSlider(CalculationSettings.MINIMUM_SQUARES);
-        builder.addSlider(CalculationSettings.MAXIMUM_SQUARES);
-        builder.addSlider(CalculationSettings.NUMBER_RESOLUTIONS);
-        builder.addSlider(CalculationSettings.NUMBER_ANGLES);
-        builder.addSlider(CalculationSettings.NUMBER_DISPLACEMENTS);
+        builder.addSlider(FractalController.MINIMUM_SQUARES);
+        builder.addSlider(FractalController.MAXIMUM_SQUARES);
+        builder.addSlider(FractalController.NUMBER_RESOLUTIONS);
+        builder.addSlider(FractalController.NUMBER_ANGLES);
+        builder.addSlider(FractalController.NUMBER_DISPLACEMENTS);
         return builder.build();
     }
 
@@ -218,7 +219,7 @@ public class FractalPanel extends JPanel {
         return builder.build();
     }
 
-    public GenericFormPanel getSettingsPanel() {
+    public SettingsPanel getSettingsPanel() {
         return settingsPanel;
     }
 

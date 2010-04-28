@@ -5,12 +5,12 @@ import org.apache.batik.swing.JSVGCanvas;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.FractDim;
-import uk.co.danielrendall.fractdim.app.gui.GenericFormPanel;
-import uk.co.danielrendall.fractdim.app.model.CalculationSettings;
+import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
+import uk.co.danielrendall.fractdim.app.model.*;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
-import uk.co.danielrendall.fractdim.app.model.FractalDocument;
-import uk.co.danielrendall.fractdim.app.model.FractalDocumentMetadata;
+import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
+import uk.co.danielrendall.fractdim.app.model.widgetmodels.UnmodifiableBoundedRangeModel;
 import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
 import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
@@ -25,7 +25,10 @@ import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,7 +37,7 @@ import java.util.Date;
  * Time: 21:02:09
  * To change this template use File | Settings | File Templates.
  */
-public class FractalController {
+public class FractalController implements ParameterChangeListener {
 
     private final static int DOC_LOADED = 1;
     private final static int STATS_CALCULATED = 2;
@@ -44,11 +47,16 @@ public class FractalController {
     private final static String MAX_GRID = "MaxGrid";
     private final static String BOUNDING_BOX = "BoundingBox";
 
+    public final static Parameter MINIMUM_SQUARES = new Parameter("CALC_SETTINGS", "MINIMUM_SQUARES", "Minimum square size", "The smallest square size to be used for counting");
+    public final static Parameter MAXIMUM_SQUARES = new Parameter("CALC_SETTINGS", "MAXIMUM_SQUARES", "Maximum square size", "The largest square size to be used for counting");
+    public final static Parameter NUMBER_RESOLUTIONS = new Parameter("CALC_SETTINGS", "NUMBER_RESOLUTIONS", "Number of resolutions", "The number of different square sizes between the minimum and maximum (inclusive)");
+    public final static Parameter NUMBER_ANGLES = new Parameter("CALC_SETTINGS", "NUMBER_ANGLES", "Number of angles", "The number of different grid angles to be tried for each resolution");
+    public final static Parameter NUMBER_DISPLACEMENTS = new Parameter("CALC_SETTINGS", "NUMBER_DISPLACEMENTS", "Number of displacements", "The number of different offsets within each square to be tried for each angle");
+
+    private final Map<Parameter, BoundedRangeModel> calculationSettings;
 
     private final FractalDocument document;
     private final FractalPanel panel;
-
-    private final CalculationSettings settings;
 
     private final Action actionCalculateStats = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -92,17 +100,32 @@ public class FractalController {
     private FractalController(FractalDocument document) {
         this.document = document;
         panel = new FractalPanel();
-        settings = CalculationSettings.createCalculationSettings(document.getMetadata());
-        GenericFormPanel settingsPanel = panel.getSettingsPanel();
-        settingsPanel.setDataModel(CalculationSettings.MINIMUM_SQUARES, settings.getMinimumSquareSize());
-        settingsPanel.setDataModel(CalculationSettings.MAXIMUM_SQUARES, settings.getMaximumSquareSize());
-        settingsPanel.setDataModel(CalculationSettings.NUMBER_RESOLUTIONS, settings.getNumberOfResolutions());
-        settingsPanel.setDataModel(CalculationSettings.NUMBER_ANGLES, settings.getNumberOfAngles());
-        settingsPanel.setDataModel(CalculationSettings.NUMBER_DISPLACEMENTS, settings.getNumberOfDisplacements());
+
+        SettingsPanel settingsPanel = panel.getSettingsPanel();
+        BoundingBox box = document.getMetadata().getBoundingBox();
+        double biggestDimension = Math.max(box.getWidth(), box.getHeight());
+        double smallestDimension = Math.min(box.getWidth(), box.getHeight());
+        double min = smallestDimension / 50.0d;
+
+        Map<Parameter, BoundedRangeModel> _tempSettings = new HashMap<Parameter, BoundedRangeModel>();
+        
+        addToPanel(settingsPanel, _tempSettings, MINIMUM_SQUARES, new UnmodifiableBoundedRangeModel(min, min, biggestDimension));
+        addToPanel(settingsPanel, _tempSettings, MAXIMUM_SQUARES, new UnmodifiableBoundedRangeModel(biggestDimension, min, biggestDimension));
+        addToPanel(settingsPanel, _tempSettings, NUMBER_RESOLUTIONS, new UnmodifiableBoundedRangeModel(2, 2, 20));
+        addToPanel(settingsPanel, _tempSettings, NUMBER_ANGLES, new UnmodifiableBoundedRangeModel(1, 1, 10));
+        addToPanel(settingsPanel, _tempSettings, NUMBER_DISPLACEMENTS, new UnmodifiableBoundedRangeModel(1, 1, 3));
+
+        this.calculationSettings = Collections.unmodifiableMap(_tempSettings);
         panel.updateDocument(document);
         status = DOC_LOADED;
         CalculateStatisticsWorker csw = new CalculateStatisticsWorker(this, CALC_STATS);
         csw.execute();
+    }
+
+    private void addToPanel(SettingsPanel panel, Map<Parameter, BoundedRangeModel> tempSettings, Parameter param, BoundedRangeModel brm) {
+        brm.addChangeListener(new SimpleChangeListener(this, param));
+        tempSettings.put(param, brm);
+        panel.setDataModel(param, brm);
     }
 
     public FractalDocument getDocument() {
@@ -149,42 +172,54 @@ public class FractalController {
         if (status == DOC_LOADED) {
             // todo - some nicer way of selecting the algorithm for this...
 
-            final Grid minGrid = new Grid(settings.getMinimumSquareSize().getValue());
-            final Grid maxGrid = new Grid(settings.getMaximumSquareSize().getValue());
-
-            final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
-
-            Log.gui.info("Bounding box is " + boundingBox);
-
-            panel.addOverlay(BOUNDING_BOX, new SVGContentGenerator() {
-                public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
-                    Element path = creator.createPath("#ff9999");
-                    path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s z",
-                            boundingBox.getMinX(), boundingBox.getMinY(),
-                            boundingBox.getMaxX(), boundingBox.getMinY(),
-                            boundingBox.getMaxX(), boundingBox.getMaxY(),
-                            boundingBox.getMinX(), boundingBox.getMaxY()));
-                    rootElement.appendChild(path);
-                    return boundingBox;
-                }
-            });
-
-            panel.addOverlay(MIN_GRID, new SVGContentGenerator() {
-                public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
-                    return minGrid.writeToSVG(rootElement, creator, boundingBox, "#99ff99");
-                }
-            });
-
-            panel.addOverlay(MAX_GRID, new SVGContentGenerator() {
-                public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
-                    return maxGrid.writeToSVG(rootElement, creator, boundingBox, "#9999ff");
-                }
-            });
+            updateGrids();
 
             status = STATS_CALCULATED;
             FractDim.instance().updateGlobal(this);
         } else {
             Log.app.warn("Wasn't expecting statistics when status was " + status);
+        }
+    }
+
+    private void updateGrids() {
+        final Grid minGrid = new Grid(calculationSettings.get(MINIMUM_SQUARES).getValue());
+        final Grid maxGrid = new Grid(calculationSettings.get(MAXIMUM_SQUARES).getValue());
+
+        final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
+
+        Log.gui.info("Bounding box is " + boundingBox);
+
+        panel.updateOverlay(BOUNDING_BOX, new SVGContentGenerator() {
+            public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
+                Element path = creator.createPath("#ff9999");
+                path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s z",
+                        boundingBox.getMinX(), boundingBox.getMinY(),
+                        boundingBox.getMaxX(), boundingBox.getMinY(),
+                        boundingBox.getMaxX(), boundingBox.getMaxY(),
+                        boundingBox.getMinX(), boundingBox.getMaxY()));
+                rootElement.appendChild(path);
+                return boundingBox;
+            }
+        });
+
+        panel.updateOverlay(MIN_GRID, new SVGContentGenerator() {
+            public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
+                return minGrid.writeToSVG(rootElement, creator, boundingBox, "#99ff99");
+            }
+        });
+
+        panel.updateOverlay(MAX_GRID, new SVGContentGenerator() {
+            public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
+                return maxGrid.writeToSVG(rootElement, creator, boundingBox, "#9999ff");
+            }
+        });
+    }
+
+    public void valueChanged(Parameter param, int value) {
+        if (param.equals(MINIMUM_SQUARES) || param.equals(MAXIMUM_SQUARES)) {
+            updateGrids();
+        } else {
+            Log.gui.debug("Ignoring change to param " + param.getId() + " to " + value);
         }
     }
 

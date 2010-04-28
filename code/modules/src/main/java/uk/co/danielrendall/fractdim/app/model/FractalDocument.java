@@ -1,14 +1,8 @@
 package uk.co.danielrendall.fractdim.app.model;
 
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.w3c.dom.svg.SVGDocument;
-import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.svg.Utilities;
-import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,13 +15,11 @@ public class FractalDocument {
 
     private final SVGDocument svgDoc;
     private final FractalDocumentMetadata metadata;
-    private final CalculationSettings calculationSettings;
     private String name;
 
     public FractalDocument(SVGDocument svgDoc, FractalDocumentMetadata metadata) {
         this.svgDoc = svgDoc;
         this.metadata = metadata;
-        this.calculationSettings = CalculationSettings.createCalculationSettings(metadata); 
         
     }
 

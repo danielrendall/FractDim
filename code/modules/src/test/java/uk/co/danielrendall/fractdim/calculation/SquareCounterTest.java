@@ -416,22 +416,22 @@ public class SquareCounterTest {
 
             Log.test.info(stats.toString());
 
-            CalculationSettings settings = CalculationSettings.createCalculationSettings(fractalDocument.getMetadata());
+//            CalculationSettings settings = FractalController.createCalculationSettings(fractalDocument.getMetadata());
 
-            Log.test.info(settings.toString());
+//            Log.test.info(settings.toString());
 
             SquareCounterBuilder squareCounterBuilder = new SquareCounterBuilder();
 
-            squareCounterBuilder.maxDepth(30).
-                    angleIterator(new UniformAngleIterator(settings.getNumberOfAngles().getValue())).
-                    resolutionIterator(new LogarithmicResolutionIterator(settings.getMinimumSquareSize().getValue(), settings.getMaximumSquareSize().getValue(), settings.getNumberOfResolutions().getValue())).
-                    displacementIterator(new UniformDisplacementIterator(settings.getNumberOfDisplacements().getValue())).
-                    fractalDocument(fractalDocument);
-
-            SquareCounter counter = squareCounterBuilder.build();
-
-            SquareCountingResult result = counter.process();
-            GridSquare.resetCount();
+//            squareCounterBuilder.maxDepth(30).
+//                    angleIterator(new UniformAngleIterator(settings.getNumberOfAngles().getValue())).
+//                    resolutionIterator(new LogarithmicResolutionIterator(settings.getMinimumSquareSize().getValue(), settings.getMaximumSquareSize().getValue(), settings.getNumberOfResolutions().getValue())).
+//                    displacementIterator(new UniformDisplacementIterator(settings.getNumberOfDisplacements().getValue())).
+//                    fractalDocument(fractalDocument);
+//
+//            SquareCounter counter = squareCounterBuilder.build();
+//
+//            SquareCountingResult result = counter.process();
+//            GridSquare.resetCount();
         }
     }
 }
