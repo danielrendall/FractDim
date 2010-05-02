@@ -13,7 +13,6 @@ import uk.co.danielrendall.mathlib.geom2d.Vec;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.generate.fractals.KochCurve;
 import uk.co.danielrendall.fractdim.generate.Generator;
-import uk.co.danielrendall.fractdim.app.model.CalculationSettings;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.calculation.grids.GridSquare;
 import uk.co.danielrendall.fractdim.calculation.grids.GridCollectionBuilder;

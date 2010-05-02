@@ -9,8 +9,8 @@ import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
 import uk.co.danielrendall.fractdim.app.model.*;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
+import uk.co.danielrendall.fractdim.app.model.widgetmodels.DoubleRangeModel;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
-import uk.co.danielrendall.fractdim.app.model.widgetmodels.UnmodifiableBoundedRangeModel;
 import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
 import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
@@ -51,6 +51,12 @@ public class FractalController implements ParameterChangeListener {
 
     private final FractalDocument document;
     private final FractalPanel panel;
+
+    private final DoubleRangeModel squareSizeModel;
+    private final BoundedRangeModel resolutionModel;
+    private final BoundedRangeModel angleModel;
+    private final BoundedRangeModel displacementModel;
+
 
     private final Action actionCalculateStats = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -106,14 +112,21 @@ public class FractalController implements ParameterChangeListener {
         double rangeMin = minimumBoxSize + (range * 0.1d);
         double rangeExtent = range * 0.8d;
 
-        UnmodifiableBoundedRangeModel sizeModel = new UnmodifiableBoundedRangeModel(rangeMin, rangeExtent, minimumBoxSize, maximumBoxSize);
-        settingsPanel.setDataModelForParameter(SQUARE_SIZES, sizeModel, this);
-        UnmodifiableBoundedRangeModel resolutionModel = new UnmodifiableBoundedRangeModel(2, 2, 20);
-        settingsPanel.setDataModelForParameter(NUMBER_RESOLUTIONS, resolutionModel, this);
-        UnmodifiableBoundedRangeModel angleModel = new UnmodifiableBoundedRangeModel(1, 1, 10);
-        settingsPanel.setDataModelForParameter(NUMBER_ANGLES, angleModel, this);
-        UnmodifiableBoundedRangeModel displacementModel = new UnmodifiableBoundedRangeModel(1, 1, 3);
-        settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, this);
+        squareSizeModel = new DoubleRangeModel(rangeMin, rangeExtent, minimumBoxSize, maximumBoxSize);
+        squareSizeModel.addChangeListener(new SimpleChangeListener(this, SQUARE_SIZES));
+        settingsPanel.setDataModelForParameter(SQUARE_SIZES, squareSizeModel, 0);
+
+        resolutionModel = new DefaultBoundedRangeModel(2, 0, 2, 20);
+        resolutionModel.addChangeListener(new SimpleChangeListener(this, NUMBER_RESOLUTIONS));
+        settingsPanel.setDataModelForParameter(NUMBER_RESOLUTIONS, resolutionModel, 1);
+
+        angleModel = new DefaultBoundedRangeModel(1, 0, 1, 10);
+        angleModel.addChangeListener(new SimpleChangeListener(this, NUMBER_ANGLES));
+        settingsPanel.setDataModelForParameter(NUMBER_ANGLES, angleModel, 1);
+
+        displacementModel = new DefaultBoundedRangeModel(1, 0, 1, 3);
+        displacementModel.addChangeListener(new SimpleChangeListener(this, NUMBER_DISPLACEMENTS));
+        settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
 
 
         panel.updateDocument(document);
@@ -177,8 +190,6 @@ public class FractalController implements ParameterChangeListener {
     }
 
     private void updateGrids() {
-        final SettingsPanel settings = panel.getSettingsPanel();
-        UnmodifiableBoundedRangeModel squareSizeModel = (UnmodifiableBoundedRangeModel) settings.getModel(SQUARE_SIZES);
         final Grid minGrid = new Grid(squareSizeModel.getValue());
         final Grid maxGrid = new Grid(squareSizeModel.getUpperValue());
 
