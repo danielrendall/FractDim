@@ -1,97 +1,97 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>uk.co.danielrendall</groupId>
-  <artifactId>fractdim</artifactId>
-  <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>Fractal Dimension</name>
-  <url>http://www.danielrendall.co.uk/fractdim/</url>
-  <dependencies>
-      <dependency>
-          <groupId>uk.co.danielrendall</groupId>
-          <artifactId>mathlib</artifactId>
-          <version>1.0</version>
-      </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.4</version>
-      <scope>test</scope>
-    </dependency>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>uk.co.danielrendall</groupId>
+    <artifactId>fractdim</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>Fractal Dimension</name>
+    <url>http://www.danielrendall.co.uk/fractdim/</url>
+    <dependencies>
+        <dependency>
+            <groupId>uk.co.danielrendall</groupId>
+            <artifactId>mathlib</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
 
-      <dependency>
-          <groupId>args4j</groupId>
-          <artifactId>args4j</artifactId>
-          <version>2.0.11</version>
-      </dependency>
+        <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.0.11</version>
+        </dependency>
 
-      <dependency>
-          <groupId>commons-lang</groupId>
-          <artifactId>commons-lang</artifactId>
-          <version>2.4</version>
-      </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.4</version>
+        </dependency>
 
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.15</version>
-		<exclusions>
-			<exclusion>
-				<groupId>javax.mail</groupId>
-				<artifactId>mail</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>javax.activation</groupId>
-				<artifactId>activation</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>javax.jms</groupId>
-				<artifactId>jms</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>com.sun.jmx</groupId>
-				<artifactId>jmxri</artifactId>
-			</exclusion>
-			<exclusion>
-				<groupId>com.sun.jdmk</groupId>
-				<artifactId>jmxtools</artifactId>
-			</exclusion>
-		</exclusions>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>batik-transcoder</artifactId>
-      <version>1.7</version>
-      <scope>compile</scope>
-    </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-codec</artifactId>
-        <version>1.7</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-swing</artifactId>
-        <version>1.7</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-          <groupId>commons-beanutils</groupId>
-          <artifactId>commons-beanutils</artifactId>
-          <version>1.8.0</version>
-      </dependency>
-      <dependency>
-          <groupId>com.jgoodies</groupId>
-          <artifactId>forms</artifactId>
-          <version>1.2.1</version>
-      </dependency>
-  </dependencies>
-  
-  <build>
-          <plugins>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.15</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.jms</groupId>
+                    <artifactId>jms</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jmx</groupId>
+                    <artifactId>jmxri</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jdmk</groupId>
+                    <artifactId>jmxtools</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.7</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-codec</artifactId>
+            <version>1.7</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-swing</artifactId>
+            <version>1.7</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jgoodies</groupId>
+            <artifactId>forms</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
             <!-- Turning on debug -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -146,28 +146,28 @@
             </plugin>
 
         </plugins>
-</build>
-  
-  <repositories>
-	<repository>
-		<id>IBiblio</id>
-		<url>http://mirrors.ibiblio.org/pub/mirrors/maven2/</url>
-	</repository>
+    </build>
 
-	<repository>
-		<id>maven2-repository.dev.java.net</id>
-		<name>Java.net Repository for Maven</name>
-		<url>http://download.java.net/maven/2/</url>
-		<layout>default</layout>
-	</repository>
+    <repositories>
+        <repository>
+            <id>IBiblio</id>
+            <url>http://mirrors.ibiblio.org/pub/mirrors/maven2/</url>
+        </repository>
 
-</repositories>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>http://download.java.net/maven/2/</url>
+            <layout>default</layout>
+        </repository>
 
-<pluginRepositories>
-	<pluginRepository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
             <id>onejar-maven-plugin.googlecode.com</id>
             <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
         </pluginRepository>
-</pluginRepositories>
+    </pluginRepositories>
 
 </project>
