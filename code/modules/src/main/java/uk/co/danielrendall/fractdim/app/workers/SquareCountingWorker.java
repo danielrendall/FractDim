@@ -1,8 +1,17 @@
 package uk.co.danielrendall.fractdim.app.workers;
 
+import uk.co.danielrendall.fractdim.app.controller.FractalController;
+import uk.co.danielrendall.fractdim.app.model.FractalDocument;
+import uk.co.danielrendall.fractdim.calculation.SquareCounter;
+import uk.co.danielrendall.fractdim.calculation.SquareCounterBuilder;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
+import uk.co.danielrendall.fractdim.calculation.iterators.UniformAngleIterator;
+import uk.co.danielrendall.fractdim.calculation.iterators.UniformDisplacementIterator;
+import uk.co.danielrendall.fractdim.calculation.iterators.UniformResolutionIterator;
+import uk.co.danielrendall.fractdim.logging.Log;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,34 +23,41 @@ import java.util.List;
 public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, Integer> implements ProgressListener {
 
     private boolean useful = true;
-//    private final FDDocument document;
+    private final FractalController controller;
+    private final double minimumSquareSize;
+    private final double maximumSquareSize;
+    private final int numberOfResolutions;
+    private final int numberOfAngles;
+    private final int numberOfDisplacements;
 
-//    public SquareCountingWorker(FDDocument document) {
-//        this.document = document;
-//    }
+    public SquareCountingWorker(FractalController controller, double minimumSquareSize, double maximumSquareSize, int numberOfResolutions, int numberOfAngles, int numberOfDisplacements) {
+        this.controller = controller;
+        this.minimumSquareSize = minimumSquareSize;
+        this.maximumSquareSize = maximumSquareSize;
+        this.numberOfResolutions = numberOfResolutions;
+        this.numberOfAngles = numberOfAngles;
+        this.numberOfDisplacements = numberOfDisplacements;
+    }
 
     protected SquareCountingResult doInBackground() throws Exception {
-//        FDData data = ((FDData) document.getData());
-//        CalculationSettings settings = data.getSettingsPanel(false);
-//
-//        SquareCounterBuilder builder = new SquareCounterBuilder();
-//        builder.maxDepth(30).
-//                angleIterator(new UniformAngleIterator(settings.getNumberOfAngles())).
-//                resolutionIterator(new UniformResolutionIterator(settings.getMinimumSquareSize(), settings.getMaximumSquareSize(), settings.getNumberOfResolutions())).
-//                displacementIterator(new UniformDisplacementIterator(settings.getNumberOfDisplacementPoints())).
-//                svgWithMetadata(data.getSvgDocForCalculation());
-//
-//
-//        SquareCounter sc = builder.build();
-//        sc.addProgressListener(this);
-//        try {
-//            return sc.process();
-//        } catch (OperationAbortedException e) {
-//            useful = false;
-//            Log.thread.debug("Operation aborted - caught exception");
-//            return null;
-//        }
-        return null;
+
+        SquareCounterBuilder builder = new SquareCounterBuilder();
+        builder.maxDepth(30).
+                angleIterator(new UniformAngleIterator(numberOfAngles)).
+                resolutionIterator(new UniformResolutionIterator(minimumSquareSize, maximumSquareSize, numberOfResolutions)).
+                displacementIterator(new UniformDisplacementIterator(numberOfDisplacements)).
+                fractalDocument(controller.getClonedDocument());
+
+
+        SquareCounter sc = builder.build();
+        sc.addProgressListener(this);
+        try {
+            return sc.process();
+        } catch (OperationAbortedException e) {
+            useful = false;
+            Log.thread.debug("Operation aborted - caught exception");
+            return null;
+        }
     }
 
     public void notifyProgress(int minProgress, int progress, int maxProgress) {
@@ -51,13 +67,13 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
     @Override
     protected void process(List<Integer> chunks) {
         if (useful && !Thread.currentThread().isInterrupted()) {
-//            try {
-//                int last = chunks.get(chunks.size() - 1);
+            try {
+                int last = chunks.get(chunks.size() - 1);
 //                FDView view = (FDView) document.getView(0);
 //                view.updateProgressBar(last);
-//            } catch (Exception e) {
-//                Log.thread.warn("Problem getting hold of view - " + e.getMessage());
-//            }
+            } catch (Exception e) {
+                Log.thread.warn("Problem getting hold of view - " + e.getMessage());
+            }
         } else {
             useful = false;
         }
@@ -66,18 +82,18 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
 
     @Override
     protected void doDone() {
-//        try {
-//            if (useful && !Thread.currentThread().isInterrupted()) {
-//                document.setSquareCountingResult(get());
-//            } else {
-//                useful = false;
-//            }
-//        } catch (InterruptedException e) {
-//            Log.thread.debug("Operation aborted");
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        } catch (Exception e) {
-//            Log.thread.warn("Problem getting hold of view - " + e.getMessage());
-//        }
+        try {
+            if (useful && !Thread.currentThread().isInterrupted()) {
+                controller.setSquareCountingResult(get());
+            } else {
+                useful = false;
+            }
+        } catch (InterruptedException e) {
+            Log.thread.debug("Operation aborted");
+        } catch (ExecutionException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (Exception e) {
+            Log.thread.warn("Problem getting hold of view - " + e.getMessage());
+        }
     }
 }

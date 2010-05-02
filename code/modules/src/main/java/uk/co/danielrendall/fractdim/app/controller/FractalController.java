@@ -13,6 +13,7 @@ import uk.co.danielrendall.fractdim.app.model.widgetmodels.DoubleRangeModel;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
 import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
 import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
+import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.logging.Log;
@@ -166,19 +167,9 @@ public class FractalController implements ParameterChangeListener {
         FractDim.instance().remove(this);
     }
 
-    boolean calculating = false;
-
     public void actionCalculateFractalDimension() {
-        if (!calculating) {
-            panel.getSettingsPanel().disableAllControls();
-            panel.removeOverlay(MIN_GRID);
-            panel.removeOverlay(MAX_GRID);
-            calculating = true;
-        } else {
-            panel.getSettingsPanel().enableAllControls();
-            updateGrids();
-            calculating = false;
-        }
+        panel.getSettingsPanel().disableAllControls();
+
     }
     
     public void updateProgress(String taskId, int progress) {
@@ -196,6 +187,10 @@ public class FractalController implements ParameterChangeListener {
         } else {
             Log.app.warn("Wasn't expecting statistics when status was " + status);
         }
+    }
+
+    public void setSquareCountingResult(SquareCountingResult squareCountingResult) {
+        //To change body of created methods use File | Settings | File Templates.
     }
 
     private void updateGrids() {

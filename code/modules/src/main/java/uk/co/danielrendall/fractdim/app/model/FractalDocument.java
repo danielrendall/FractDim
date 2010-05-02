@@ -2,6 +2,7 @@ package uk.co.danielrendall.fractdim.app.model;
 
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.controller.FractalController;
+import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.svg.Utilities;
 
 /**
@@ -16,10 +17,12 @@ public class FractalDocument {
     private final SVGDocument svgDoc;
     private final FractalDocumentMetadata metadata;
     private String name;
+    private SquareCountingResult squareCountingResult;
 
     public FractalDocument(SVGDocument svgDoc, FractalDocumentMetadata metadata) {
         this.svgDoc = svgDoc;
         this.metadata = metadata;
+        squareCountingResult = null;
         
     }
 
@@ -45,4 +48,11 @@ public class FractalDocument {
         return clone;
     }
 
+    public synchronized SquareCountingResult getSquareCountingResult() {
+        return squareCountingResult;
+    }
+
+    public synchronized void setSquareCountingResult(SquareCountingResult squareCountingResult) {
+        this.squareCountingResult = squareCountingResult;
+    }
 }
