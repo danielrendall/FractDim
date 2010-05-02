@@ -58,9 +58,9 @@ public class FractalController implements ParameterChangeListener {
     private final BoundedRangeModel displacementModel;
 
 
-    private final Action actionCalculateStats = new AbstractAction() {
+    private final Action actionCalculateFractalDimension = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
-            actionCalculateStats();
+            actionCalculateFractalDimension();
         }
     };
 
@@ -128,7 +128,6 @@ public class FractalController implements ParameterChangeListener {
         displacementModel.addChangeListener(new SimpleChangeListener(this, NUMBER_DISPLACEMENTS));
         settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
 
-
         panel.updateDocument(document);
         status = DOC_LOADED;
         CalculateStatisticsWorker csw = new CalculateStatisticsWorker(this, CALC_STATS);
@@ -158,7 +157,7 @@ public class FractalController implements ParameterChangeListener {
         if (status < STATS_CALCULATED) {
             repository.getFileCalculate().removeDelegate();
         } else {
-            repository.getFileCalculate().setDelegate(actionCalculateStats);
+            repository.getFileCalculate().setDelegate(actionCalculateFractalDimension);
         }
     }
 
@@ -167,9 +166,19 @@ public class FractalController implements ParameterChangeListener {
         FractDim.instance().remove(this);
     }
 
-    public void actionCalculateStats() {
-        panel.removeOverlay(MIN_GRID);
-        panel.removeOverlay(MAX_GRID);
+    boolean calculating = false;
+
+    public void actionCalculateFractalDimension() {
+        if (!calculating) {
+            panel.getSettingsPanel().disableAllControls();
+            panel.removeOverlay(MIN_GRID);
+            panel.removeOverlay(MAX_GRID);
+            calculating = true;
+        } else {
+            panel.getSettingsPanel().enableAllControls();
+            updateGrids();
+            calculating = false;
+        }
     }
     
     public void updateProgress(String taskId, int progress) {

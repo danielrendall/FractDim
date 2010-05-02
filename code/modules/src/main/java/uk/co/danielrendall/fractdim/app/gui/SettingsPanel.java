@@ -67,6 +67,19 @@ public class SettingsPanel extends JPanel {
             slider.setPaintTicks(true);
             slider.setSnapToTicks(true);
         }
-        log.debug(slider.getLabelTable());
+    }
+
+    public void disableAllControls() {
+        for (Parameter param : components.keySet()) {
+            JComponent component = components.get(param);
+            component.setEnabled(false);
+        }
+    }
+
+    public void enableAllControls() {
+        for (Parameter param : components.keySet()) {
+            JComponent component = components.get(param);
+            component.setEnabled(true);
+        }
     }
 }
