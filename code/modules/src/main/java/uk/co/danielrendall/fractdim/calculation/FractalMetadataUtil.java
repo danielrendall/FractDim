@@ -10,6 +10,7 @@ import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svgbridge.FDGraphics2D;
 import uk.co.danielrendall.fractdim.svgbridge.FDTranscoder;
+import uk.co.danielrendall.mathlib.geom2d.Point;
 
 /**
  * @author Daniel Rendall
@@ -19,7 +20,7 @@ public class FractalMetadataUtil extends FDGraphics2D {
 
     private final SVGDocument svgDoc;
     private int curveCount = 0;
-    private BoundingBox boundingBox = new BoundingBox();
+    private BoundingBox boundingBox = BoundingBox.empty();
 
 
     public static FractalDocumentMetadata getMetadata(SVGDocument svgDocument) {

@@ -199,19 +199,9 @@ public class FractalPanel extends JPanel {
         }
     }
 
-    private static GenericFormPanel createSettingsPanel() {
-        GenericFormPanelBuilder builder = new GenericFormPanelBuilder();
-        builder.addSlider(FractalController.MINIMUM_SQUARES);
-        builder.addSlider(FractalController.MAXIMUM_SQUARES);
-        builder.addSlider(FractalController.NUMBER_RESOLUTIONS);
-        builder.addSlider(FractalController.NUMBER_ANGLES);
-        builder.addSlider(FractalController.NUMBER_DISPLACEMENTS);
-        return builder.build();
-    }
-
     private static GenericFormPanel createStatisticePanel() {
         GenericFormPanelBuilder builder = new GenericFormPanelBuilder();
-//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.MINIMUM_SQUARES));
+//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.SQUARE_SIZES));
 //        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.MAXIMUM_SQUARES));
 //        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.NUMBER_RESOLUTIONS));
 //        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.NUMBER_ANGLES));

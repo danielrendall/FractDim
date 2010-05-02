@@ -123,7 +123,7 @@ public class Statistics {
         // total of fragments when there were more than one in the curve
         int totalFragmentOnlyCount = 0;
 
-        BoundingBox bbox = new BoundingBox();
+        BoundingBox bbox = BoundingBox.empty();
 
 
         for (Set<Line> curveData : curveLines) {

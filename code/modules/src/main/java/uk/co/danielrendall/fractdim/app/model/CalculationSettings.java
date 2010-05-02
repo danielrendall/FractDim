@@ -24,8 +24,7 @@ public class CalculationSettings implements ParameterChangeListener {
         this.numberOfResolutions = numberOfResolutions;
         this.numberOfAngles = numberOfAngles;
         this.numberOfDisplacements = numberOfDisplacements;
-        minimumSquareSize.addChangeListener(new SimpleChangeListener(this, FractalController.MINIMUM_SQUARES));
-        maximumSquareSize.addChangeListener(new SimpleChangeListener(this, FractalController.MAXIMUM_SQUARES));
+        minimumSquareSize.addChangeListener(new SimpleChangeListener(this, FractalController.SQUARE_SIZES));
         numberOfResolutions.addChangeListener(new SimpleChangeListener(this, FractalController.NUMBER_RESOLUTIONS));
         numberOfAngles.addChangeListener(new SimpleChangeListener(this, FractalController.NUMBER_DISPLACEMENTS));
         numberOfDisplacements.addChangeListener(new SimpleChangeListener(this, FractalController.NUMBER_ANGLES));
@@ -57,9 +56,7 @@ public class CalculationSettings implements ParameterChangeListener {
     }
 
     public void valueChanged(Parameter param, int value) {
-        if (param.equals(FractalController.MINIMUM_SQUARES)) {
-
-        } else if (param.equals(FractalController.MAXIMUM_SQUARES)) {
+        if (param.equals(FractalController.SQUARE_SIZES)) {
 
         }
 

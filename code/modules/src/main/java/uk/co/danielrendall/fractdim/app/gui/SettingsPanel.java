@@ -1,5 +1,6 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
+import com.jidesoft.swing.RangeSlider;
 import org.apache.log4j.Logger;
 import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
@@ -24,8 +25,9 @@ public class SettingsPanel extends JPanel {
 
         Map<Parameter, JComponent> components = new LinkedHashMap<Parameter, JComponent>();
 
-        components.put(FractalController.MINIMUM_SQUARES, new JSlider(new DefaultBoundedRangeModel(50, 0, 0, 100)));
-        components.put(FractalController.MAXIMUM_SQUARES, new JSlider(new DefaultBoundedRangeModel(50, 0, 0, 100)));
+        RangeSlider rs = new RangeSlider();
+        rs.setModel(new DefaultBoundedRangeModel(25, 50, 0, 100));
+        components.put(FractalController.SQUARE_SIZES, rs);
         components.put(FractalController.NUMBER_RESOLUTIONS, new JSlider(new DefaultBoundedRangeModel(50, 0, 0, 100)));
         components.put(FractalController.NUMBER_ANGLES, new JSlider(new DefaultBoundedRangeModel(50, 0, 0, 100)));
         components.put(FractalController.NUMBER_DISPLACEMENTS, new JSlider(new DefaultBoundedRangeModel(50, 0, 0, 100)));

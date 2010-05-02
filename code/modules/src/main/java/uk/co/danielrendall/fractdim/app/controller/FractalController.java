@@ -47,13 +47,12 @@ public class FractalController implements ParameterChangeListener {
     private final static String MAX_GRID = "MaxGrid";
     private final static String BOUNDING_BOX = "BoundingBox";
 
-    public final static Parameter MINIMUM_SQUARES = new Parameter("CALC_SETTINGS", "MINIMUM_SQUARES", "Minimum square size", "The smallest square size to be used for counting");
-    public final static Parameter MAXIMUM_SQUARES = new Parameter("CALC_SETTINGS", "MAXIMUM_SQUARES", "Maximum square size", "The largest square size to be used for counting");
+    public final static Parameter SQUARE_SIZES = new Parameter("CALC_SETTINGS", "SQUARE_SIZES", "Square sizes", "The range of square sizes to be used for counting");
     public final static Parameter NUMBER_RESOLUTIONS = new Parameter("CALC_SETTINGS", "NUMBER_RESOLUTIONS", "Number of resolutions", "The number of different square sizes between the minimum and maximum (inclusive)");
     public final static Parameter NUMBER_ANGLES = new Parameter("CALC_SETTINGS", "NUMBER_ANGLES", "Number of angles", "The number of different grid angles to be tried for each resolution");
     public final static Parameter NUMBER_DISPLACEMENTS = new Parameter("CALC_SETTINGS", "NUMBER_DISPLACEMENTS", "Number of displacements", "The number of different offsets within each square to be tried for each angle");
 
-    private final Map<Parameter, BoundedRangeModel> calculationSettings;
+    private final Map<Parameter, UnmodifiableBoundedRangeModel> calculationSettings;
 
     private final FractalDocument document;
     private final FractalPanel panel;
@@ -107,10 +106,14 @@ public class FractalController implements ParameterChangeListener {
         double smallestDimension = Math.min(box.getWidth(), box.getHeight());
         double min = smallestDimension / 50.0d;
 
-        Map<Parameter, BoundedRangeModel> _tempSettings = new HashMap<Parameter, BoundedRangeModel>();
-        
-        addToPanel(settingsPanel, _tempSettings, MINIMUM_SQUARES, new UnmodifiableBoundedRangeModel(min, min, biggestDimension));
-        addToPanel(settingsPanel, _tempSettings, MAXIMUM_SQUARES, new UnmodifiableBoundedRangeModel(biggestDimension, min, biggestDimension));
+        Map<Parameter, UnmodifiableBoundedRangeModel> _tempSettings = new HashMap<Parameter, UnmodifiableBoundedRangeModel>();
+
+        double range = biggestDimension - min;
+        // start with a slider range just a little inside the real range.
+        double rangeMin = min + (range * 0.1d);
+        double rangeExtent = range * 0.8d;
+
+        addToPanel(settingsPanel, _tempSettings, SQUARE_SIZES, new UnmodifiableBoundedRangeModel(rangeMin, rangeExtent, min, biggestDimension));
         addToPanel(settingsPanel, _tempSettings, NUMBER_RESOLUTIONS, new UnmodifiableBoundedRangeModel(2, 2, 20));
         addToPanel(settingsPanel, _tempSettings, NUMBER_ANGLES, new UnmodifiableBoundedRangeModel(1, 1, 10));
         addToPanel(settingsPanel, _tempSettings, NUMBER_DISPLACEMENTS, new UnmodifiableBoundedRangeModel(1, 1, 3));
@@ -122,7 +125,7 @@ public class FractalController implements ParameterChangeListener {
         csw.execute();
     }
 
-    private void addToPanel(SettingsPanel panel, Map<Parameter, BoundedRangeModel> tempSettings, Parameter param, BoundedRangeModel brm) {
+    private void addToPanel(SettingsPanel panel, Map<Parameter, UnmodifiableBoundedRangeModel> tempSettings, Parameter param, UnmodifiableBoundedRangeModel brm) {
         brm.addChangeListener(new SimpleChangeListener(this, param));
         tempSettings.put(param, brm);
         panel.setDataModel(param, brm);
@@ -182,8 +185,8 @@ public class FractalController implements ParameterChangeListener {
     }
 
     private void updateGrids() {
-        final Grid minGrid = new Grid(calculationSettings.get(MINIMUM_SQUARES).getValue());
-        final Grid maxGrid = new Grid(calculationSettings.get(MAXIMUM_SQUARES).getValue());
+        final Grid minGrid = new Grid(calculationSettings.get(SQUARE_SIZES).getValue());
+        final Grid maxGrid = new Grid(calculationSettings.get(SQUARE_SIZES).getUpperValue());
 
         final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
 
@@ -216,7 +219,7 @@ public class FractalController implements ParameterChangeListener {
     }
 
     public void valueChanged(Parameter param, int value) {
-        if (param.equals(MINIMUM_SQUARES) || param.equals(MAXIMUM_SQUARES)) {
+        if (param.equals(SQUARE_SIZES)) {
             updateGrids();
         } else {
             Log.gui.debug("Ignoring change to param " + param.getId() + " to " + value);

@@ -12,18 +12,14 @@ import javax.swing.*;
 public class UnmodifiableBoundedRangeModel extends DefaultBoundedRangeModel {
 
 
-    public UnmodifiableBoundedRangeModel(int value, int min, int max) {
-        super(value, 0, min, max);
+    public UnmodifiableBoundedRangeModel(double value, double extent, double min, double max) {
+        super((int) value,(int) extent, (int) min, (int) max);
     }
 
     public UnmodifiableBoundedRangeModel(double value, double min, double max) {
-        this((int) value, (int) min, (int) max);
+        this(value, 0.0d, min, max);
     }
 
-    @Override
-    public void setExtent(int n) {
-        throw new UnsupportedOperationException("Can't set extent");
-    }
 
     @Override
     public void setMinimum(int n) {
@@ -37,6 +33,14 @@ public class UnmodifiableBoundedRangeModel extends DefaultBoundedRangeModel {
 
     public double getDoubleValue() {
         return (double) getValue();
+    }
+
+    public int getUpperValue() {
+        return  getValue() + getExtent();
+    }
+
+    public double getDoubleUpperValue() {
+        return (double) getUpperValue();
     }
 
 }
