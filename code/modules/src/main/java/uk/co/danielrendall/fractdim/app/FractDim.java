@@ -25,8 +25,8 @@ public class FractDim {
 
     private final static FractDim fractDim = new FractDim();
 
-    private final static int DEFAULT_WIDTH = 800;
-    private final static int DEFAULT_HEIGHT = 600;
+    private final static int DEFAULT_WIDTH = 1024;
+    private final static int DEFAULT_HEIGHT = 768;
 
     private final MainWindow window;
     private final JFileChooser chooser;
@@ -176,7 +176,7 @@ public class FractDim {
      * to do the update, otherwise it can wait until its panel is next selected.
      * @param fractalController
      */
-    public synchronized void updateGlobal(FractalController fractalController) {
+    public synchronized void updateMeIfCurrent(FractalController fractalController) {
         if (fractalController == currentController) {
             fractalController.enableMenuItems();
         }

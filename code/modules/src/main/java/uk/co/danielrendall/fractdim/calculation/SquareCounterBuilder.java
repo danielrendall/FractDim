@@ -60,7 +60,8 @@ public class SquareCounterBuilder {
                 }
             }
         }
-        return new SquareCounter(fractalDocument, builder.build(), maxDepth);
+        GridCollection collection = builder.build();
+        return new SquareCounter(fractalDocument, collection, maxDepth);
     }
 
 }

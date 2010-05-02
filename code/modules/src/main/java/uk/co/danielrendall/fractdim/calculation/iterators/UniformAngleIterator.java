@@ -23,7 +23,9 @@ public class UniformAngleIterator implements AngleIterator {
     }
 
     public Double next() {
-        return angleIncrement * (double) (angleNumber++);
+        double next = angleIncrement * (double) (angleNumber);
+        angleNumber++;
+        return next;
     }
 
     public void reset() {

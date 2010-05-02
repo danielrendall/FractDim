@@ -66,14 +66,14 @@ public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integ
     protected void doDone() {
         try {
             if (useful && !Thread.currentThread().isInterrupted()) {
-                controller.setStatistics(get());
+//                controller.setStatistics(get());
             } else {
                 useful = false;
             }
-        } catch (InterruptedException e) {
-            Log.thread.debug("Operation aborted");
-        } catch (ExecutionException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        } catch (InterruptedException e) {
+//            Log.thread.debug("Operation aborted");
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (Exception e) {
             Log.thread.warn("Problem getting hold of view - " + e.getMessage());
         }

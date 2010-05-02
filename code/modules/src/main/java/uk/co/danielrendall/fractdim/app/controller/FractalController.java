@@ -11,10 +11,9 @@ import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.DoubleRangeModel;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
-import uk.co.danielrendall.fractdim.app.workers.CalculateStatisticsWorker;
+import uk.co.danielrendall.fractdim.app.workers.SquareCountingWorker;
 import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
-import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.logging.PrettyPrinter;
@@ -27,6 +26,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,10 +36,9 @@ import java.util.Date;
  * Time: 21:02:09
  * To change this template use File | Settings | File Templates.
  */
-public class FractalController implements ParameterChangeListener {
+public class FractalController implements ParameterChangeListener, Runnable {
 
-    private final static int DOC_LOADED = 1;
-    private final static int STATS_CALCULATED = 2;
+    private enum Status {NEW, DOC_LOADED, READY_FOR_COUNT, COUNTING_SQUARES, SQUARES_COUNTED};
 
     private final static String CALC_STATS = "CalcStats";
     private final static String MIN_GRID = "MinGrid";
@@ -58,6 +58,12 @@ public class FractalController implements ParameterChangeListener {
     private final BoundedRangeModel angleModel;
     private final BoundedRangeModel displacementModel;
 
+    private final Thread controllerThread;
+
+    private final Queue<Runnable> jobs;
+
+    private volatile boolean shouldQuit = false;
+
 
     private final Action actionCalculateFractalDimension = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -71,38 +77,36 @@ public class FractalController implements ParameterChangeListener {
         }
     };
 
-    private int status = 0;
+    private volatile Status status = Status.NEW;
 
     public static FractalController fromFile(File file) throws IOException {
         SAXSVGDocumentFactory factory = Utilities.getDocumentFactory();
         SVGDocument doc = factory.createSVGDocument(file.toURI().toString());
-        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(Utilities.cloneSVGDocument(doc));
-        FractalDocument document = new FractalDocument(doc, metadata);
-        document.setName(file.getName());
-        return new FractalController(document);
+        return fromDocument(doc, file.getName());
     }
 
     public static FractalController fromInputStream(InputStream inputStream) throws IOException {
         SAXSVGDocumentFactory factory = Utilities.getDocumentFactory();
         SVGDocument doc = factory.createSVGDocument("SomeURI", inputStream);
-        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(Utilities.cloneSVGDocument(doc));
-        FractalDocument document = new FractalDocument(doc, metadata);
-        document.setName("Inputstream " + new Date().getTime());
-        return new FractalController(document);
+        return fromDocument(doc, "Inputstream " + new Date().getTime());
     }
 
-    public static FractalController fromDocument(SVGDocument doc) {
+    public static FractalController fromDocument(SVGDocument doc, String name) {
         FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(Utilities.cloneSVGDocument(doc));
         FractalDocument document = new FractalDocument(doc, metadata);
-        document.setName("Document " + new Date().getTime());
-        return new FractalController(document);
+        document.setName(name);
+        FractalController controller = new FractalController(document);
+        controller.initialise("Controller: " + name);
+        return controller;
     }
 
     private FractalController(FractalDocument document) {
         this.document = document;
-        panel = new FractalPanel();
+        this.panel = new FractalPanel();
+        this.jobs = new LinkedList<Runnable>();
 
-        SettingsPanel settingsPanel = panel.getSettingsPanel();
+        this.controllerThread = new Thread(this);
+        this.controllerThread.setDaemon(true);
 
         BoundingBox box = document.getMetadata().getBoundingBox();
         double maximumBoxSize = Math.min(box.getWidth(), box.getHeight());
@@ -112,28 +116,78 @@ public class FractalController implements ParameterChangeListener {
         // start with a slider range just a little inside the real range.
         double rangeMin = minimumBoxSize + (range * 0.1d);
         double rangeExtent = range * 0.8d;
-
-        squareSizeModel = new DoubleRangeModel(rangeMin, rangeExtent, minimumBoxSize, maximumBoxSize);
-        squareSizeModel.addChangeListener(new SimpleChangeListener(this, SQUARE_SIZES));
-        settingsPanel.setDataModelForParameter(SQUARE_SIZES, squareSizeModel, 0);
-
-        resolutionModel = new DefaultBoundedRangeModel(2, 0, 2, 20);
-        resolutionModel.addChangeListener(new SimpleChangeListener(this, NUMBER_RESOLUTIONS));
-        settingsPanel.setDataModelForParameter(NUMBER_RESOLUTIONS, resolutionModel, 1);
-
-        angleModel = new DefaultBoundedRangeModel(1, 0, 1, 10);
-        angleModel.addChangeListener(new SimpleChangeListener(this, NUMBER_ANGLES));
-        settingsPanel.setDataModelForParameter(NUMBER_ANGLES, angleModel, 1);
-
-        displacementModel = new DefaultBoundedRangeModel(1, 0, 1, 3);
-        displacementModel.addChangeListener(new SimpleChangeListener(this, NUMBER_DISPLACEMENTS));
-        settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
-
-        panel.updateDocument(document);
-        status = DOC_LOADED;
-        CalculateStatisticsWorker csw = new CalculateStatisticsWorker(this, CALC_STATS);
-        csw.execute();
+        this.squareSizeModel = new DoubleRangeModel(rangeMin, rangeExtent, minimumBoxSize, maximumBoxSize);
+        this.resolutionModel = new DefaultBoundedRangeModel(2, 0, 2, 20);
+        this.angleModel = new DefaultBoundedRangeModel(1, 0, 1, 10);
+        this.displacementModel = new DefaultBoundedRangeModel(1, 0, 1, 3);
+        this.status = Status.DOC_LOADED;
+        // All the setting up of the panel etc. will be done in the controller thread.
     }
+
+    private void initialise(String threadName) {
+        controllerThread.setName(threadName);
+        controllerThread.start();
+        addToQueue(new Runnable() {
+            public void run() {
+                Log.thread.debug("Populating settings panel");
+                SettingsPanel settingsPanel = panel.getSettingsPanel();
+                squareSizeModel.addChangeListener(new SimpleChangeListener(FractalController.this, SQUARE_SIZES));
+                settingsPanel.setDataModelForParameter(SQUARE_SIZES, squareSizeModel, 0);
+
+                resolutionModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_RESOLUTIONS));
+                settingsPanel.setDataModelForParameter(NUMBER_RESOLUTIONS, resolutionModel, 1);
+
+                angleModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_ANGLES));
+                settingsPanel.setDataModelForParameter(NUMBER_ANGLES, angleModel, 1);
+
+                displacementModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_DISPLACEMENTS));
+                settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
+
+                panel.updateDocument(document);
+                updateGrids();
+                setStatus(Status.READY_FOR_COUNT);
+            }
+        });
+    }
+
+    private synchronized void addToQueue(Runnable r) {
+        jobs.add(r);
+        controllerThread.interrupt();
+    }
+
+    private synchronized Runnable getFromQueue() {
+        return jobs.poll();
+    }
+
+
+    // main lifecycle of controller. Does things, updates status.
+    public void run() {
+        while (!shouldQuit) {
+            for (Runnable r = getFromQueue(); r != null; r = getFromQueue()) {
+                Log.thread.info("Found a runnable in the queue");
+                r.run();
+            }
+
+            try {
+                Log.thread.info("Sleeping...");
+                Thread.sleep(Long.MAX_VALUE);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+            Log.thread.info("Awoken");
+        }
+    }
+
+//    public void setStatistics(Statistics statistics) {
+//        if (status == Status.DOC_LOADED) {
+//            // todo - some nicer way of selecting the algorithm for this...
+//
+//            status = Status.STATS_CALCULATED;
+//            FractDim.instance().updateGlobal(this);
+//        } else {
+//            Log.app.warn("Wasn't expecting statistics when status was " + status);
+//        }
+//    }
 
 
     public FractalDocument getDocument() {
@@ -150,47 +204,58 @@ public class FractalController implements ParameterChangeListener {
 
     // called when our panel becomes active
     public void enableMenuItems() {
+        Log.gui.info("enableMenuItems called");
         ActionMap actionMap = panel.getActionMap();
         ActionRepository repository = ActionRepository.instance();
         repository.getFileClose().setDelegate(actionCloseFile);
         repository.getDiagramZoomIn().setDelegate(actionMap.get(JSVGCanvas.ZOOM_IN_ACTION));
         repository.getDiagramZoomOut().setDelegate(actionMap.get(JSVGCanvas.ZOOM_OUT_ACTION));
-        if (status < STATS_CALCULATED) {
-            repository.getFileCalculate().removeDelegate();
-        } else {
+        if (isCapableOfCalculation()) {
             repository.getFileCalculate().setDelegate(actionCalculateFractalDimension);
+        } else {
+            repository.getFileCalculate().removeDelegate();
         }
+    }
+
+    private boolean isCapableOfCalculation() {
+        return (status == Status.READY_FOR_COUNT || status == Status.SQUARES_COUNTED);
+    }
+
+    private void setStatus(Status newStatus) {
+        status = newStatus;
+        FractDim.instance().updateMeIfCurrent(this);
     }
 
     public void actionCloseFile() {
         // TODO - check we're in a fit state to close
         FractDim.instance().remove(this);
+        shouldQuit = true;
+        controllerThread.interrupt();
+        try {
+            controllerThread.join();
+            Log.thread.info("Joined controller thread");
+        } catch (InterruptedException e) {
+            Log.thread.warn("Couldn't join controller thread - " + e.getMessage());
+        }
     }
 
     public void actionCalculateFractalDimension() {
         panel.getSettingsPanel().disableAllControls();
-
+        SquareCountingWorker scw = new SquareCountingWorker(this, squareSizeModel.getLowerValue(), squareSizeModel.getMaximum(), resolutionModel.getValue(), angleModel.getValue(), displacementModel.getValue());
+        scw.execute();
+        setStatus(Status.COUNTING_SQUARES);
+        Log.calc.info("Started square counting worker");
     }
     
     public void updateProgress(String taskId, int progress) {
         Log.calc.debug("Task " + taskId + " progress " + progress);
     }
 
-    public void setStatistics(Statistics statistics) {
-        if (status == DOC_LOADED) {
-            // todo - some nicer way of selecting the algorithm for this...
-
-            updateGrids();
-
-            status = STATS_CALCULATED;
-            FractDim.instance().updateGlobal(this);
-        } else {
-            Log.app.warn("Wasn't expecting statistics when status was " + status);
-        }
-    }
 
     public void setSquareCountingResult(SquareCountingResult squareCountingResult) {
-        //To change body of created methods use File | Settings | File Templates.
+        Log.calc.info("Square counting worker reported");
+        panel.getSettingsPanel().enableAllControls();
+        setStatus(Status.SQUARES_COUNTED);
     }
 
     private void updateGrids() {

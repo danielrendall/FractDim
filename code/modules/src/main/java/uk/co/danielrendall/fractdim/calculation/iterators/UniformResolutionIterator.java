@@ -28,7 +28,10 @@ public class UniformResolutionIterator implements ResolutionIterator {
     }
 
     public Double next() {
-        return (resolutionStep == numberOfResolutionSteps) ? maxResolution : minResolution + resolutionIncrement * (double)(resolutionStep++);
+
+        Double next = (resolutionStep == numberOfResolutionSteps) ? maxResolution : minResolution + resolutionIncrement * (double)(resolutionStep);
+        resolutionStep++;
+        return next;
     }
 
     public void reset() {

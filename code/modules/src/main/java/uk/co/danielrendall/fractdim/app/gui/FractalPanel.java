@@ -29,7 +29,6 @@ import java.util.*;
 public class FractalPanel extends JPanel {
 
     private final SettingsPanel settingsPanel;
-    private final GenericFormPanel statisticsPanel;
     private final JSVGCanvas canvas;
     private final ResultPanel resultPanel;
 
@@ -49,7 +48,6 @@ public class FractalPanel extends JPanel {
     public FractalPanel() {
 
         this.settingsPanel = SettingsPanel.create();
-        this.statisticsPanel = createStatisticePanel();
 
         canvas = new JSVGCanvas();
         canvas.setDocumentState(AbstractJSVGComponent.ALWAYS_DYNAMIC);
@@ -63,13 +61,8 @@ public class FractalPanel extends JPanel {
 
         temporaryRunnableQueue = new LinkedList<Runnable>();
 
-        Box leftColumn = Box.createVerticalBox();
-        leftColumn.add(settingsPanel);
-        leftColumn.add(statisticsPanel);
-
-        JSplitPane rightComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JSVGScrollPane(canvas), resultPanel);
-        rightComponent.setResizeWeight(1.0d);
-        JSplitPane mainComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftColumn, rightComponent);
+        JSplitPane topComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, settingsPanel, new JSVGScrollPane(canvas) );
+        JSplitPane mainComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topComponent, resultPanel);
         this.setLayout(new BorderLayout());
         this.add(mainComponent, BorderLayout.CENTER);
     }
@@ -199,21 +192,8 @@ public class FractalPanel extends JPanel {
         }
     }
 
-    private static GenericFormPanel createStatisticePanel() {
-        GenericFormPanelBuilder builder = new GenericFormPanelBuilder();
-//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.SQUARE_SIZES));
-//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.MAXIMUM_SQUARES));
-//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.NUMBER_RESOLUTIONS));
-//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.NUMBER_ANGLES));
-//        builder.addSlider(CalculationSettings.PARAMS.get(CalculationSettings.NUMBER_DISPLACEMENTS));
-        return builder.build();
-    }
-
     public SettingsPanel getSettingsPanel() {
         return settingsPanel;
     }
 
-    public GenericFormPanel getStatisticsPanel() {
-        return statisticsPanel;
-    }
 }

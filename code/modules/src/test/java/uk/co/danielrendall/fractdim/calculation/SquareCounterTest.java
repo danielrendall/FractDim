@@ -378,7 +378,7 @@ public class SquareCounterTest {
             double endY = 1001.0d * Math.sin(angle);
 
             SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(startX, startY).rotate(Math.PI / 90d), new Point(endX, endY).rotate(Math.PI / 90d), 3);
-            FractalController controller =  FractalController.fromDocument(svg);
+            FractalController controller =  FractalController.fromDocument(svg, "Test " + i);
             FractalDocument fractalDocument = controller.getClonedDocument();
 
             try {
