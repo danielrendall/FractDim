@@ -3,7 +3,10 @@ package uk.co.danielrendall.fractdim.app.gui;
 import com.jidesoft.swing.RangeSlider;
 import org.apache.log4j.Logger;
 import uk.co.danielrendall.fractdim.app.controller.FractalController;
+import uk.co.danielrendall.fractdim.app.model.ParameterChangeListener;
+import uk.co.danielrendall.fractdim.app.model.SimpleChangeListener;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
+import uk.co.danielrendall.fractdim.app.model.widgetmodels.UnmodifiableBoundedRangeModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,7 +55,8 @@ public class SettingsPanel extends JPanel {
         this.add(myBox, BorderLayout.CENTER);
     }
 
-    public void setDataModel(Parameter parameter, BoundedRangeModel model) {
+    public void setDataModelForParameter(Parameter parameter, BoundedRangeModel model, ParameterChangeListener pcl) {
+        model.addChangeListener(new SimpleChangeListener(pcl, parameter));
         JSlider slider = ((JSlider)this.components.get(parameter));
         slider.setModel(model);
         int increment = (model.getMaximum() - model.getMinimum());
@@ -61,5 +65,9 @@ public class SettingsPanel extends JPanel {
         slider.setPaintLabels(true);
         slider.setPaintTicks(false);
         log.debug(slider.getLabelTable());
+    }
+
+    public BoundedRangeModel getModel(Parameter parameter) {
+        return ((JSlider)this.components.get(parameter)).getModel();
     }
 }

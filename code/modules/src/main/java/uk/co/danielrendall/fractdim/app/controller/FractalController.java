@@ -25,10 +25,7 @@ import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -51,8 +48,6 @@ public class FractalController implements ParameterChangeListener {
     public final static Parameter NUMBER_RESOLUTIONS = new Parameter("CALC_SETTINGS", "NUMBER_RESOLUTIONS", "Number of resolutions", "The number of different square sizes between the minimum and maximum (inclusive)");
     public final static Parameter NUMBER_ANGLES = new Parameter("CALC_SETTINGS", "NUMBER_ANGLES", "Number of angles", "The number of different grid angles to be tried for each resolution");
     public final static Parameter NUMBER_DISPLACEMENTS = new Parameter("CALC_SETTINGS", "NUMBER_DISPLACEMENTS", "Number of displacements", "The number of different offsets within each square to be tried for each angle");
-
-    private final Map<Parameter, UnmodifiableBoundedRangeModel> calculationSettings;
 
     private final FractalDocument document;
     private final FractalPanel panel;
@@ -101,35 +96,32 @@ public class FractalController implements ParameterChangeListener {
         panel = new FractalPanel();
 
         SettingsPanel settingsPanel = panel.getSettingsPanel();
+
         BoundingBox box = document.getMetadata().getBoundingBox();
-        double biggestDimension = Math.max(box.getWidth(), box.getHeight());
-        double smallestDimension = Math.min(box.getWidth(), box.getHeight());
-        double min = smallestDimension / 50.0d;
+        double maximumBoxSize = Math.min(box.getWidth(), box.getHeight());
+        double minimumBoxSize = maximumBoxSize / 50.0d;
 
-        Map<Parameter, UnmodifiableBoundedRangeModel> _tempSettings = new HashMap<Parameter, UnmodifiableBoundedRangeModel>();
-
-        double range = biggestDimension - min;
+        double range = maximumBoxSize - minimumBoxSize;
         // start with a slider range just a little inside the real range.
-        double rangeMin = min + (range * 0.1d);
+        double rangeMin = minimumBoxSize + (range * 0.1d);
         double rangeExtent = range * 0.8d;
 
-        addToPanel(settingsPanel, _tempSettings, SQUARE_SIZES, new UnmodifiableBoundedRangeModel(rangeMin, rangeExtent, min, biggestDimension));
-        addToPanel(settingsPanel, _tempSettings, NUMBER_RESOLUTIONS, new UnmodifiableBoundedRangeModel(2, 2, 20));
-        addToPanel(settingsPanel, _tempSettings, NUMBER_ANGLES, new UnmodifiableBoundedRangeModel(1, 1, 10));
-        addToPanel(settingsPanel, _tempSettings, NUMBER_DISPLACEMENTS, new UnmodifiableBoundedRangeModel(1, 1, 3));
+        UnmodifiableBoundedRangeModel sizeModel = new UnmodifiableBoundedRangeModel(rangeMin, rangeExtent, minimumBoxSize, maximumBoxSize);
+        settingsPanel.setDataModelForParameter(SQUARE_SIZES, sizeModel, this);
+        UnmodifiableBoundedRangeModel resolutionModel = new UnmodifiableBoundedRangeModel(2, 2, 20);
+        settingsPanel.setDataModelForParameter(NUMBER_RESOLUTIONS, resolutionModel, this);
+        UnmodifiableBoundedRangeModel angleModel = new UnmodifiableBoundedRangeModel(1, 1, 10);
+        settingsPanel.setDataModelForParameter(NUMBER_ANGLES, angleModel, this);
+        UnmodifiableBoundedRangeModel displacementModel = new UnmodifiableBoundedRangeModel(1, 1, 3);
+        settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, this);
 
-        this.calculationSettings = Collections.unmodifiableMap(_tempSettings);
+
         panel.updateDocument(document);
         status = DOC_LOADED;
         CalculateStatisticsWorker csw = new CalculateStatisticsWorker(this, CALC_STATS);
         csw.execute();
     }
 
-    private void addToPanel(SettingsPanel panel, Map<Parameter, UnmodifiableBoundedRangeModel> tempSettings, Parameter param, UnmodifiableBoundedRangeModel brm) {
-        brm.addChangeListener(new SimpleChangeListener(this, param));
-        tempSettings.put(param, brm);
-        panel.setDataModel(param, brm);
-    }
 
     public FractalDocument getDocument() {
         return document;
@@ -185,8 +177,10 @@ public class FractalController implements ParameterChangeListener {
     }
 
     private void updateGrids() {
-        final Grid minGrid = new Grid(calculationSettings.get(SQUARE_SIZES).getValue());
-        final Grid maxGrid = new Grid(calculationSettings.get(SQUARE_SIZES).getUpperValue());
+        final SettingsPanel settings = panel.getSettingsPanel();
+        UnmodifiableBoundedRangeModel squareSizeModel = (UnmodifiableBoundedRangeModel) settings.getModel(SQUARE_SIZES);
+        final Grid minGrid = new Grid(squareSizeModel.getValue());
+        final Grid maxGrid = new Grid(squareSizeModel.getUpperValue());
 
         final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
 
