@@ -5,6 +5,7 @@ import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.batik.swing.svg.AbstractJSVGComponent;
+import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
@@ -28,7 +29,7 @@ import java.util.List;
  * Time: 21:08:57
  * To change this template use File | Settings | File Templates.
  */
-public class FractalPanel extends JPanel {
+public class FractalPanel extends JXMultiSplitPane {
 
     private final SettingsPanel settingsPanel;
     private final JSVGCanvas canvas;
@@ -72,11 +73,13 @@ public class FractalPanel extends JPanel {
                     new MultiSplitLayout.Leaf("results"));
         modelRoot.setChildren(children);
 
-        this.setLayout(new MultiSplitLayout(modelRoot));
+        MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
+        msl.setFloatingDividers(true);
+        this.setLayout(msl);
 
         this.add(settingsPanel, "settings");
         this.add(canvasScrollPane, "svg");
-        this.add(resultPanel, "results");
+        this.add(new JScrollPane(resultPanel), "results");
     }
 
     public void updateDocument(FractalDocument doc) {

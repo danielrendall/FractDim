@@ -255,6 +255,7 @@ public class FractalController implements ParameterChangeListener, Runnable {
     public void setSquareCountingResult(SquareCountingResult squareCountingResult) {
         Log.calc.info("Square counting worker reported");
         panel.getSettingsPanel().enableAllControls();
+        panel.getResultPanel().update(squareCountingResult);
         setStatus(Status.SQUARES_COUNTED);
     }
 

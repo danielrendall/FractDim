@@ -32,22 +32,22 @@ public class ResultPanel extends JPanel {
         super(new RiverLayout());
 
         resultTable.setEnabled(false);
-        resultTable.setPreferredScrollableViewportSize(new Dimension(300, resultTable.getRowHeight() * 3));
+//        resultTable.setPreferredScrollableViewportSize(new Dimension(300, resultTable.getRowHeight() * 3));
 
         anglesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         anglesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             public void valueChanged(ListSelectionEvent e) {
                 squaresTable.setModel(new ResolutionAndSquaresTableModel(anglesTable.getSelectedRow()));
                 Dimension preferredSize = squaresTable.getPreferredSize();
-                int height = preferredSize.height > 300 ? 300 : preferredSize.height;
-                squaresTable.setPreferredScrollableViewportSize(new Dimension(300, height));
+//                int height = preferredSize.height > 300 ? 300 : preferredSize.height;
+//                squaresTable.setPreferredScrollableViewportSize(new Dimension(300, height));
                 squaresTable.invalidate();
             }
         });
-        anglesTable.setPreferredScrollableViewportSize(new Dimension(300, 40));
+//        anglesTable.setPreferredScrollableViewportSize(new Dimension(300, 40));
 
         squaresTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        squaresTable.setPreferredScrollableViewportSize(new Dimension(300, 40));
+//        squaresTable.setPreferredScrollableViewportSize(new Dimension(300, 40));
 
         JScrollPane resultScrollPane = new JScrollPane(resultTable);
         resultScrollPane.setBorder(BorderFactory.createTitledBorder("Results"));
@@ -68,8 +68,8 @@ public class ResultPanel extends JPanel {
         resultTable.setModel(new ResultTableModel());
         anglesTable.setModel(new AnglesAndDimensionsTableModel());
         Dimension preferredSize = anglesTable.getPreferredSize();
-        int height = preferredSize.height > 300 ? 300 : preferredSize.height;
-        anglesTable.setPreferredScrollableViewportSize(new Dimension(300, height));
+//        int height = preferredSize.height > 300 ? 300 : preferredSize.height;
+//        anglesTable.setPreferredScrollableViewportSize(new Dimension(300, height));
         anglesTable.invalidate();
     }
 
