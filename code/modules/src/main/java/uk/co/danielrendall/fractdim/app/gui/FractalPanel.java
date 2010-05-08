@@ -5,6 +5,7 @@ import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.batik.swing.svg.AbstractJSVGComponent;
+import org.jdesktop.swingx.MultiSplitLayout;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
@@ -18,6 +19,7 @@ import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -51,8 +53,8 @@ public class FractalPanel extends JPanel {
 
         canvas = new JSVGCanvas();
         canvas.setDocumentState(AbstractJSVGComponent.ALWAYS_DYNAMIC);
-
         getActionMap().setParent(canvas.getActionMap());
+        JSVGScrollPane canvasScrollPane = new JSVGScrollPane(canvas);
 
         resultPanel = new ResultPanel();
 
@@ -61,10 +63,20 @@ public class FractalPanel extends JPanel {
 
         temporaryRunnableQueue = new LinkedList<Runnable>();
 
-        JSplitPane topComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, settingsPanel, new JSVGScrollPane(canvas) );
-        JSplitPane mainComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topComponent, resultPanel);
-        this.setLayout(new BorderLayout());
-        this.add(mainComponent, BorderLayout.CENTER);
+        MultiSplitLayout.Split modelRoot = new MultiSplitLayout.Split();
+        List<MultiSplitLayout.Node> children =
+            Arrays.asList(new MultiSplitLayout.Leaf("settings"),
+                    new MultiSplitLayout.Divider(),
+                    new MultiSplitLayout.Leaf("svg"),
+                    new MultiSplitLayout.Divider(),
+                    new MultiSplitLayout.Leaf("results"));
+        modelRoot.setChildren(children);
+
+        this.setLayout(new MultiSplitLayout(modelRoot));
+
+        this.add(settingsPanel, "settings");
+        this.add(canvasScrollPane, "svg");
+        this.add(resultPanel, "results");
     }
 
     public void updateDocument(FractalDocument doc) {
