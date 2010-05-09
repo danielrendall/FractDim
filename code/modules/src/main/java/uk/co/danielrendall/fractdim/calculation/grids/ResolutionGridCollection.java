@@ -10,7 +10,7 @@ import java.util.*;
 * To change this template use File | Settings | File Templates.
 */
 public class ResolutionGridCollection {
-    private final Map<Double, DisplacementGridCollection> gridMap;
+    private final SortedMap<Double, DisplacementGridCollection> gridMap;
     private final boolean isBuilding;
 
     ResolutionGridCollection() {
@@ -18,8 +18,8 @@ public class ResolutionGridCollection {
         isBuilding = true;
     }
 
-    private ResolutionGridCollection(Map<Double, DisplacementGridCollection> gridMap) {
-        this.gridMap = Collections.unmodifiableMap(gridMap);
+    private ResolutionGridCollection(SortedMap<Double, DisplacementGridCollection> gridMap) {
+        this.gridMap = Collections.unmodifiableSortedMap(gridMap);
         isBuilding = false;
     }
 

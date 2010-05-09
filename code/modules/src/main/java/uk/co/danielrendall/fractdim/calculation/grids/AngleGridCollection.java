@@ -10,7 +10,7 @@ import java.util.*;
 * To change this template use File | Settings | File Templates.
 */
 public class AngleGridCollection {
-    private final Map<Double, ResolutionGridCollection> gridMap;
+    private final SortedMap<Double, ResolutionGridCollection> gridMap;
     private final boolean isBuilding;
 
     AngleGridCollection() {
@@ -18,8 +18,8 @@ public class AngleGridCollection {
         isBuilding = true;
     }
 
-    private AngleGridCollection(Map<Double, ResolutionGridCollection> gridMap) {
-        this.gridMap = Collections.unmodifiableMap(gridMap);
+    private AngleGridCollection(SortedMap<Double, ResolutionGridCollection> gridMap) {
+        this.gridMap = Collections.unmodifiableSortedMap(gridMap);
         isBuilding = false;
     }
 

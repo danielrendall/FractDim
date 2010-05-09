@@ -125,14 +125,13 @@ public class SquareCounter extends AbstractNotifyingGraphics {
 
         FDTranscoder transcoder = new FDTranscoder(this);
 
-
         try {
             transcoder.transcode(input, new TranscoderOutput());
         } catch (TranscoderException e) {
             Log.app.warn("Couldn't transcode at - " + e.getMessage());
         }
         Log.misc.info("There were " + GridSquare.createCount + " squares created");
-        return new SquareCountingResult(this);
+        return new SquareCountingResult(this.gridCollection.getCollection());
     }
 
 }

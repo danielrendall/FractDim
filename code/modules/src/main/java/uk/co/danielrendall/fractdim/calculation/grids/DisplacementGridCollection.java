@@ -12,7 +12,7 @@ import java.util.*;
 * To change this template use File | Settings | File Templates.
 */
 public class DisplacementGridCollection {
-    private final Map<Vec, Grid> gridMap;
+    private final SortedMap<Vec, Grid> gridMap;
 
     private final boolean isBuilding;
 
@@ -28,8 +28,8 @@ public class DisplacementGridCollection {
         isBuilding = true;
     }
 
-    private DisplacementGridCollection(Map<Vec, Grid> gridMap) {
-        this.gridMap = Collections.unmodifiableMap(gridMap);
+    private DisplacementGridCollection(SortedMap<Vec, Grid> gridMap) {
+        this.gridMap = Collections.unmodifiableSortedMap(gridMap);
         isBuilding = false;
     }
 

@@ -91,7 +91,6 @@ public class FractDim {
                             fractalDocument(document);
                     SquareCounter calc = squareCounterBuilder.build();
                     SquareCountingResult result = calc.process();
-                    System.out.println(result.getAvailableAngles());
                     break;
                 case Stats:
                     StatisticsCalculatorBuilder statsCalculatorBuilder = new StatisticsCalculatorBuilder();

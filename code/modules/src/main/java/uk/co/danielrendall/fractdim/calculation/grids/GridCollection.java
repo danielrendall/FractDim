@@ -23,4 +23,7 @@ public class GridCollection {
         collection.accept(visitor);
     }
 
+    public AngleGridCollection getCollection() {
+        return collection;
+    }
 }
