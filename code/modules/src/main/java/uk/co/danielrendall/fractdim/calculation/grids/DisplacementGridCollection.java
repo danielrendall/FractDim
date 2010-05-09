@@ -16,6 +16,9 @@ public class DisplacementGridCollection {
 
     private final boolean isBuilding;
 
+    private boolean averageCountCalculated = false;
+    private double averageSquareCount = 0.0d;
+
     DisplacementGridCollection() {
         this.gridMap = new TreeMap<Vec, Grid>(new Comparator<Vec>() {
             public int compare(Vec o1, Vec o2) {
@@ -57,12 +60,16 @@ public class DisplacementGridCollection {
         return new DisplacementGridCollection(gridMap);
     }
 
-    public double getAverageSquareCount() {
-        double tot = 0;
-        Collection<Grid> grids = gridMap.values();
-        for (Grid g : grids) {
-            tot += (double)g.getSquareCount();
+    public synchronized double getAverageSquareCount() {
+        if (!averageCountCalculated) {
+            double tot = 0;
+            Collection<Grid> grids = gridMap.values();
+            for (Grid g : grids) {
+                tot += (double)g.getSquareCount();
+            }
+            averageSquareCount = tot / (double) grids.size();
+            averageCountCalculated = true;
         }
-        return tot / (double) grids.size();
+        return averageSquareCount;
     }
 }

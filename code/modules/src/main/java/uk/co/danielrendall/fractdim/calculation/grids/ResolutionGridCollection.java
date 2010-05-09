@@ -13,6 +13,9 @@ public class ResolutionGridCollection {
     private final SortedMap<Double, DisplacementGridCollection> gridMap;
     private final boolean isBuilding;
 
+    private boolean fractalDimensionCalculated;
+    private double fractalDimension = 0.0d;
+
     ResolutionGridCollection() {
         this.gridMap = new TreeMap<Double, DisplacementGridCollection>();
         isBuilding = true;
@@ -43,5 +46,38 @@ public class ResolutionGridCollection {
             next.setValue(next.getValue().freeze());
         }
         return new ResolutionGridCollection(gridMap);
+    }
+
+    public synchronized double getFractalDimension() {
+        if (!fractalDimensionCalculated) {
+            double logSquareCountsSum = 0.0d; // Y
+            double logReciprocalResolutionsSum = 0.0d; // X
+
+            double sumOfXTimesY = 0.0d;
+            double sumOfXSquared = 0.0d; // logReciprocalResolution
+
+            int i=0;
+            for (Map.Entry<Double, DisplacementGridCollection> entry : gridMap.entrySet()) {
+                double resolution = entry.getKey();
+                double squareCounts = entry.getValue().getAverageSquareCount();
+                // assume no pesky divide by zero errors...
+                double logSquareCount = Math.log(squareCounts);
+                double logReciprocalResolution = Math.log(1.0d/resolution);
+
+                sumOfXTimesY += (logReciprocalResolution * logSquareCount);
+                sumOfXSquared += (logReciprocalResolution * logReciprocalResolution);
+
+                logSquareCountsSum += logSquareCount;
+                logReciprocalResolutionsSum += logReciprocalResolution;
+                i++;
+            }
+
+            double logSquareCountMean = logSquareCountsSum / (double) i;
+            double logReciprocalResolutionMean = logReciprocalResolutionsSum / (double) i;
+
+            fractalDimension = ((sumOfXTimesY - ((double) i * logSquareCountMean * logReciprocalResolutionMean)) /
+                    (sumOfXSquared - ((double) i * logReciprocalResolutionMean * logReciprocalResolutionMean)));
+        }
+        return fractalDimension;
     }
 }

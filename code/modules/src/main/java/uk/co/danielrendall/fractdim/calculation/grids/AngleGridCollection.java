@@ -13,6 +13,9 @@ public class AngleGridCollection {
     private final SortedMap<Double, ResolutionGridCollection> gridMap;
     private final boolean isBuilding;
 
+    private boolean averageFractalDimensionCalculated = false;
+    private double averageFractalDimension = 0.0d;
+
     AngleGridCollection() {
         this.gridMap = new TreeMap<Double, ResolutionGridCollection>();
         isBuilding = true;
@@ -43,5 +46,18 @@ public class AngleGridCollection {
             next.setValue(next.getValue().freeze());
         }
         return new AngleGridCollection(gridMap);
+    }
+
+    public synchronized double getAverageFractalDimension() {
+        if (!averageFractalDimensionCalculated) {
+            double tot = 0;
+            Collection<ResolutionGridCollection> grids = gridMap.values();
+            for (ResolutionGridCollection rgc : grids) {
+                tot += (double)rgc.getFractalDimension();
+            }
+            averageFractalDimension = tot / (double) grids.size();
+            averageFractalDimensionCalculated = true;
+        }
+        return averageFractalDimension;
     }
 }

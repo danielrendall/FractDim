@@ -20,16 +20,25 @@ import java.util.List;
 class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
 
     private final List<AngleModelNode> angleModels;
+    private final double averageFractalDimension;
 
     public SquareCountingModelRoot(AngleGridCollection angleGridCollection) {
         angleModels = new ArrayList<AngleModelNode>();
         for (double angle : angleGridCollection.getAvailableAngles()) {
             angleModels.add(new AngleModelNode(angle, angleGridCollection.collectionForAngle(angle)));
         }
+        averageFractalDimension = angleGridCollection.getAverageFractalDimension();
     }
 
     public Object getValueAt(int column) {
-        return "No value";
+        switch (column) {
+            case 0:
+                return "Overall";
+            case 1:
+                return String.format("%3.3f", averageFractalDimension);
+            default:
+                return "";
+        }
     }
 
     public Object getChild(int index) {
@@ -37,7 +46,6 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
     }
 
     public int getChildCount() {
-        Log.gui.debug("Asked for child count");
         return angleModels.size();
     }
 
@@ -51,6 +59,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
     private class AngleModelNode implements SquareCountingModelTreeNode {
         private final double angle;
         private final List<ResolutionModelNode> resolutionModels;
+        private final double fractalDimension;
 
         private AngleModelNode(double angle, ResolutionGridCollection resolutionGridCollection) {
             this.angle = angle;
@@ -58,15 +67,18 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
             for (double resolution : resolutionGridCollection.getAvailableResolutions()) {
                 resolutionModels.add(new ResolutionModelNode(resolution, resolutionGridCollection.collectionForResolution(resolution)));
             }
-        }
-
-        public double getAngle() {
-            return angle;
+            fractalDimension = resolutionGridCollection.getFractalDimension();
         }
 
         public Object getValueAt(int column) {
-            return column == 0 ? String.format("Angle: %5.2f", angle) : "";
-
+            switch (column) {
+                case 0:
+                    return String.format("Angle: %3.1f°", angle * 180.0d / Math.PI);
+                case 1:
+                    return String.format("%3.3f", fractalDimension);
+                default:
+                    return "";
+            }
         }
 
         public Object getChild(int index) {
@@ -97,23 +109,18 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
             for (Vec displacement : displacementGridCollection.getAvailableDisplacements()) {
                 displacementModels.add(new DisplacementModelNode(displacement, displacementGridCollection.gridForDisplacement(displacement)));
             }
-            double total = 0;
-            for (DisplacementModelNode dm : displacementModels) {
-                total += dm.getSquareCount();
-            }
-            averageSquareCount = total / (double) displacementModels.size();
-        }
-
-        public double getResolution() {
-            return resolution;
-        }
-
-        public double getAverageSquareCount() {
-            return averageSquareCount;
+            averageSquareCount = displacementGridCollection.getAverageSquareCount();
         }
 
         public Object getValueAt(int column) {
-            return column == 0 ? String.format("Resolution: %5.2f", resolution) : String.format("%5.2f", averageSquareCount);
+            switch (column) {
+                case 0:
+                    return String.format("Resolution: %5.2f", resolution);
+                case 2:
+                    return String.format("%5.2f", averageSquareCount);
+                default:
+                    return "";
+            }
         }
 
         public Object getChild(int index) {
@@ -135,24 +142,23 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
     private class DisplacementModelNode implements SquareCountingModelTreeNode {
         private final Vec displacement;
         private final Grid grid;
-        private final double squareCount;
+        private final int squareCount;
 
         public DisplacementModelNode(Vec displacement, Grid grid) {
             this.displacement = displacement;
             this.grid = grid;
-            squareCount = (double) grid.getSquareCount();
-        }
-
-        public Vec getDisplacement() {
-            return displacement;
-        }
-
-        public double getSquareCount() {
-            return squareCount;
+            squareCount = grid.getSquareCount();
         }
 
         public Object getValueAt(int column) {
-            return column == 0 ? String.format("Displacement: %s", displacement) : String.format("%5.2f", squareCount);
+            switch (column) {
+                case 0:
+                    return String.format("Displacement: %s", displacement);
+                case 2:
+                    return String.format("%d", squareCount);
+                default:
+                    return "";
+            }
         }
 
         public Object getChild(int index) {
