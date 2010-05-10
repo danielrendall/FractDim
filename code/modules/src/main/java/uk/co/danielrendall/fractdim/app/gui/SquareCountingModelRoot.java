@@ -33,7 +33,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
     public Object getValueAt(int column) {
         switch (column) {
             case 0:
-                return "Overall";
+                return new Root();
             case 1:
                 return String.format("%3.3f", averageFractalDimension);
             default:
@@ -56,7 +56,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         return -1;
     }
 
-    private class AngleModelNode implements SquareCountingModelTreeNode {
+    class AngleModelNode implements SquareCountingModelTreeNode {
         private final double angle;
         private final List<ResolutionModelNode> resolutionModels;
         private final double fractalDimension;
@@ -73,7 +73,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         public Object getValueAt(int column) {
             switch (column) {
                 case 0:
-                    return String.format("Angle: %3.1f°", angle * 180.0d / Math.PI);
+                    return new Angle(angle);
                 case 1:
                     return String.format("%3.3f", fractalDimension);
                 default:
@@ -95,9 +95,13 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
             }
             return -1;
         }
+
+        public String toString() {
+            return String.format("Angle: %3.1f°", angle * 180.0d / Math.PI);
+        }
     }
 
-    private class ResolutionModelNode implements SquareCountingModelTreeNode {
+    class ResolutionModelNode implements SquareCountingModelTreeNode {
 
         private final double resolution;
         private final List<DisplacementModelNode> displacementModels;
@@ -115,7 +119,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         public Object getValueAt(int column) {
             switch (column) {
                 case 0:
-                    return String.format("Resolution: %5.2f", resolution);
+                    return new Resolution(resolution);
                 case 2:
                     return String.format("%5.2f", averageSquareCount);
                 default:
@@ -137,9 +141,13 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
             }
             return -1;
         }
+
+        public String toString() {
+            return String.format("Resolution: %5.2f", resolution);
+        }
     }
 
-    private class DisplacementModelNode implements SquareCountingModelTreeNode {
+    class DisplacementModelNode implements SquareCountingModelTreeNode {
         private final Vec displacement;
         private final Grid grid;
         private final int squareCount;
@@ -153,7 +161,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         public Object getValueAt(int column) {
             switch (column) {
                 case 0:
-                    return String.format("Displacement: %s", displacement);
+                    return new Displacement(displacement);
                 case 2:
                     return String.format("%d", squareCount);
                 default:
@@ -172,7 +180,56 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         public int getIndexOfChild(Object child) {
             return -1;
         }
+
+        public String toString() {
+            return String.format("Displacement: %s", displacement);
+        }
     }
+
+    public class Root {
+
+
+        public String toString() {
+            return String.format("Overall");
+        }
+    }
+
+    public class Angle {
+        private final double a;
+
+        public Angle(double a) {
+            this.a = a;
+        }
+
+        public String toString() {
+            return String.format("Angle: %3.1f°", a * 180.0d / Math.PI);
+        }
+    }
+
+    public class Resolution {
+        private final double r;
+
+        public Resolution(double r) {
+            this.r = r;
+        }
+
+        public String toString() {
+            return String.format("Resolution: %5.2f", r);
+        }
+    }
+
+    public class Displacement {
+        private final Vec v;
+
+        public Displacement(Vec v) {
+            this.v = v;
+        }
+
+        public String toString() {
+            return String.format("Displacement: %s", v);
+        }
+    }
+
 
 }
 
