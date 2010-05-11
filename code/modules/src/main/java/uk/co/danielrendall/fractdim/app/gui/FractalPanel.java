@@ -102,14 +102,6 @@ public class FractalPanel extends JXMultiSplitPane {
         canvas.setSVGDocument(doc.getSvgDoc());
     }
 
-    public ResultPanel getResultPanel() {
-        return resultPanel;
-    }
-
-    public JSVGCanvas getSVGCanvas() {
-        return canvas;
-    }
-
 
 
     public void addOverlay(final String overlayId, final SVGContentGenerator generator) {
@@ -210,5 +202,10 @@ public class FractalPanel extends JXMultiSplitPane {
     public SettingsPanel getSettingsPanel() {
         return settingsPanel;
     }
+
+    public ResultPanel getResultPanel() {
+        return resultPanel;
+    }
+    
 
 }

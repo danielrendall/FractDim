@@ -169,6 +169,10 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
             }
         }
 
+        public Grid getGrid() {
+            return grid;
+        }
+
         public Object getChild(int index) {
             return null;
         }

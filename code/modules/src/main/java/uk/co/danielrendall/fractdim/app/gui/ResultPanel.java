@@ -1,18 +1,16 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
 import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.decorator.ColorHighlighter;
-import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 
+import uk.co.danielrendall.fractdim.calculation.grids.Grid;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 /**
@@ -26,9 +24,9 @@ public class ResultPanel extends JPanel {
     final JXTreeTable resultTable = new JXTreeTable();
 
     private SquareCountingResult result;
-
     public ResultPanel() {
         super (new BorderLayout());
+
         setPreferredSize(new Dimension(300, 300));
 
         Log.gui.debug("Tree cell renderer is " + resultTable.getTreeCellRenderer().getClass().getName());
@@ -37,17 +35,15 @@ public class ResultPanel extends JPanel {
         resultTable.addTreeSelectionListener(new TreeSelectionListener() {
 
             public void valueChanged(TreeSelectionEvent e) {
-                Log.gui.debug(e);
+                Object selectedNode = e.getPath().getLastPathComponent();
+                if (selectedNode instanceof SquareCountingModelRoot.DisplacementModelNode) {
+                    Log.gui.debug("Displacement node selected - firing event");
+                    SquareCountingModelRoot.DisplacementModelNode theNode = (SquareCountingModelRoot.DisplacementModelNode) selectedNode;
+                    fireGridSelected(theNode.getGrid());
+                }
+
             }
         });
-
-
-
-        resultTable.addHighlighter(new ColorHighlighter(new HighlightPredicate() {
-            public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
-                return (adapter.getValue(0) instanceof SquareCountingModelRoot.Root);
-            }
-        }, Color.RED, Color.BLUE));
 
         add(new JScrollPane(resultTable), BorderLayout.CENTER);
 
@@ -59,6 +55,7 @@ public class ResultPanel extends JPanel {
         SquareCountingModelRoot root = new SquareCountingModelRoot(result.getAngleGridCollection());
         resultTable.setTreeTableModel(new SquareCountingTreeTableModel(root));
         resultTable.setTreeCellRenderer(new SquareCountingModelTreeCellRenderer());
+        resultTable.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         resultTable.setShowGrid(true);
         resultTable.setRootVisible(true);
         resultTable.setEnabled(true);
@@ -103,4 +100,24 @@ public class ResultPanel extends JPanel {
             return ((SquareCountingModelTreeNode) parent).getIndexOfChild(child);
         }
     }
+
+    public void addResultPanelListener(ResultPanelListener listener) {
+        listenerList.add(ResultPanelListener.class, listener);
+    }
+
+    public void removeResultPanelListener(ResultPanelListener listener) {
+        listenerList.remove(ResultPanelListener.class, listener);
+    }
+
+    protected void fireGridSelected(Grid theGrid) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == ResultPanelListener.class) {
+                GridSelectedEvent gse = new GridSelectedEvent(theGrid);
+                ((ResultPanelListener) listeners[i + 1]).gridSelected(gse);
+            }
+        }
+    }
+
 }
+

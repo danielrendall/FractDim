@@ -5,6 +5,8 @@ import org.apache.batik.swing.JSVGCanvas;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.FractDim;
+import uk.co.danielrendall.fractdim.app.gui.GridSelectedEvent;
+import uk.co.danielrendall.fractdim.app.gui.ResultPanelListener;
 import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
 import uk.co.danielrendall.fractdim.app.model.*;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
@@ -36,11 +38,12 @@ import java.util.Queue;
  * Time: 21:02:09
  * To change this template use File | Settings | File Templates.
  */
-public class FractalController implements ParameterChangeListener, Runnable {
+public class FractalController implements ParameterChangeListener, ResultPanelListener, Runnable {
 
     private enum Status {NEW, DOC_LOADED, READY_FOR_COUNT, COUNTING_SQUARES, SQUARES_COUNTED};
 
     private final static String CALC_STATS = "CalcStats";
+    private final static String RESULT_GRID = "ResultGrid";
     private final static String MIN_GRID = "MinGrid";
     private final static String MAX_GRID = "MaxGrid";
     private final static String BOUNDING_BOX = "BoundingBox";
@@ -103,6 +106,7 @@ public class FractalController implements ParameterChangeListener, Runnable {
     private FractalController(FractalDocument document) {
         this.document = document;
         this.panel = new FractalPanel();
+        this.panel.getResultPanel().addResultPanelListener(this);
         this.jobs = new LinkedList<Runnable>();
 
         this.controllerThread = new Thread(this);
@@ -260,6 +264,7 @@ public class FractalController implements ParameterChangeListener, Runnable {
     }
 
     private void updateGrids() {
+        checkControllerThread();
         final Grid minGrid = new Grid(squareSizeModel.getValue());
         final Grid maxGrid = new Grid(squareSizeModel.getUpperValue());
 
@@ -269,7 +274,7 @@ public class FractalController implements ParameterChangeListener, Runnable {
 
         panel.updateOverlay(BOUNDING_BOX, new SVGContentGenerator() {
             public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
-                Element path = creator.createPath("#ff9999");
+                Element path = creator.createPath("#999999");
                 path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s z",
                         boundingBox.getMinX(), boundingBox.getMinY(),
                         boundingBox.getMaxX(), boundingBox.getMinY(),
@@ -293,12 +298,37 @@ public class FractalController implements ParameterChangeListener, Runnable {
         });
     }
 
+    private void updateResultGrid(final Grid theGrid) {
+        checkControllerThread();
+        final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
+        panel.updateOverlay(RESULT_GRID, new SVGContentGenerator() {
+            public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
+                return theGrid.writeToSVG(rootElement, creator, boundingBox, "#ff9999");
+            }
+        });
+    }
+
     public void valueChanged(Parameter param, int value) {
         if (param.equals(SQUARE_SIZES)) {
-            updateGrids();
+            addToQueue(new Runnable() {
+                public void run() {
+                    Log.thread.debug("Updating grids in response to parameter change");
+                    updateGrids();
+                }
+            });
         } else {
             Log.gui.debug("Ignoring change to param " + param.getId() + " to " + value);
         }
+    }
+
+    public void gridSelected(final GridSelectedEvent e) {
+        addToQueue(new Runnable() {
+            public void run() {
+                Log.thread.debug("Grid selected: " + e.getGrid().toString());
+                updateResultGrid(e.getGrid());
+            }
+        });
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     private void prettyPrint(String message, SVGDocument doc) {
@@ -311,4 +341,9 @@ public class FractalController implements ParameterChangeListener, Runnable {
             Log.gui.debug(sw.toString());
         }
     }
+
+    private void checkControllerThread() {
+        if (Thread.currentThread() != controllerThread) throw new IllegalStateException("Should be called in controller thread");
+    }
+
 }
