@@ -163,7 +163,7 @@
     <repositories>
         <repository>
             <id>swingx</id>
-            <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:swingx</connection>
+            <!--<connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:swingx</connection>-->
             <url>https://swingx.dev.java.net/source/browse/swingx/</url>
         </repository>
         <repository>
