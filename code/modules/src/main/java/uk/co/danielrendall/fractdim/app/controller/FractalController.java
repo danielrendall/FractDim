@@ -147,7 +147,7 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
                 displacementModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_DISPLACEMENTS));
                 settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
 
-                panel.updateDocument(document);
+                panel.updateDocument(getClonedDocument());
                 updateGrids();
                 setStatus(Status.READY_FOR_COUNT);
             }
@@ -303,7 +303,7 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
         panel.updateOverlay(RESULT_GRID, new SVGContentGenerator() {
             public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
-                return theGrid.writeToSVG(rootElement, creator, boundingBox, "#ff9999");
+                return theGrid.writeFilledToSVG(rootElement, creator, boundingBox, "#ff9999");
             }
         });
     }

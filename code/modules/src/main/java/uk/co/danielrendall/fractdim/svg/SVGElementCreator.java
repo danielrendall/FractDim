@@ -15,7 +15,7 @@ import uk.co.danielrendall.fractdim.app.FractDim;
 public class SVGElementCreator {
 
     private final SVGDocument doc;
-    private final static String DEFAULT_PATH_STYLE = "fill:none;fill-rule:evenodd;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1";
+    private final static String DEFAULT_PATH_STYLE = "fill-rule:evenodd;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1";
 
     public SVGElementCreator(SVGDocument doc) {
         this.doc = doc;
@@ -34,7 +34,14 @@ public class SVGElementCreator {
     public Element createPath(String colour) {
         Element path = doc.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "path");
         path.setAttributeNS(null, "id", "path" + FractDim.newId());
-        path.setAttributeNS(null, "style", DEFAULT_PATH_STYLE  + ";stroke:" + colour);
+        path.setAttributeNS(null, "style", String.format("%s;stroke:%s;fill:none", DEFAULT_PATH_STYLE, colour));
+        return path;
+    }
+
+    public Element createFilledPath(String strokeColour, String fillColour) {
+        Element path = doc.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "path");
+        path.setAttributeNS(null, "id", "path" + FractDim.newId());
+        path.setAttributeNS(null, "style", String.format("%s;stroke:%s;fill:%s;fill-opacity:0.3", DEFAULT_PATH_STYLE, strokeColour, fillColour));
         return path;
     }
 }

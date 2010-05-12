@@ -7,7 +7,7 @@ import java.util.HashMap;
  * @author Daniel Rendall
 * @created 30-May-2009 19:25:42
 */
-public class GridSquare implements Comparable {
+public class GridSquare implements Comparable<GridSquare> {
 
     static final int NO_TOUCH = -1;
     static final int SAME = 0;
@@ -25,11 +25,13 @@ public class GridSquare implements Comparable {
     // maybe better to have a factory method which returns flyweight squares?
     public static int createCount = 0;
 
-    public final int xIndex, yIndex;
+    private final int xIndex, yIndex;
+    private final int hashCode;
 
     private GridSquare(int xIndex, int yIndex) {
         this.xIndex = xIndex;
         this.yIndex = yIndex;
+        hashCode = xIndex << 16 | (yIndex & 0xffff);
         createCount++;
     }
 
@@ -48,9 +50,18 @@ public class GridSquare implements Comparable {
         squares.clear();
     }
 
+
+    public int x() {
+        return xIndex;
+    }
+
+    public int y() {
+        return yIndex;
+    }
+
     @Override
     public int hashCode() {
-        return (xIndex % 10000) * 10000 + (yIndex % 10000);
+        return hashCode;
     }
 
     @Override
@@ -127,8 +138,7 @@ public class GridSquare implements Comparable {
 
     }
 
-    public int compareTo(Object o) {
-        GridSquare other = (GridSquare) o;
+    public int compareTo(GridSquare other) {
         int yDiff = yIndex - other.yIndex;
         if (yDiff != 0) return yDiff;
         return xIndex - other.xIndex;

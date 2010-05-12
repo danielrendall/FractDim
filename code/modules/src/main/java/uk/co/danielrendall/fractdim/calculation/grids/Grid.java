@@ -100,6 +100,22 @@ public class Grid {
         }
     }
 
+    Point inverseTransformPoint(Point p) {
+        if (doDisplace) {
+            if (doRotate) {
+                return p.rotate(-angle).displace(displacement.neg());
+            } else {
+                return p.displace(displacement.neg());
+            }
+        } else {
+            if (doRotate) {
+                return p.rotate(-angle);
+            } else {
+                return p;
+            }
+        }
+    }
+
     public void startEvaluation(Point startPoint, Point endPoint) {
         temporaryStore.clear();
 
@@ -155,7 +171,7 @@ public class Grid {
 
         if (Log.squares.isDebugEnabled()) {
             Log.squares.debug(String.format("Square Start: (%d, %d) Mid: (%d, %d) [%s] End: (%d, %d)",
-                startSquare.xIndex, startSquare.yIndex, midSquare.xIndex, midSquare.yIndex, midPoint, endSquare.xIndex, endSquare.yIndex));
+                startSquare.x(), startSquare.y(), midSquare.x(), midSquare.y(), midPoint, endSquare.x(), endSquare.y()));
         }
         
         int midFromStart = startSquare.direction(midSquare);
@@ -172,20 +188,20 @@ public class Grid {
         } else {
             switch (midFromStart) {
                 case GridSquare.ABOVE_LEFT:
-                    recurseStartToMid = (Math.abs(midPoint.x() - (resolution * (1.0d + midSquare.xIndex))) > proximityThreshold)
-                        || (Math.abs(midPoint.y() - (resolution * (1.0d + midSquare.yIndex))) > proximityThreshold);
+                    recurseStartToMid = (Math.abs(midPoint.x() - (resolution * (1.0d + midSquare.x()))) > proximityThreshold)
+                        || (Math.abs(midPoint.y() - (resolution * (1.0d + midSquare.y()))) > proximityThreshold);
                     break;
                 case GridSquare.ABOVE_RIGHT:
-                    recurseStartToMid = (Math.abs(midPoint.x() - (resolution * midSquare.xIndex)) > proximityThreshold)
-                        || (Math.abs(midPoint.y() - (resolution * (1.0d + midSquare.yIndex))) > proximityThreshold);
+                    recurseStartToMid = (Math.abs(midPoint.x() - (resolution * midSquare.x())) > proximityThreshold)
+                        || (Math.abs(midPoint.y() - (resolution * (1.0d + midSquare.y()))) > proximityThreshold);
                     break;
                 case GridSquare.BELOW_RIGHT:
-                    recurseStartToMid = (Math.abs(midPoint.x() - (resolution * midSquare.xIndex)) > proximityThreshold)
-                        || (Math.abs(midPoint.y() - (resolution * midSquare.yIndex)) > proximityThreshold);
+                    recurseStartToMid = (Math.abs(midPoint.x() - (resolution * midSquare.x())) > proximityThreshold)
+                        || (Math.abs(midPoint.y() - (resolution * midSquare.y())) > proximityThreshold);
                     break;
                 case GridSquare.BELOW_LEFT:
-                    recurseStartToMid = (Math.abs(midPoint.x() - (resolution * (1.0d + midSquare.xIndex))) > proximityThreshold)
-                        || (Math.abs(midPoint.y() - (resolution * midSquare.yIndex)) > proximityThreshold);
+                    recurseStartToMid = (Math.abs(midPoint.x() - (resolution * (1.0d + midSquare.x()))) > proximityThreshold)
+                        || (Math.abs(midPoint.y() - (resolution * midSquare.y())) > proximityThreshold);
                     break;
                 // for SAME, ABOVE, RIGHT, BELOW, LEFT, leave value as false
             }
@@ -197,20 +213,20 @@ public class Grid {
         } else {
             switch (midFromEnd) {
                 case GridSquare.ABOVE_LEFT:
-                    recurseMidToEnd = (Math.abs(midPoint.x() - (resolution * (1.0d + midSquare.xIndex))) > proximityThreshold)
-                        || (Math.abs(midPoint.y() - (resolution * (1.0d + midSquare.yIndex))) > proximityThreshold);
+                    recurseMidToEnd = (Math.abs(midPoint.x() - (resolution * (1.0d + midSquare.x()))) > proximityThreshold)
+                        || (Math.abs(midPoint.y() - (resolution * (1.0d + midSquare.y()))) > proximityThreshold);
                     break;
                 case GridSquare.ABOVE_RIGHT:
-                    recurseMidToEnd = (Math.abs(midPoint.x() - (resolution * midSquare.xIndex)) > proximityThreshold)
-                        || (Math.abs(midPoint.y() - (resolution * (1.0d + midSquare.yIndex))) > proximityThreshold);
+                    recurseMidToEnd = (Math.abs(midPoint.x() - (resolution * midSquare.x())) > proximityThreshold)
+                        || (Math.abs(midPoint.y() - (resolution * (1.0d + midSquare.y()))) > proximityThreshold);
                     break;
                 case GridSquare.BELOW_RIGHT:
-                    recurseMidToEnd = (Math.abs(midPoint.x() - (resolution * midSquare.xIndex)) > proximityThreshold)
-                        || (Math.abs(midPoint.y() - (resolution * midSquare.yIndex)) > proximityThreshold);
+                    recurseMidToEnd = (Math.abs(midPoint.x() - (resolution * midSquare.x())) > proximityThreshold)
+                        || (Math.abs(midPoint.y() - (resolution * midSquare.y())) > proximityThreshold);
                     break;
                 case GridSquare.BELOW_LEFT:
-                    recurseMidToEnd = (Math.abs(midPoint.x() - (resolution * (1.0d + midSquare.xIndex))) > proximityThreshold)
-                        || (Math.abs(midPoint.y() - (resolution * midSquare.yIndex)) > proximityThreshold);
+                    recurseMidToEnd = (Math.abs(midPoint.x() - (resolution * (1.0d + midSquare.x()))) > proximityThreshold)
+                        || (Math.abs(midPoint.y() - (resolution * midSquare.y())) > proximityThreshold);
                     break;
                 // for SAME, ABOVE, RIGHT, BELOW, LEFT, leave value as false
             }
@@ -286,5 +302,27 @@ public class Grid {
         rootGroup.appendChild(horizLines);
         rootGroup.appendChild(vertLines);
         return new BoundingBox(left, right, top, bottom);
+    }
+
+    public BoundingBox writeFilledToSVG(Element rootGroup, SVGElementCreator creator, BoundingBox boundingBox, String colour) {
+
+        BoundingBox bb = BoundingBox.empty();
+
+        for (Iterator<GridSquare> it = masterStore.squareIterator(); it.hasNext();) {
+            GridSquare next = it.next();
+            double xLeft = next.x() * resolution;
+            double yBottom = next.y() * resolution;
+            double xRight = xLeft + resolution;
+            double yTop = yBottom + resolution;
+            Point p1 = inverseTransformPoint(new Point(xLeft, yBottom));
+            Point p2 = inverseTransformPoint(new Point(xRight, yBottom));
+            Point p3 = inverseTransformPoint(new Point(xRight, yTop));
+            Point p4 = inverseTransformPoint(new Point(xLeft, yTop));
+            Element path = creator.createFilledPath("#ff0000", "#ffcccc");
+            path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s Z", p1.x(), p1.y(), p2.x(), p2.y(), p3.x(), p3.y(), p4.x(), p4.y()));
+            rootGroup.appendChild(path);
+            bb = bb.expandToInclude(BoundingBox.containing(p1, p2, p3, p4));
+        }
+        return bb;
     }
 }
