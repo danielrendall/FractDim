@@ -16,12 +16,12 @@ import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svg.SVGContentGenerator;
 import uk.co.danielrendall.fractdim.svg.SVGElementCreator;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
+import uk.co.danielrendall.mathlib.geom2d.Point;
+import uk.co.danielrendall.mathlib.geom2d.Vec;
 
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.*;
 import java.util.List;
 
@@ -38,6 +38,9 @@ public class FractalPanel extends JLayeredPane {
     private final SettingsPanel settingsPanel;
     private final JSVGCanvas canvas;
     private final ResultPanel resultPanel;
+
+    private final JProgressBar progressBar;
+    private final JPanel progressPanel;
 
     private final Map<String, String> overlayIdMap;
     private final Map<String, BoundingBox> overlayBoundingBoxes;
@@ -86,18 +89,26 @@ public class FractalPanel extends JLayeredPane {
         splitPane.add(canvasScrollPane, "svg");
         splitPane.add(new JScrollPane(resultPanel), "results");
         add(splitPane, JLayeredPane.DEFAULT_LAYER);
+
+        progressPanel = new JPanel(new BorderLayout());
+        progressBar = new JProgressBar();
+        progressBar.setPreferredSize(new Dimension(300, 28));
+        progressBar.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, SystemColor.controlHighlight, SystemColor.controlShadow));
+        progressPanel.add(progressBar, BorderLayout.CENTER);
+        progressPanel.setVisible(false);
+        add(progressPanel, JLayeredPane.MODAL_LAYER);
+
     }
 
     @Override
     public void setBounds(int x, int y, int width, int height) {
         splitPane.setBounds(0, 0, width, height);
-        super.setBounds(x, y, width, height);
-    }
+        Point center = new Point (x + width / 2, y + height / 2);
+        Dimension preferredSize = progressPanel.getPreferredSize();
+        Point location = center.displace(new Vec(preferredSize.width, preferredSize.height).scale(-0.5d));
 
-    @Override
-    public void setBounds(Rectangle r) {
-        splitPane.setBounds(0, 0, r.width, r.height);
-        super.setBounds(r);
+        progressPanel.setBounds((int)location.x(), (int)location.y(), preferredSize.width, preferredSize.height);
+        super.setBounds(x, y, width, height);
     }
 
     public void updateDocument(FractalDocument doc) {
