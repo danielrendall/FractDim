@@ -49,7 +49,6 @@ public class SquareCounterBuilder {
 
     public SquareCounter build() {
         GridCollectionBuilder builder = new GridCollectionBuilder();
-//        if (svgWithMetadata == null) throw new IllegalStateException("Can't build - no svgWithMetadata");
         for (angleIterator.reset(); angleIterator.hasNext();) {
             double angle = angleIterator.next();
             for (resolutionIterator.reset(); resolutionIterator.hasNext();) {
