@@ -48,7 +48,7 @@ public class CalculateStatisticsWorker extends SwingWorker<Statistics, Integer> 
         publish((int) (100 * ((double) (progress - minProgress) / (double) (maxProgress - minProgress))));
     }
 
-//    @Override
+    @Override
     protected void process(List<Integer> chunks) {
         if (useful && !Thread.currentThread().isInterrupted()) {
             try {

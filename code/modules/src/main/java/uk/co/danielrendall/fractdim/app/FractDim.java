@@ -1,10 +1,8 @@
 package uk.co.danielrendall.fractdim.app;
 
-import org.apache.batik.swing.JSVGCanvas;
 import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.MainWindow;
-import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.logging.Log;
 
@@ -30,18 +28,20 @@ public class FractDim {
     private final static int DEFAULT_HEIGHT = 768;
 
     private final MainWindow window;
-    private final JFileChooser chooser;
+    private final JFileChooser openFileChooser;
+    private final JFileChooser exportFileChooser;
     private final Map<FractalPanel, FractalController> controllers = new HashMap<FractalPanel, FractalController>();
     private FractalController currentController = null;
 
     private final Preferences prefs;
 
     private static AtomicInteger ID = new AtomicInteger(1);
-    private final String PREF_INITIAL_DIRECTORY = "initial.directory";
-    private final String PREF_INITIAL_SCREEN_X = "initial.screenx";
-    private final String PREF_INITIAL_SCREEN_Y = "initial.screeny";
-    private final String PREF_INITIAL_WIDTH = "initial.width";
-    private final String PREF_INITIAL_HEIGHT = "initial.height";
+    private final String PREF_DIRECTORY_SVG = "initial.directory.svg";
+    private final String PREF_DIRECTORY_XLS = "initial.directory.xls";
+    private final String PREF_SCREEN_X = "initial.screenx";
+    private final String PREF_SCREEN_Y = "initial.screeny";
+    private final String PREF_WIDTH = "initial.width";
+    private final String PREF_HEIGHT = "initial.height";
 
     public static void main(String[] args) throws Exception {
         System.out.println("Fractal Dimension Calculator");
@@ -64,13 +64,19 @@ public class FractDim {
     public FractDim() {
         window = new MainWindow();
         prefs = Preferences.userRoot().node("/uk/co/danielrendall/fractdim");
-        String initialDirectory = prefs.get(PREF_INITIAL_DIRECTORY, System.getProperty("user.home"));
-        File initialDir = new File(initialDirectory);
-        if (initialDir.exists()) {
-            chooser = new JFileChooser(initialDir);
+        File svgDir = new File(prefs.get(PREF_DIRECTORY_SVG, System.getProperty("user.home")));
+        if (svgDir.exists()) {
+            openFileChooser = new JFileChooser(svgDir);
         } else {
-            chooser = new JFileChooser();
+            openFileChooser = new JFileChooser();
         }
+        File xlsDir = new File(prefs.get(PREF_DIRECTORY_XLS, svgDir.getAbsolutePath()));
+        if (xlsDir.exists()) {
+            exportFileChooser = new JFileChooser(xlsDir);
+        } else {
+            exportFileChooser = new JFileChooser();
+        }
+
     }
     
     private void run(String[] args) {
@@ -78,8 +84,8 @@ public class FractDim {
         int xCenter = (int)(d.getWidth() / 2.0d);
         int yCenter = (int)(d.getHeight() / 2.0d);
 
-        int width = prefs.getInt(PREF_INITIAL_WIDTH, DEFAULT_WIDTH);
-        int height = prefs.getInt(PREF_INITIAL_HEIGHT, DEFAULT_HEIGHT);
+        int width = prefs.getInt(PREF_WIDTH, DEFAULT_WIDTH);
+        int height = prefs.getInt(PREF_HEIGHT, DEFAULT_HEIGHT);
 
         if ((width < 100) || (height < 100)) {
             width = DEFAULT_WIDTH;
@@ -89,8 +95,8 @@ public class FractDim {
         int defaultLeft = xCenter - (width / 2);
         int defaultTop = yCenter - (height / 2);
 
-        int left = prefs.getInt(PREF_INITIAL_SCREEN_X, defaultLeft);
-        int top = prefs.getInt(PREF_INITIAL_SCREEN_Y, defaultTop);
+        int left = prefs.getInt(PREF_SCREEN_X, defaultLeft);
+        int top = prefs.getInt(PREF_SCREEN_Y, defaultTop);
 
         window.setBounds(left, top, width, height);
         window.setVisible(true);
@@ -136,19 +142,32 @@ public class FractDim {
 //        }
 //    }
 
+    public File getExportFile() {
+        exportFileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xls"));
+        int returnVal = exportFileChooser.showSaveDialog(window);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = exportFileChooser.getSelectedFile();
+            Log.app.debug("Chosen file: " +
+                selectedFile.getName());
+            prefs.put(PREF_DIRECTORY_XLS, selectedFile.getParent());
+            return selectedFile;
+        }
+        return null;
+    }
+
 
     public void openFile(ActionEvent e) {
         Log.app.debug("Open File");
-        chooser.setFileFilter(new FileNameExtensionFilter("SVG Files", "svg"));
-        int returnVal = chooser.showOpenDialog(window);
+        openFileChooser.setFileFilter(new FileNameExtensionFilter("SVG Files", "svg"));
+        int returnVal = openFileChooser.showOpenDialog(window);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = chooser.getSelectedFile();
+            File selectedFile = openFileChooser.getSelectedFile();
             Log.app.debug("Chosen file: " +
                 selectedFile.getName());
             try {
                 FractalController controller = FractalController.fromFile(selectedFile);
                 add(controller);
-                prefs.put(PREF_INITIAL_DIRECTORY, selectedFile.getParent());
+                prefs.put(PREF_DIRECTORY_SVG, selectedFile.getParent());
             } catch (IOException ex) {
                 Log.app.warn("Unable to load document: " + ex.getMessage());
             }
@@ -160,10 +179,10 @@ public class FractDim {
         Log.app.debug("Quit");
         Rectangle bounds = window.getBounds();
 
-        prefs.putInt(PREF_INITIAL_SCREEN_X, bounds.x);
-        prefs.putInt(PREF_INITIAL_SCREEN_Y, bounds.y);
-        prefs.putInt(PREF_INITIAL_WIDTH, bounds.width);
-        prefs.putInt(PREF_INITIAL_HEIGHT, bounds.height);
+        prefs.putInt(PREF_SCREEN_X, bounds.x);
+        prefs.putInt(PREF_SCREEN_Y, bounds.y);
+        prefs.putInt(PREF_WIDTH, bounds.width);
+        prefs.putInt(PREF_HEIGHT, bounds.height);
         window.close();
     }
 
@@ -221,4 +240,5 @@ public class FractDim {
     public static int newId() {
         return ID.getAndIncrement();
     }
+
 }

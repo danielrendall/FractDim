@@ -13,6 +13,7 @@ import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.DoubleRangeModel;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
+import uk.co.danielrendall.fractdim.app.workers.ExcelExportWorker;
 import uk.co.danielrendall.fractdim.app.workers.Notifiable;
 import uk.co.danielrendall.fractdim.app.workers.SquareCountingWorker;
 import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
@@ -42,7 +43,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class FractalController implements ParameterChangeListener, ResultPanelListener, Runnable {
 
-    private enum Status {NEW, DOC_LOADED, READY_FOR_COUNT, COUNTING_SQUARES, SQUARES_COUNTED};
+    private enum Status {NEW, DOC_LOADED, READY_FOR_COUNT, COUNTING_SQUARES, SQUARES_COUNTED, EXPORTING};
 
     private final static String CALC_STATS = "CalcStats";
     private final static String COUNT_SQUARES = "CountSquares";
@@ -267,6 +268,27 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         if (result == null) {
             Log.app.warn("Shouldn't be able to export if the result is null");
         }
+        File exportFile = FractDim.instance().getExportFile();
+        if (exportFile != null) {
+            panel.getSettingsPanel().disableAllControls();
+            panel.updateProgressBar(0);
+            panel.showProgressBar();
+            Log.app.debug("Exporting to " + exportFile.getAbsolutePath());
+            ExcelExportWorker eew = new ExcelExportWorker(result, exportFile, new Notifiable<ExcelExportWorker>() {
+                public void notifyComplete(ExcelExportWorker worker) {
+                    panel.getSettingsPanel().enableAllControls();
+                    panel.hideProgressBar();
+                    setStatus(Status.SQUARES_COUNTED);
+                }
+
+                public void updateProgress(int progress) {
+                    panel.updateProgressBar(progress);
+                }
+            });
+            setStatus(Status.EXPORTING);
+            eew.execute();
+            Log.app.info("Started excel export worker");
+        }
 
     }
 
@@ -299,8 +321,8 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
                 panel.updateProgressBar(progress);
             }
         });
-        scw.execute();
         setStatus(Status.COUNTING_SQUARES);
+        scw.execute();
         Log.calc.info("Started square counting worker");
     }
 
