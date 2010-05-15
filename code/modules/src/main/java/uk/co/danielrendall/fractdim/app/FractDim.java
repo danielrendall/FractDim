@@ -38,6 +38,10 @@ public class FractDim {
 
     private static AtomicInteger ID = new AtomicInteger(1);
     private final String PREF_INITIAL_DIRECTORY = "initial.directory";
+    private final String PREF_INITIAL_SCREEN_X = "initial.screenx";
+    private final String PREF_INITIAL_SCREEN_Y = "initial.screeny";
+    private final String PREF_INITIAL_WIDTH = "initial.width";
+    private final String PREF_INITIAL_HEIGHT = "initial.height";
 
     public static void main(String[] args) throws Exception {
         System.out.println("Fractal Dimension Calculator");
@@ -73,11 +77,23 @@ public class FractDim {
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         int xCenter = (int)(d.getWidth() / 2.0d);
         int yCenter = (int)(d.getHeight() / 2.0d);
-        int left = xCenter - (DEFAULT_WIDTH / 2);
-        int top = yCenter - (DEFAULT_HEIGHT / 2);
-        window.setBounds(left, top, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+
+        int width = prefs.getInt(PREF_INITIAL_WIDTH, DEFAULT_WIDTH);
+        int height = prefs.getInt(PREF_INITIAL_HEIGHT, DEFAULT_HEIGHT);
+
+        if ((width < 100) || (height < 100)) {
+            width = DEFAULT_WIDTH;
+            height = DEFAULT_HEIGHT;
+        }
+
+        int defaultLeft = xCenter - (width / 2);
+        int defaultTop = yCenter - (height / 2);
+
+        int left = prefs.getInt(PREF_INITIAL_SCREEN_X, defaultLeft);
+        int top = prefs.getInt(PREF_INITIAL_SCREEN_Y, defaultTop);
+
+        window.setBounds(left, top, width, height);
         window.setVisible(true);
-        int x=0;
     }
 
 //    public void generateNewFractal() {
@@ -142,7 +158,12 @@ public class FractDim {
 
     public void quit(ActionEvent e) {
         Log.app.debug("Quit");
-        // TODO - some cleanup
+        Rectangle bounds = window.getBounds();
+
+        prefs.putInt(PREF_INITIAL_SCREEN_X, bounds.x);
+        prefs.putInt(PREF_INITIAL_SCREEN_Y, bounds.y);
+        prefs.putInt(PREF_INITIAL_WIDTH, bounds.width);
+        prefs.putInt(PREF_INITIAL_HEIGHT, bounds.height);
         window.close();
     }
 
