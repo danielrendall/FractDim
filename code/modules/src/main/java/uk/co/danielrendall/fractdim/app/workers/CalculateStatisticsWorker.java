@@ -21,18 +21,18 @@ import java.util.List;
 public class CalculateStatisticsWorker extends SwingWorker<Statistics, Integer> implements ProgressListener {
 
     private boolean useful = true;
-    private final FractalController controller;
-    private final String taskId;
+    private final FractalDocument document;
+    private final Notifiable<CalculateStatisticsWorker> notifiable;
 
-    public CalculateStatisticsWorker(FractalController controller, String taskId) {
-        this.controller = controller;
-        this.taskId = taskId;
+    public CalculateStatisticsWorker(FractalDocument document, Notifiable<CalculateStatisticsWorker> notifiable) {
+        this.document = document;
+        this.notifiable = notifiable;
     }
 
     protected Statistics doInBackground() throws Exception {
         StatisticsCalculator sc = new StatisticsCalculatorBuilder().
             minAngle(StatisticsCalculator.TWO_DEGREES).
-            fractalDocument(controller.getDocument()).
+            fractalDocument(document).
                 build();
             sc.addProgressListener(this);
         try {
@@ -53,7 +53,7 @@ public class CalculateStatisticsWorker extends SwingWorker<Statistics, Integer> 
         if (useful && !Thread.currentThread().isInterrupted()) {
             try {
                 int last = chunks.get(chunks.size() - 1);
-                controller.updateProgress(taskId, last);
+                notifiable.updateProgress(last);
             } catch (Exception e) {
                 Log.thread.warn("Problem getting hold of view - " + e.getMessage());
             }
@@ -67,14 +67,10 @@ public class CalculateStatisticsWorker extends SwingWorker<Statistics, Integer> 
     protected void done() {
         try {
             if (useful && !Thread.currentThread().isInterrupted()) {
-//                controller.setStatistics(get());
+                notifiable.notifyComplete(this);
             } else {
                 useful = false;
             }
-//        } catch (InterruptedException e) {
-//            Log.thread.debug("Operation aborted");
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (Exception e) {
             Log.thread.warn("Problem getting hold of view - " + e.getMessage());
         }

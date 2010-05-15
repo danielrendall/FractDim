@@ -1,5 +1,7 @@
 package uk.co.danielrendall.fractdim.app.workers;
 
+import javax.swing.*;
+
 /**
  * Created by IntelliJ IDEA.
  * User: daniel
@@ -7,7 +9,9 @@ package uk.co.danielrendall.fractdim.app.workers;
  * Time: 22:14:03
  * To change this template use File | Settings | File Templates.
  */
-public interface Notifiable {
+public interface Notifiable<T extends SwingWorker> {
 
-    void notifyComplete(NotifyingWorker worker);
+    void notifyComplete(T worker);
+
+    void updateProgress(int progress);
 }

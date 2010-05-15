@@ -25,22 +25,22 @@ import java.util.concurrent.ExecutionException;
 public class SquareCountingWorker extends SwingWorker<SquareCountingResult, Integer> implements ProgressListener {
 
     private boolean useful = true;
-    private final FractalController controller;
+    private final FractalDocument document;
     private final double minimumSquareSize;
     private final double maximumSquareSize;
     private final int numberOfResolutions;
     private final int numberOfAngles;
     private final int numberOfDisplacements;
-    private final String taskId;
+    private final Notifiable<SquareCountingWorker> notifiable;
 
-    public SquareCountingWorker(FractalController controller, double minimumSquareSize, double maximumSquareSize, int numberOfResolutions, int numberOfAngles, int numberOfDisplacements, String taskId) {
-        this.controller = controller;
+    public SquareCountingWorker(FractalDocument document, double minimumSquareSize, double maximumSquareSize, int numberOfResolutions, int numberOfAngles, int numberOfDisplacements, Notifiable<SquareCountingWorker> notifiable) {
+        this.document = document;
         this.minimumSquareSize = minimumSquareSize;
         this.maximumSquareSize = maximumSquareSize;
         this.numberOfResolutions = numberOfResolutions;
         this.numberOfAngles = numberOfAngles;
         this.numberOfDisplacements = numberOfDisplacements;
-        this.taskId = taskId;
+        this.notifiable = notifiable;
     }
 
     protected SquareCountingResult doInBackground() throws Exception {
@@ -50,7 +50,7 @@ public class SquareCountingWorker extends SwingWorker<SquareCountingResult, Inte
                 angleIterator(new UniformAngleIterator(numberOfAngles)).
                 resolutionIterator(new LogarithmicResolutionIterator(minimumSquareSize, maximumSquareSize, numberOfResolutions)).
                 displacementIterator(new UniformDisplacementIterator(numberOfDisplacements)).
-                fractalDocument(controller.getDocument());
+                fractalDocument(document);
 
 
         SquareCounter sc = builder.build();
@@ -73,7 +73,7 @@ public class SquareCountingWorker extends SwingWorker<SquareCountingResult, Inte
         if (useful && !Thread.currentThread().isInterrupted()) {
             try {
                 int last = chunks.get(chunks.size() - 1);
-                controller.updateProgress(taskId, last);
+                notifiable.updateProgress(last);
             } catch (Exception e) {
                 Log.thread.warn("Problem getting hold of view - " + e.getMessage());
             }
@@ -87,14 +87,10 @@ public class SquareCountingWorker extends SwingWorker<SquareCountingResult, Inte
     protected void done() {
         try {
             if (useful && !Thread.currentThread().isInterrupted()) {
-                controller.setSquareCountingResult(get());
+                notifiable.notifyComplete(this);
             } else {
                 useful = false;
             }
-        } catch (InterruptedException e) {
-            Log.thread.debug("Operation aborted");
-        } catch (ExecutionException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (Exception e) {
             Log.thread.warn("Problem getting hold of view - " + e.getMessage());
         }

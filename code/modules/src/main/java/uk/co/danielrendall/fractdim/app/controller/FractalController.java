@@ -13,6 +13,7 @@ import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.DoubleRangeModel;
 import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
+import uk.co.danielrendall.fractdim.app.workers.Notifiable;
 import uk.co.danielrendall.fractdim.app.workers.SquareCountingWorker;
 import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
@@ -30,6 +31,7 @@ import java.io.*;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -65,6 +67,8 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     private final Thread controllerThread;
 
     private final Queue<Runnable> jobs;
+
+    private SquareCountingResult result = null;
 
     private volatile boolean shouldQuit = false;
 
@@ -218,18 +222,6 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         }
     }
 
-//    public void setStatistics(Statistics statistics) {
-//        if (status == Status.DOC_LOADED) {
-//            // todo - some nicer way of selecting the algorithm for this...
-//
-//            status = Status.STATS_CALCULATED;
-//            FractDim.instance().updateGlobal(this);
-//        } else {
-//            Log.app.warn("Wasn't expecting statistics when status was " + status);
-//        }
-//    }
-
-
     public FractalDocument getDocument() {
         return document;
     }
@@ -272,7 +264,10 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     }
 
     public void actionFileExport() {
-        Log.gui.debug("Export file");
+        if (result == null) {
+            Log.app.warn("Shouldn't be able to export if the result is null");
+        }
+
     }
 
     public void actionCloseFile() {
@@ -284,24 +279,29 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         panel.getSettingsPanel().disableAllControls();
         panel.updateProgressBar(0);
         panel.showProgressBar();
-        SquareCountingWorker scw = new SquareCountingWorker(this, squareSizeModel.getLowerValue(), squareSizeModel.getMaximum(), resolutionModel.getValue(), angleModel.getValue(), displacementModel.getValue(), COUNT_SQUARES);
+        SquareCountingWorker scw = new SquareCountingWorker(document, squareSizeModel.getLowerValue(), squareSizeModel.getMaximum(), resolutionModel.getValue(), angleModel.getValue(), displacementModel.getValue(), new Notifiable<SquareCountingWorker>() {
+            public void notifyComplete(SquareCountingWorker worker) {
+                Log.calc.info("Square counting worker reported");
+                try {
+                    result = worker.get();
+                    panel.getSettingsPanel().enableAllControls();
+                    panel.getResultPanel().update(result);
+                    panel.hideProgressBar();
+                    setStatus(Status.SQUARES_COUNTED);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                } catch (ExecutionException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+            }
+
+            public void updateProgress(int progress) {
+                panel.updateProgressBar(progress);
+            }
+        });
         scw.execute();
         setStatus(Status.COUNTING_SQUARES);
         Log.calc.info("Started square counting worker");
-    }
-    
-
-    public void setSquareCountingResult(SquareCountingResult squareCountingResult) {
-        Log.calc.info("Square counting worker reported");
-        panel.getSettingsPanel().enableAllControls();
-        panel.getResultPanel().update(squareCountingResult);
-        panel.hideProgressBar();
-        setStatus(Status.SQUARES_COUNTED);
-    }
-
-    public void updateProgress(String taskId, int progress) {
-//        Log.calc.debug("Task " + taskId + " progress " + progress);
-        panel.updateProgressBar(progress);
     }
 
 
