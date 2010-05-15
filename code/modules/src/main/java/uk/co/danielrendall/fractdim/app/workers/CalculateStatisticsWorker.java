@@ -7,6 +7,7 @@ import uk.co.danielrendall.fractdim.calculation.Statistics;
 import uk.co.danielrendall.fractdim.calculation.StatisticsCalculatorBuilder;
 import uk.co.danielrendall.fractdim.logging.Log;
 
+import javax.swing.*;
 import java.util.concurrent.ExecutionException;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * Time: 10:56:13
  * To change this template use File | Settings | File Templates.
  */
-public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integer> implements ProgressListener {
+public class CalculateStatisticsWorker extends SwingWorker<Statistics, Integer> implements ProgressListener {
 
     private boolean useful = true;
     private final FractalController controller;
@@ -43,7 +44,7 @@ public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integ
         }
     }
 
-    public void notifyProgress(int minProgress, int progress, int maxProgress) {
+    public void updateProgress(int minProgress, int progress, int maxProgress) {
         publish((int) (100 * ((double) (progress - minProgress) / (double) (maxProgress - minProgress))));
     }
 
@@ -63,7 +64,7 @@ public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integ
     }
 
     @Override
-    protected void doDone() {
+    protected void done() {
         try {
             if (useful && !Thread.currentThread().isInterrupted()) {
 //                controller.setStatistics(get());

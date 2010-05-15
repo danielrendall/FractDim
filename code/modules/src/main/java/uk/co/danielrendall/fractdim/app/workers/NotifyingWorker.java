@@ -11,6 +11,7 @@ import java.util.HashSet;
  * Time: 21:46:04
  * To change this template use File | Settings | File Templates.
  */
+@Deprecated
 public abstract class NotifyingWorker<T, V> extends SwingWorker<T,V> {
 
     protected final Set<Notifiable> notifiables;

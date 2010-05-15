@@ -10,6 +10,7 @@ import uk.co.danielrendall.fractdim.calculation.iterators.UniformDisplacementIte
 import uk.co.danielrendall.fractdim.calculation.iterators.UniformResolutionIterator;
 import uk.co.danielrendall.fractdim.logging.Log;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -20,7 +21,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 17:41:23
  * To change this template use File | Settings | File Templates.
  */
-public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, Integer> implements ProgressListener {
+public class SquareCountingWorker extends SwingWorker<SquareCountingResult, Integer> implements ProgressListener {
 
     private boolean useful = true;
     private final FractalController controller;
@@ -29,14 +30,16 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
     private final int numberOfResolutions;
     private final int numberOfAngles;
     private final int numberOfDisplacements;
+    private final String taskId;
 
-    public SquareCountingWorker(FractalController controller, double minimumSquareSize, double maximumSquareSize, int numberOfResolutions, int numberOfAngles, int numberOfDisplacements) {
+    public SquareCountingWorker(FractalController controller, double minimumSquareSize, double maximumSquareSize, int numberOfResolutions, int numberOfAngles, int numberOfDisplacements, String taskId) {
         this.controller = controller;
         this.minimumSquareSize = minimumSquareSize;
         this.maximumSquareSize = maximumSquareSize;
         this.numberOfResolutions = numberOfResolutions;
         this.numberOfAngles = numberOfAngles;
         this.numberOfDisplacements = numberOfDisplacements;
+        this.taskId = taskId;
     }
 
     protected SquareCountingResult doInBackground() throws Exception {
@@ -60,7 +63,7 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
         }
     }
 
-    public void notifyProgress(int minProgress, int progress, int maxProgress) {
+    public void updateProgress(int minProgress, int progress, int maxProgress) {
         publish((int) (100 * ((double) (progress - minProgress) / (double) (maxProgress - minProgress))));
     }
 
@@ -69,8 +72,7 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
         if (useful && !Thread.currentThread().isInterrupted()) {
             try {
                 int last = chunks.get(chunks.size() - 1);
-//                FDView view = (FDView) document.getView(0);
-//                view.updateProgressBar(last);
+                controller.updateProgress(taskId, last);
             } catch (Exception e) {
                 Log.thread.warn("Problem getting hold of view - " + e.getMessage());
             }
@@ -81,7 +83,7 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
     }
 
     @Override
-    protected void doDone() {
+    protected void done() {
         try {
             if (useful && !Thread.currentThread().isInterrupted()) {
                 controller.setSquareCountingResult(get());

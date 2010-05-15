@@ -9,5 +9,5 @@ package uk.co.danielrendall.fractdim.app.workers;
  */
 public interface ProgressListener {
 
-    void notifyProgress(int minProgress, int progress, int maxProgress);
+    void updateProgress(int minProgress, int progress, int maxProgress);
 }

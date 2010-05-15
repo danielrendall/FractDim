@@ -91,7 +91,7 @@ public class FractalPanel extends JLayeredPane {
         add(splitPane, JLayeredPane.DEFAULT_LAYER);
 
         progressPanel = new JPanel(new BorderLayout());
-        progressBar = new JProgressBar();
+        progressBar = new JProgressBar(0, 100);
         progressBar.setPreferredSize(new Dimension(300, 28));
         progressBar.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, SystemColor.controlHighlight, SystemColor.controlShadow));
         progressPanel.add(progressBar, BorderLayout.CENTER);
@@ -235,5 +235,17 @@ public class FractalPanel extends JLayeredPane {
 
     public ResultPanel getResultPanel() {
         return resultPanel;
+    }
+
+    public void showProgressBar() {
+        progressPanel.setVisible(true);
+    }
+
+    public void updateProgressBar(int value) {
+        progressBar.setValue(value);
+    }
+
+    public void hideProgressBar() {
+        progressPanel.setVisible(false);
     }
 }

@@ -43,6 +43,7 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     private enum Status {NEW, DOC_LOADED, READY_FOR_COUNT, COUNTING_SQUARES, SQUARES_COUNTED};
 
     private final static String CALC_STATS = "CalcStats";
+    private final static String COUNT_SQUARES = "CountSquares";
     private final static String RESULT_GRID = "ResultGrid";
     private final static String MIN_GRID = "MinGrid";
     private final static String MAX_GRID = "MaxGrid";
@@ -115,6 +116,8 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         String threadName = "Controller: " + document.getName();
         controllerThread.setName(threadName);
         controllerThread.start();
+        panel.updateProgressBar(0);
+        panel.showProgressBar();
         addToQueue(new Runnable() {
             public void run() {
                 generateMetaData();
@@ -140,6 +143,7 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     private void generateMetaData() {
         checkControllerThread();
         Log.thread.debug("Generating metadata");
+        panel.updateProgressBar(33);
         FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(document.getSvgDoc());
         document.setMetadata(metadata);
         BoundingBox box = metadata.getBoundingBox();
@@ -155,16 +159,7 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         this.angleModel = new DefaultBoundedRangeModel(1, 0, 1, 10);
         this.displacementModel = new DefaultBoundedRangeModel(1, 0, 1, 3);
         this.status = Status.DOC_LOADED;
-        addToQueue(new Runnable() {
-            public void run() {
-                populateSettingsPanel();
-            }
-        });
-        // All the setting up of the panel etc. will be done in the controller thread.
-    }
 
-    private void populateSettingsPanel() {
-        checkControllerThread();
         Log.thread.debug("Populating settings panel");
         SettingsPanel settingsPanel = panel.getSettingsPanel();
         squareSizeModel.addChangeListener(new SimpleChangeListener(FractalController.this, SQUARE_SIZES));
@@ -179,10 +174,15 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         displacementModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_DISPLACEMENTS));
         settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
 
+        panel.updateProgressBar(66);
         panel.updateDocument(document);
         updateGrids();
+        panel.updateProgressBar(100);
+        panel.hideProgressBar();
         setStatus(Status.READY_FOR_COUNT);
+        // All the setting up of the panel etc. will be done in the controller thread.
     }
+
 
     private synchronized void addToQueue(Runnable r) {
         jobs.add(r);
@@ -263,23 +263,28 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
 
     public void actionCalculateFractalDimension() {
         panel.getSettingsPanel().disableAllControls();
-        SquareCountingWorker scw = new SquareCountingWorker(this, squareSizeModel.getLowerValue(), squareSizeModel.getMaximum(), resolutionModel.getValue(), angleModel.getValue(), displacementModel.getValue());
+        panel.updateProgressBar(0);
+        panel.showProgressBar();
+        SquareCountingWorker scw = new SquareCountingWorker(this, squareSizeModel.getLowerValue(), squareSizeModel.getMaximum(), resolutionModel.getValue(), angleModel.getValue(), displacementModel.getValue(), COUNT_SQUARES);
         scw.execute();
         setStatus(Status.COUNTING_SQUARES);
         Log.calc.info("Started square counting worker");
     }
     
-    public void updateProgress(String taskId, int progress) {
-        Log.calc.debug("Task " + taskId + " progress " + progress);
-    }
-
 
     public void setSquareCountingResult(SquareCountingResult squareCountingResult) {
         Log.calc.info("Square counting worker reported");
         panel.getSettingsPanel().enableAllControls();
         panel.getResultPanel().update(squareCountingResult);
+        panel.hideProgressBar();
         setStatus(Status.SQUARES_COUNTED);
     }
+
+    public void updateProgress(String taskId, int progress) {
+//        Log.calc.debug("Task " + taskId + " progress " + progress);
+        panel.updateProgressBar(progress);
+    }
+
 
     private void updateGrids() {
         checkControllerThread();

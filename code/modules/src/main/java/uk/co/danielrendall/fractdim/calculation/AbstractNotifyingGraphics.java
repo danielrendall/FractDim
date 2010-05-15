@@ -9,8 +9,6 @@ import uk.co.danielrendall.mathlib.geom2d.ParametricCurve;
 import java.util.List;
 import java.util.LinkedList;
 
-import org.w3c.dom.svg.SVGDocument;
-
 /**
  * Created by IntelliJ IDEA.
  * User: daniel
@@ -38,7 +36,7 @@ public abstract class AbstractNotifyingGraphics extends FDGraphics2D {
         doHandleCurve(curve);
         curves++;
         for (ProgressListener listener : listeners) {
-            listener.notifyProgress(0, curves, numberOfCurves);
+            listener.updateProgress(0, curves, numberOfCurves);
         }
         if (Thread.currentThread().isInterrupted()) {
             throw new OperationAbortedException();
