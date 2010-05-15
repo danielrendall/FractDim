@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.prefs.Preferences;
 
 /**
  * Run Fractal Dimension as a GUI app
@@ -33,7 +34,10 @@ public class FractDim {
     private final Map<FractalPanel, FractalController> controllers = new HashMap<FractalPanel, FractalController>();
     private FractalController currentController = null;
 
+    private final Preferences prefs;
+
     private static AtomicInteger ID = new AtomicInteger(1);
+    private final String PREF_INITIAL_DIRECTORY = "initial.directory";
 
     public static void main(String[] args) throws Exception {
         System.out.println("Fractal Dimension Calculator");
@@ -55,8 +59,14 @@ public class FractDim {
     }
     public FractDim() {
         window = new MainWindow();
-//        chooser = new JFileChooser("/home/daniel/Development/FractDim/resources/samples");
-        chooser = new JFileChooser("/home/daniel/Development/FractDim/code/modules/src/test/resources/svg");
+        prefs = Preferences.userRoot().node("/uk/co/danielrendall/fractdim");
+        String initialDirectory = prefs.get(PREF_INITIAL_DIRECTORY, System.getProperty("user.home"));
+        File initialDir = new File(initialDirectory);
+        if (initialDir.exists()) {
+            chooser = new JFileChooser(initialDir);
+        } else {
+            chooser = new JFileChooser();
+        }
     }
     
     private void run(String[] args) {
@@ -122,6 +132,7 @@ public class FractDim {
             try {
                 FractalController controller = FractalController.fromFile(selectedFile);
                 add(controller);
+                prefs.put(PREF_INITIAL_DIRECTORY, selectedFile.getParent());
             } catch (IOException ex) {
                 Log.app.warn("Unable to load document: " + ex.getMessage());
             }
