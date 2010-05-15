@@ -99,6 +99,12 @@
             <artifactId>jide-oss</artifactId>
             <version>2.9.0</version>
         </dependency>
+        <!-- TODO - maybe migrate to a proper application framework? -->
+        <!--<dependency>-->
+            <!--<groupId>org.jdesktop.bsaf</groupId>-->
+            <!--<artifactId>bsaf</artifactId>-->
+            <!--<version>1.9RC4</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>

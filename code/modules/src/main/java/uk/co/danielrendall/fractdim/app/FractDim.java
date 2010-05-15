@@ -139,12 +139,14 @@ public class FractDim {
         FractalPanel panel = controller.getPanel();
         controllers.put(panel, controller);
         window.addTab(document.getName(), panel);
+        controller.notifyAdded();
     }
 
     public void remove(FractalController controller) {
         FractalPanel panel = controller.getPanel();
         window.removeTab(panel);
         controllers.remove(panel);
+        controller.notifyRemoved();
     }
 
     /**

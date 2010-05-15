@@ -19,6 +19,9 @@ import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.*;
 import java.util.List;
 
@@ -29,8 +32,9 @@ import java.util.List;
  * Time: 21:08:57
  * To change this template use File | Settings | File Templates.
  */
-public class FractalPanel extends JXMultiSplitPane {
+public class FractalPanel extends JLayeredPane {
 
+    private final JXMultiSplitPane splitPane;
     private final SettingsPanel settingsPanel;
     private final JSVGCanvas canvas;
     private final ResultPanel resultPanel;
@@ -75,11 +79,28 @@ public class FractalPanel extends JXMultiSplitPane {
 
         MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
         msl.setFloatingDividers(true);
-        this.setLayout(msl);
 
-        this.add(settingsPanel, "settings");
-        this.add(canvasScrollPane, "svg");
-        this.add(new JScrollPane(resultPanel), "results");
+        splitPane = new JXMultiSplitPane(msl);
+
+        splitPane.add(settingsPanel, "settings");
+        splitPane.add(canvasScrollPane, "svg");
+        splitPane.add(new JScrollPane(resultPanel), "results");
+
+    }
+
+    public void notifyAdded() {
+
+        Rectangle bounds = getParent().getBounds();
+        Log.gui.debug(String.format("Parent has bounds %s", bounds));
+        getParent().addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Rectangle b = e.getComponent().getBounds();
+                splitPane.setBounds(0, 0, b.width, b.height);
+            }
+        });
+        splitPane.setBounds(0, 0, bounds.width, bounds.height);
+        this.add(splitPane, JLayeredPane.DEFAULT_LAYER);
     }
 
     public void updateDocument(FractalDocument doc) {
@@ -206,6 +227,4 @@ public class FractalPanel extends JXMultiSplitPane {
     public ResultPanel getResultPanel() {
         return resultPanel;
     }
-    
-
 }

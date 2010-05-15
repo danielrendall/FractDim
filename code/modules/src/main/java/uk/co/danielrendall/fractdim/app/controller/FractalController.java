@@ -97,7 +97,6 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     public static FractalController fromDocument(SVGDocument doc, String name) {
         FractalDocument document = new FractalDocument(doc, name);
         FractalController controller = new FractalController(document);
-        controller.initialise("Controller: " + name);
         return controller;
     }
 
@@ -112,7 +111,8 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
 
     }
 
-    private void initialise(String threadName) {
+    public void notifyAdded() {
+        String threadName = "Controller: " + document.getName();
         controllerThread.setName(threadName);
         controllerThread.start();
         addToQueue(new Runnable() {
@@ -120,7 +120,20 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
                 generateMetaData();
             }
         });
+        panel.notifyAdded();
     }
+
+    public void notifyRemoved() {
+        shouldQuit = true;
+        controllerThread.interrupt();
+        try {
+            controllerThread.join();
+            Log.thread.info("Joined controller thread");
+        } catch (InterruptedException e) {
+            Log.thread.warn("Couldn't join controller thread - " + e.getMessage());
+        }
+    }
+
     private void generateMetaData() {
         checkControllerThread();
         Log.thread.debug("Generating metadata");
@@ -243,14 +256,6 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     public void actionCloseFile() {
         // TODO - check we're in a fit state to close
         FractDim.instance().remove(this);
-        shouldQuit = true;
-        controllerThread.interrupt();
-        try {
-            controllerThread.join();
-            Log.thread.info("Joined controller thread");
-        } catch (InterruptedException e) {
-            Log.thread.warn("Couldn't join controller thread - " + e.getMessage());
-        }
     }
 
     public void actionCalculateFractalDimension() {
