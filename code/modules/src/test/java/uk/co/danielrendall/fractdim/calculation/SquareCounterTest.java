@@ -379,7 +379,7 @@ public class SquareCounterTest {
 
             SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(startX, startY).rotate(Math.PI / 90d), new Point(endX, endY).rotate(Math.PI / 90d), 3);
             FractalController controller =  FractalController.fromDocument(svg, "Test " + i);
-            FractalDocument fractalDocument = controller.getClonedDocument();
+            FractalDocument fractalDocument = controller.getDocument();
 
             try {
                 // Prepare the DOM document for writing

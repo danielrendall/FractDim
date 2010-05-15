@@ -22,7 +22,7 @@ public class StatisticsCalculatorTest {
     public void testStatisticsForCubic() throws IOException {
         InputStream is = StatisticsCalculatorTest.class.getResourceAsStream("/svg/single_cubic.svg");
         FractalController controller =  FractalController.fromInputStream(is);
-        FractalDocument fractalDocument = controller.getClonedDocument();
+        FractalDocument fractalDocument = controller.getDocument();
 
         Log.geom.debug("Approximate bounding box: " + fractalDocument.getMetadata().getBoundingBox());
         Log.geom.debug("Number of curves: " + fractalDocument.getMetadata().getCurveCount());

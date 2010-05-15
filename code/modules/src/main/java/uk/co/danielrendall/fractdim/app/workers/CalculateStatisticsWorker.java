@@ -31,7 +31,7 @@ public class CalculateStatisticsWorker extends NotifyingWorker<Statistics, Integ
     protected Statistics doInBackground() throws Exception {
         StatisticsCalculator sc = new StatisticsCalculatorBuilder().
             minAngle(StatisticsCalculator.TWO_DEGREES).
-            fractalDocument(controller.getClonedDocument()).
+            fractalDocument(controller.getDocument()).
                 build();
             sc.addProgressListener(this);
         try {

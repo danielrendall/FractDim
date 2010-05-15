@@ -56,10 +56,10 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     private final FractalDocument document;
     private final FractalPanel panel;
 
-    private final DoubleRangeModel squareSizeModel;
-    private final BoundedRangeModel resolutionModel;
-    private final BoundedRangeModel angleModel;
-    private final BoundedRangeModel displacementModel;
+    private DoubleRangeModel squareSizeModel;
+    private BoundedRangeModel resolutionModel;
+    private BoundedRangeModel angleModel;
+    private BoundedRangeModel displacementModel;
 
     private final Thread controllerThread;
 
@@ -95,9 +95,7 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     }
 
     public static FractalController fromDocument(SVGDocument doc, String name) {
-        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(Utilities.cloneSVGDocument(doc));
-        FractalDocument document = new FractalDocument(doc, metadata);
-        document.setName(name);
+        FractalDocument document = new FractalDocument(doc, name);
         FractalController controller = new FractalController(document);
         controller.initialise("Controller: " + name);
         return controller;
@@ -112,7 +110,23 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         this.controllerThread = new Thread(this);
         this.controllerThread.setDaemon(true);
 
-        BoundingBox box = document.getMetadata().getBoundingBox();
+    }
+
+    private void initialise(String threadName) {
+        controllerThread.setName(threadName);
+        controllerThread.start();
+        addToQueue(new Runnable() {
+            public void run() {
+                generateMetaData();
+            }
+        });
+    }
+    private void generateMetaData() {
+        checkControllerThread();
+        Log.thread.debug("Generating metadata");
+        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(document.getSvgDoc());
+        document.setMetadata(metadata);
+        BoundingBox box = metadata.getBoundingBox();
         double maximumBoxSize = Math.min(box.getWidth(), box.getHeight());
         double minimumBoxSize = maximumBoxSize / 50.0d;
 
@@ -125,33 +139,33 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         this.angleModel = new DefaultBoundedRangeModel(1, 0, 1, 10);
         this.displacementModel = new DefaultBoundedRangeModel(1, 0, 1, 3);
         this.status = Status.DOC_LOADED;
+        addToQueue(new Runnable() {
+            public void run() {
+                populateSettingsPanel();
+            }
+        });
         // All the setting up of the panel etc. will be done in the controller thread.
     }
 
-    private void initialise(String threadName) {
-        controllerThread.setName(threadName);
-        controllerThread.start();
-        addToQueue(new Runnable() {
-            public void run() {
-                Log.thread.debug("Populating settings panel");
-                SettingsPanel settingsPanel = panel.getSettingsPanel();
-                squareSizeModel.addChangeListener(new SimpleChangeListener(FractalController.this, SQUARE_SIZES));
-                settingsPanel.setDataModelForParameter(SQUARE_SIZES, squareSizeModel, 0);
+    private void populateSettingsPanel() {
+        checkControllerThread();
+        Log.thread.debug("Populating settings panel");
+        SettingsPanel settingsPanel = panel.getSettingsPanel();
+        squareSizeModel.addChangeListener(new SimpleChangeListener(FractalController.this, SQUARE_SIZES));
+        settingsPanel.setDataModelForParameter(SQUARE_SIZES, squareSizeModel, 0);
 
-                resolutionModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_RESOLUTIONS));
-                settingsPanel.setDataModelForParameter(NUMBER_RESOLUTIONS, resolutionModel, 1);
+        resolutionModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_RESOLUTIONS));
+        settingsPanel.setDataModelForParameter(NUMBER_RESOLUTIONS, resolutionModel, 1);
 
-                angleModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_ANGLES));
-                settingsPanel.setDataModelForParameter(NUMBER_ANGLES, angleModel, 1);
+        angleModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_ANGLES));
+        settingsPanel.setDataModelForParameter(NUMBER_ANGLES, angleModel, 1);
 
-                displacementModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_DISPLACEMENTS));
-                settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
+        displacementModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_DISPLACEMENTS));
+        settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
 
-                panel.updateDocument(getClonedDocument());
-                updateGrids();
-                setStatus(Status.READY_FOR_COUNT);
-            }
-        });
+        panel.updateDocument(document);
+        updateGrids();
+        setStatus(Status.READY_FOR_COUNT);
     }
 
     private synchronized void addToQueue(Runnable r) {
@@ -196,10 +210,6 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
 
     public FractalDocument getDocument() {
         return document;
-    }
-
-    public FractalDocument getClonedDocument() {
-        return document.clone();
     }
 
     public FractalPanel getPanel() {

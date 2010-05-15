@@ -15,23 +15,24 @@ import uk.co.danielrendall.fractdim.svg.Utilities;
 public class FractalDocument {
 
     private final SVGDocument svgDoc;
-    private final FractalDocumentMetadata metadata;
-    private String name;
+    private final String name;
+    private FractalDocumentMetadata metadata;
     private SquareCountingResult squareCountingResult;
 
-    public FractalDocument(SVGDocument svgDoc, FractalDocumentMetadata metadata) {
+    public FractalDocument(SVGDocument svgDoc, String name) {
         this.svgDoc = svgDoc;
-        this.metadata = metadata;
+        this.name = name;
         squareCountingResult = null;
         
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMetadata(FractalDocumentMetadata metadata) {
+        this.metadata = metadata;
     }
 
     public SVGDocument getSvgDoc() {
-        return svgDoc;
+        // always hand out a copy of this - no more tedious threading problems
+        return Utilities.cloneSVGDocument(svgDoc);
     }
 
     public String getName() {
@@ -40,12 +41,6 @@ public class FractalDocument {
 
     public FractalDocumentMetadata getMetadata() {
         return metadata;
-    }
-
-    public FractalDocument clone() {
-        FractalDocument clone = new FractalDocument(Utilities.cloneSVGDocument(svgDoc), metadata);
-        clone.setName(name);
-        return clone;
     }
 
     public synchronized SquareCountingResult getSquareCountingResult() {

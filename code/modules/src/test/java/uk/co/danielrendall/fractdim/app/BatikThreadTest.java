@@ -27,12 +27,12 @@ public class BatikThreadTest {
         Generator gen = new Generator();
         final SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(0, 0), new Point(1000, 750), 4);
         FractalController controller = FractalController.fromDocument(svg, "Batik thread test");
-        final FractalDocument fractalDocument = controller.getClonedDocument();
+        final FractalDocument fractalDocument = controller.getDocument();
 //        DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 //        final SVGDocument svg2 = (SVGDocument) impl.createDocument(SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
 
         long before = System.currentTimeMillis();
-        final FractalDocument fractalDocument2 = fractalDocument.clone();
+        final FractalDocument fractalDocument2 = fractalDocument;
         long after = System.currentTimeMillis();
 
         System.out.println("Cloning took " + (after - before) + " ms");

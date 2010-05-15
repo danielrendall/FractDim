@@ -46,7 +46,7 @@ public class SquareCountingWorker extends NotifyingWorker<SquareCountingResult, 
                 angleIterator(new UniformAngleIterator(numberOfAngles)).
                 resolutionIterator(new UniformResolutionIterator(minimumSquareSize, maximumSquareSize, numberOfResolutions)).
                 displacementIterator(new UniformDisplacementIterator(numberOfDisplacements)).
-                fractalDocument(controller.getClonedDocument());
+                fractalDocument(controller.getDocument());
 
 
         SquareCounter sc = builder.build();
