@@ -5,6 +5,7 @@ import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.calculation.SquareCounter;
 import uk.co.danielrendall.fractdim.calculation.SquareCounterBuilder;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
+import uk.co.danielrendall.fractdim.calculation.iterators.LogarithmicResolutionIterator;
 import uk.co.danielrendall.fractdim.calculation.iterators.UniformAngleIterator;
 import uk.co.danielrendall.fractdim.calculation.iterators.UniformDisplacementIterator;
 import uk.co.danielrendall.fractdim.calculation.iterators.UniformResolutionIterator;
@@ -47,7 +48,7 @@ public class SquareCountingWorker extends SwingWorker<SquareCountingResult, Inte
         SquareCounterBuilder builder = new SquareCounterBuilder();
         builder.maxDepth(30).
                 angleIterator(new UniformAngleIterator(numberOfAngles)).
-                resolutionIterator(new UniformResolutionIterator(minimumSquareSize, maximumSquareSize, numberOfResolutions)).
+                resolutionIterator(new LogarithmicResolutionIterator(minimumSquareSize, maximumSquareSize, numberOfResolutions)).
                 displacementIterator(new UniformDisplacementIterator(numberOfDisplacements)).
                 fractalDocument(controller.getDocument());
 

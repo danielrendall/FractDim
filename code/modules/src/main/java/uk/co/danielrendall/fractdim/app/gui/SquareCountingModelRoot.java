@@ -97,7 +97,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         }
 
         public String toString() {
-            return String.format("Angle: %3.1f°", angle * 180.0d / Math.PI);
+            return String.format("%3.1f°", angle * 180.0d / Math.PI);
         }
     }
 
@@ -143,7 +143,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         }
 
         public String toString() {
-            return String.format("Resolution: %5.2f", resolution);
+            return String.format("%5.2f", resolution);
         }
     }
 
@@ -186,7 +186,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         }
 
         public String toString() {
-            return String.format("Displacement: %s", displacement);
+            return String.format("%s", displacement.toString(1, 2));
         }
     }
 
