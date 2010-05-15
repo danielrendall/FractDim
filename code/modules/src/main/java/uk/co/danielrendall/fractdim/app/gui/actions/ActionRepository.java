@@ -19,6 +19,7 @@ public class ActionRepository {
     public static final String FILE_OPEN = "FileOpen";
     public static final String FILE_CLOSE = "FileClose";
     public static final String FILE_CALCULATE = "FileCalculate";
+    public static final String FILE_EXPORT = "FileExport";
     public static final String FILE_EXIT = "FileExit";
     public static final String DIAGRAM_ZOOM_IN = "DiagramZoomIn";
     public static final String DIAGRAM_ZOOM_OUT = "DiagramZoomOut";
@@ -34,6 +35,7 @@ public class ActionRepository {
 
         delegatedActions.put(FILE_CLOSE, new FileClose());
         delegatedActions.put(FILE_CALCULATE, new FileCalculate());
+        delegatedActions.put(FILE_EXPORT, new FileExport());
         delegatedActions.put(DIAGRAM_ZOOM_IN, new DiagramZoomIn());
         delegatedActions.put(DIAGRAM_ZOOM_OUT, new DiagramZoomOut());
     }
@@ -53,7 +55,11 @@ public class ActionRepository {
     public FractDimDelegatedAction getFileCalculate() {
         return delegatedActions.get(FILE_CALCULATE);
     }
-    
+
+    public FractDimDelegatedAction getFileExport() {
+        return delegatedActions.get(FILE_EXPORT);
+    }
+
     public FractDimDelegatedAction getDiagramZoomIn() {
         return delegatedActions.get(DIAGRAM_ZOOM_IN);
     }

@@ -78,6 +78,8 @@ public class MainWindow extends JFrame {
         menu.addSeparator();
         menu.add(repository.getFileCalculate());
         menu.addSeparator();
+        menu.add(repository.getFileExport());
+        menu.addSeparator();
         menu.add(repository.getFileExit());
         return menu;
     }
@@ -95,6 +97,8 @@ public class MainWindow extends JFrame {
         toolBar.add(repository.getFileClose());
         toolBar.addSeparator();
         toolBar.add(repository.getFileCalculate());
+        toolBar.addSeparator();
+        toolBar.add(repository.getFileExport());
         toolBar.addSeparator();
         toolBar.add(repository.getFileExit());
         toolBar.addSeparator();
@@ -129,6 +133,7 @@ public class MainWindow extends JFrame {
         ActionRepository repository = ActionRepository.instance();
         repository.getFileClose().setEnabled(false);
         repository.getFileCalculate().setEnabled(false);
+        repository.getFileExport().setEnabled(false);
         repository.getDiagramZoomIn().setEnabled(false);
         repository.getDiagramZoomOut().setEnabled(false);
     }

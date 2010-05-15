@@ -75,6 +75,12 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         }
     };
 
+    private final Action actionFileExport = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            actionFileExport();
+        }
+    };
+
     private final Action actionCloseFile = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             actionCloseFile();
@@ -245,15 +251,28 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         } else {
             repository.getFileCalculate().removeDelegate();
         }
+        if (isCapableOfExport()) {
+            repository.getFileExport().setDelegate(actionFileExport);
+        } else {
+            repository.getFileExport().removeDelegate();
+        }
     }
 
     private boolean isCapableOfCalculation() {
         return (status == Status.READY_FOR_COUNT || status == Status.SQUARES_COUNTED);
     }
 
+    private boolean isCapableOfExport() {
+        return (status == Status.SQUARES_COUNTED);
+    }
+
     private void setStatus(Status newStatus) {
         status = newStatus;
         FractDim.instance().updateMeIfCurrent(this);
+    }
+
+    public void actionFileExport() {
+        Log.gui.debug("Export file");
     }
 
     public void actionCloseFile() {
