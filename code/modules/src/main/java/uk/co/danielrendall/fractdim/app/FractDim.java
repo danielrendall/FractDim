@@ -67,6 +67,7 @@ public class FractDim {
         int top = yCenter - (DEFAULT_HEIGHT / 2);
         window.setBounds(left, top, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         window.setVisible(true);
+        int x=0;
     }
 
 //    public void generateNewFractal() {
@@ -144,6 +145,7 @@ public class FractDim {
 
     public void remove(FractalController controller) {
         FractalPanel panel = controller.getPanel();
+        controller.notifyRemoving();
         window.removeTab(panel);
         controllers.remove(panel);
         controller.notifyRemoved();

@@ -70,11 +70,11 @@ public class FractalPanel extends JLayeredPane {
 
         MultiSplitLayout.Split modelRoot = new MultiSplitLayout.Split();
         List<MultiSplitLayout.Node> children =
-            Arrays.asList(new MultiSplitLayout.Leaf("settings"),
-                    new MultiSplitLayout.Divider(),
-                    new MultiSplitLayout.Leaf("svg"),
-                    new MultiSplitLayout.Divider(),
-                    new MultiSplitLayout.Leaf("results"));
+                Arrays.asList(new MultiSplitLayout.Leaf("settings"),
+                        new MultiSplitLayout.Divider(),
+                        new MultiSplitLayout.Leaf("svg"),
+                        new MultiSplitLayout.Divider(),
+                        new MultiSplitLayout.Leaf("results"));
         modelRoot.setChildren(children);
 
         MultiSplitLayout msl = new MultiSplitLayout(modelRoot);
@@ -85,29 +85,26 @@ public class FractalPanel extends JLayeredPane {
         splitPane.add(settingsPanel, "settings");
         splitPane.add(canvasScrollPane, "svg");
         splitPane.add(new JScrollPane(resultPanel), "results");
-
+        add(splitPane, JLayeredPane.DEFAULT_LAYER);
     }
 
-    public void notifyAdded() {
+    @Override
+    public void setBounds(int x, int y, int width, int height) {
+        splitPane.setBounds(0, 0, width, height);
+        super.setBounds(x, y, width, height);
+    }
 
-        Rectangle bounds = getParent().getBounds();
-        Log.gui.debug(String.format("Parent has bounds %s", bounds));
-        getParent().addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                Rectangle b = e.getComponent().getBounds();
-                splitPane.setBounds(0, 0, b.width, b.height);
-            }
-        });
-        splitPane.setBounds(0, 0, bounds.width, bounds.height);
-        this.add(splitPane, JLayeredPane.DEFAULT_LAYER);
+    @Override
+    public void setBounds(Rectangle r) {
+        splitPane.setBounds(0, 0, r.width, r.height);
+        super.setBounds(r);
     }
 
     public void updateDocument(FractalDocument doc) {
         canvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
             @Override
             public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
-                synchronized(lock) {
+                synchronized (lock) {
                     updateManagerIsReady = true;
                     for (Iterator<Runnable> it = temporaryRunnableQueue.iterator(); it.hasNext();) {
                         Runnable next = it.next();
@@ -122,7 +119,6 @@ public class FractalPanel extends JLayeredPane {
         currentBoundingBox = rootBoundingBox;
         canvas.setSVGDocument(doc.getSvgDoc());
     }
-
 
 
     public void addOverlay(final String overlayId, final SVGContentGenerator generator) {
@@ -154,7 +150,7 @@ public class FractalPanel extends JLayeredPane {
 
 
     private void runNowOrLater(String overlayId, Runnable updater) {
-        synchronized(lock) {
+        synchronized (lock) {
             if (updateManagerIsReady) {
                 Log.gui.debug("Running operation on overlay " + overlayId);
                 canvas.getUpdateManager().getUpdateRunnableQueue().invokeLater(updater);
@@ -167,6 +163,7 @@ public class FractalPanel extends JLayeredPane {
 
     /**
      * This should only ever be called in the Update Manager thread
+     *
      * @param overlayId
      * @param generator
      */
@@ -193,6 +190,7 @@ public class FractalPanel extends JLayeredPane {
 
     /**
      * This should only ever be called in the Update Manager thread
+     *
      * @param overlayId
      */
     private void removeOverlayInUpdateManager(String overlayId) {

@@ -120,7 +120,10 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
                 generateMetaData();
             }
         });
-        panel.notifyAdded();
+    }
+
+    public void notifyRemoving() {
+        // nothing to do
     }
 
     public void notifyRemoved() {
