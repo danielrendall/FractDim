@@ -43,6 +43,9 @@ public class FractDim {
     private final String PREF_WIDTH = "initial.width";
     private final String PREF_HEIGHT = "initial.height";
 
+    private String xlsFileDir = "";
+    private String svgFileDir = "";
+
     public static void main(String[] args) throws Exception {
         System.out.println("Fractal Dimension Calculator");
         System.out.println("This program comes with ABSOLUTELY NO WARRANTY");
@@ -67,12 +70,14 @@ public class FractDim {
         File svgDir = new File(prefs.get(PREF_DIRECTORY_SVG, System.getProperty("user.home")));
         if (svgDir.exists()) {
             openFileChooser = new JFileChooser(svgDir);
+            svgFileDir = svgDir.getAbsolutePath();
         } else {
             openFileChooser = new JFileChooser();
         }
         File xlsDir = new File(prefs.get(PREF_DIRECTORY_XLS, svgDir.getAbsolutePath()));
         if (xlsDir.exists()) {
             exportFileChooser = new JFileChooser(xlsDir);
+            xlsFileDir = xlsDir.getAbsolutePath();
         } else {
             exportFileChooser = new JFileChooser();
         }
@@ -142,14 +147,21 @@ public class FractDim {
 //        }
 //    }
 
-    public File getExportFile() {
+    public File getExportFile(String possibleName) {
         exportFileChooser.setFileFilter(new FileNameExtensionFilter("Excel Files", "xls"));
+        if (possibleName.toLowerCase().endsWith(".svg")) {
+            possibleName = possibleName.substring(0, possibleName.lastIndexOf(".")) + ".xls";
+        }
+        File suggested = new File(xlsFileDir, possibleName);
+        exportFileChooser.setSelectedFile(suggested);
         int returnVal = exportFileChooser.showSaveDialog(window);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             File selectedFile = exportFileChooser.getSelectedFile();
             Log.app.debug("Chosen file: " +
                 selectedFile.getName());
-            prefs.put(PREF_DIRECTORY_XLS, selectedFile.getParent());
+            xlsFileDir = selectedFile.getParent();
+            prefs.put(PREF_DIRECTORY_XLS, xlsFileDir);
+
             return selectedFile;
         }
         return null;
@@ -167,7 +179,8 @@ public class FractDim {
             try {
                 FractalController controller = FractalController.fromFile(selectedFile);
                 add(controller);
-                prefs.put(PREF_DIRECTORY_SVG, selectedFile.getParent());
+                svgFileDir = selectedFile.getParent();
+                prefs.put(PREF_DIRECTORY_SVG, svgFileDir);
             } catch (IOException ex) {
                 Log.app.warn("Unable to load document: " + ex.getMessage());
             }

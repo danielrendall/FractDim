@@ -268,13 +268,13 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         if (result == null) {
             Log.app.warn("Shouldn't be able to export if the result is null");
         }
-        File exportFile = FractDim.instance().getExportFile();
+        File exportFile = FractDim.instance().getExportFile(document.getName());
         if (exportFile != null) {
             panel.getSettingsPanel().disableAllControls();
             panel.updateProgressBar(0);
             panel.showProgressBar();
             Log.app.debug("Exporting to " + exportFile.getAbsolutePath());
-            ExcelExportWorker eew = new ExcelExportWorker(result, exportFile, new Notifiable<ExcelExportWorker>() {
+            ExcelExportWorker eew = new ExcelExportWorker(document.getName(), result, exportFile, new Notifiable<ExcelExportWorker>() {
                 public void notifyComplete(ExcelExportWorker worker) {
                     panel.getSettingsPanel().enableAllControls();
                     panel.hideProgressBar();

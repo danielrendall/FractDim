@@ -1,5 +1,8 @@
 package uk.co.danielrendall.fractdim.app.workers;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.logging.Log;
 
@@ -17,11 +20,13 @@ import java.util.List;
 public class ExcelExportWorker extends SwingWorker<String, Integer>  {
     
     private boolean useful = true;
+    private final String name;
     private final SquareCountingResult result;
     private final File xlsFile;
     private final Notifiable<ExcelExportWorker> notifiable;
 
-    public ExcelExportWorker(SquareCountingResult result, File xlsFile, Notifiable<ExcelExportWorker> notifiable) {
+    public ExcelExportWorker(String name, SquareCountingResult result, File xlsFile, Notifiable<ExcelExportWorker> notifiable) {
+        this.name = name;
         this.result = result;
         this.xlsFile = xlsFile;
         this.notifiable = notifiable;
@@ -29,6 +34,8 @@ public class ExcelExportWorker extends SwingWorker<String, Integer>  {
 
     @Override
     protected String doInBackground() throws Exception {
+        Workbook wb = new HSSFWorkbook();
+        Sheet sheet1 = wb.createSheet();
         return "Finished";
     }
 
