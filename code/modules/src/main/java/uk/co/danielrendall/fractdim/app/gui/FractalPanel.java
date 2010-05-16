@@ -262,7 +262,11 @@ public class FractalPanel extends JLayeredPane {
         return settingsPanel.getDisplacementSlider();
     }
 
-    public JComboBox getResolutionList() {
+    public JComboBox getResolutionIteratorList() {
+        return settingsPanel.getResolutionIteratorList();
+    }
+
+    public JList getResolutionlist() {
         return settingsPanel.getResolutionList();
     }
 

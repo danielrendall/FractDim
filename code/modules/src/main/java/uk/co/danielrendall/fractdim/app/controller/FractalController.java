@@ -27,8 +27,6 @@ import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.Date;
@@ -129,7 +127,7 @@ public class FractalController implements Runnable {
         this.displacementModel = new DefaultBoundedRangeModel(2,0,1,3);
         this.panel.getDisplacementSlider().setModel(this.displacementModel);
 
-        this.panel.getResolutionList().setModel(new DefaultComboBoxModel(ResolutionIteratorFactory.factories));
+        this.panel.getResolutionIteratorList().setModel(new DefaultComboBoxModel(ResolutionIteratorFactory.factories));
 
 
         this.panel.addResultPanelListener(new ResultPanelListener() {

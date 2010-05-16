@@ -104,6 +104,11 @@
             <artifactId>poi</artifactId>
             <version>3.6</version>
         </dependency>
+        <dependency>
+            <groupId>com.miglayout</groupId>
+            <artifactId>miglayout</artifactId>
+            <version>3.7.3.1</version>
+        </dependency>
         <!-- TODO - maybe migrate to a proper application framework? -->
         <!--<dependency>-->
             <!--<groupId>org.jdesktop.bsaf</groupId>-->
