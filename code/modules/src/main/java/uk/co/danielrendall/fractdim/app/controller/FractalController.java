@@ -7,7 +7,6 @@ import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.FractDim;
 import uk.co.danielrendall.fractdim.app.gui.GridSelectedEvent;
 import uk.co.danielrendall.fractdim.app.gui.ResultPanelListener;
-import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
 import uk.co.danielrendall.fractdim.app.model.*;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
@@ -28,6 +27,8 @@ import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.Date;
@@ -42,7 +43,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 21:02:09
  * To change this template use File | Settings | File Templates.
  */
-public class FractalController implements ResultPanelListener, Runnable {
+public class FractalController implements Runnable {
 
     private enum Status {NEW, DOC_LOADED, READY_FOR_COUNT, COUNTING_SQUARES, SQUARES_COUNTED, EXPORTING};
 
@@ -70,6 +71,7 @@ public class FractalController implements ResultPanelListener, Runnable {
 
     private volatile boolean shouldQuit = false;
 
+    private ResolutionIteratorFactory resolutionIteratorFactory = ResolutionIteratorFactory.factories[0];
 
     private final Action actionCalculateFractalDimension = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -105,19 +107,41 @@ public class FractalController implements ResultPanelListener, Runnable {
 
     public static FractalController fromDocument(SVGDocument doc, String name) {
         FractalDocument document = new FractalDocument(doc, name);
-        FractalController controller = new FractalController(document);
-        return controller;
+        return new FractalController(document);
     }
 
     private FractalController(FractalDocument document) {
         this.document = document;
+        this.panel = new FractalPanel();
+
         this.minimumSquareSizeModel = new DefaultBoundedRangeModel(10, 0, 1, 1000);
+        this.panel.getMinimumSquareSizeSlider().setModel(this.minimumSquareSizeModel);
+
         this.maximumSquareSizeModel = new DefaultBoundedRangeModel(990, 0, 1, 1000);
-        this.angleModel = new DefaultBoundedRangeModel(5, 0, 1, 10);
+        this.panel.getMaximumSquareSizeSlider().setModel(this.maximumSquareSizeModel);
+
+        this.angleModel = new DefaultBoundedRangeModel(5,0,1,10);
+        this.panel.getAngleSlider().setModel(this.angleModel);
+
         this.resolutionModel = new DefaultBoundedRangeModel(10, 0, 2, 20);
-        this.displacementModel = new DefaultBoundedRangeModel(2, 0, 1, 3);
-        this.panel = new FractalPanel(this.minimumSquareSizeModel, this.maximumSquareSizeModel, this.angleModel, this.resolutionModel, this.displacementModel);
-        this.panel.getResultPanel().addResultPanelListener(this);
+        this.panel.getResolutionSlider().setModel(this.resolutionModel);
+
+        this.displacementModel = new DefaultBoundedRangeModel(2,0,1,3);
+        this.panel.getDisplacementSlider().setModel(this.displacementModel);
+
+        this.panel.getResolutionList().setModel(new DefaultComboBoxModel(ResolutionIteratorFactory.factories));
+
+
+        this.panel.addResultPanelListener(new ResultPanelListener() {
+            public void gridSelected(final GridSelectedEvent e) {
+                addToQueue(new Runnable() {
+                    public void run() {
+                        Log.thread.debug("Grid selected: " + e.getGrid().toString());
+                        updateResultGrid(e.getGrid());
+                    }
+                });
+            }
+        });
         this.jobs = new LinkedList<Runnable>();
 
         this.controllerThread = new Thread(this);
@@ -288,13 +312,13 @@ public class FractalController implements ResultPanelListener, Runnable {
         }
         File exportFile = FractDim.instance().getExportFile(document.getName());
         if (exportFile != null) {
-            panel.getSettingsPanel().disableAllControls();
+            panel.disableAllControls();
             panel.updateProgressBar(0);
             panel.showProgressBar();
             Log.app.debug("Exporting to " + exportFile.getAbsolutePath());
             ExcelExportWorker eew = new ExcelExportWorker(document.getName(), result, exportFile, new Notifiable<ExcelExportWorker>() {
                 public void notifyComplete(ExcelExportWorker worker) {
-                    panel.getSettingsPanel().enableAllControls();
+                    panel.enableAllControls();
                     panel.hideProgressBar();
                     setStatus(Status.SQUARES_COUNTED);
                 }
@@ -316,12 +340,12 @@ public class FractalController implements ResultPanelListener, Runnable {
     }
 
     public void actionCalculateFractalDimension() {
-        panel.getSettingsPanel().disableAllControls();
+        panel.disableAllControls();
         panel.updateProgressBar(0);
         panel.showProgressBar();
 
         AngleIterator angleIterator = new UniformAngleIterator(angleModel.getValue());
-        ResolutionIterator resolutionIterator = new LogarithmicResolutionIterator(minimumSquareSizeModel.getValue(), maximumSquareSizeModel.getValue(), resolutionModel.getValue());
+        ResolutionIterator resolutionIterator = resolutionIteratorFactory.create(minimumSquareSizeModel.getValue(), maximumSquareSizeModel.getValue(), resolutionModel.getValue());
         DisplacementIterator displacementIterator = new UniformDisplacementIterator(displacementModel.getValue());
 
         SquareCountingWorker scw = new SquareCountingWorker(document, angleIterator, resolutionIterator, displacementIterator, new Notifiable<SquareCountingWorker>() {
@@ -329,8 +353,8 @@ public class FractalController implements ResultPanelListener, Runnable {
                 Log.calc.info("Square counting worker reported");
                 try {
                     result = worker.get();
-                    panel.getSettingsPanel().enableAllControls();
-                    panel.getResultPanel().update(result);
+                    panel.enableAllControls();
+                    panel.update(result);
                     panel.hideProgressBar();
                     setStatus(Status.SQUARES_COUNTED);
                 } catch (InterruptedException e) {
@@ -393,16 +417,6 @@ public class FractalController implements ResultPanelListener, Runnable {
                 return theGrid.writeFilledToSVG(rootElement, creator, boundingBox, "#ff9999");
             }
         });
-    }
-
-    public void gridSelected(final GridSelectedEvent e) {
-        addToQueue(new Runnable() {
-            public void run() {
-                Log.thread.debug("Grid selected: " + e.getGrid().toString());
-                updateResultGrid(e.getGrid());
-            }
-        });
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     private void prettyPrint(String message, SVGDocument doc) {

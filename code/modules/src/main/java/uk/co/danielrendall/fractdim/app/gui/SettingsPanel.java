@@ -1,6 +1,5 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -19,13 +18,17 @@ public class SettingsPanel extends JPanel {
     private final JSlider resolutionSlider;
     private final JSlider displacementSlider;
 
-    public SettingsPanel(BoundedRangeModel minimumSquareSizeModel, BoundedRangeModel maximumSquareSizeModel, BoundedRangeModel angleModel, BoundedRangeModel resolutionModel, BoundedRangeModel displacementModel) {
-        minimumSquareSizeSlider = new JSlider(minimumSquareSizeModel);
-        maximumSquareSizeSlider = new JSlider(maximumSquareSizeModel);
-        angleSlider = new JSlider(angleModel);
-        resolutionSlider = new JSlider(resolutionModel);
-        displacementSlider = new JSlider(displacementModel);
+    private final JComboBox resolutionList;
 
+    SettingsPanel() {
+
+        minimumSquareSizeSlider = new JSlider();
+        maximumSquareSizeSlider = new JSlider();
+        angleSlider = new JSlider();
+        resolutionSlider = new JSlider();
+        displacementSlider = new JSlider();
+        resolutionList = new JComboBox();
+        
         setLayout(new BorderLayout());
         Box outerBox = Box.createVerticalBox();
         Box topBox = Box.createVerticalBox();
@@ -33,30 +36,36 @@ public class SettingsPanel extends JPanel {
 
         setBorder(BorderFactory.createTitledBorder("Settings"));
 
-        angleSlider.setBorder(BorderFactory.createTitledBorder("Angles"));
+        JPanel anglePanel = new JPanel(new BorderLayout());
+        anglePanel.setBorder(BorderFactory.createTitledBorder("Angles"));
         angleSlider.setLabelTable(angleSlider.createStandardLabels(5));
         angleSlider.setPaintLabels(true);
         angleSlider.setMinorTickSpacing(1);
         angleSlider.setPaintTicks(true);
         angleSlider.setSnapToTicks(true);
-        topBox.add(angleSlider);
+        anglePanel.add(angleSlider, BorderLayout.CENTER);
+        topBox.add(anglePanel);
 
-        resolutionSlider.setBorder(BorderFactory.createTitledBorder("Resolutions"));
+        JPanel resolutionPanel = new JPanel(new BorderLayout());
+        resolutionPanel.setBorder(BorderFactory.createTitledBorder("Resolutions"));
         resolutionSlider.setLabelTable(resolutionSlider.createStandardLabels(5));
         resolutionSlider.setPaintLabels(true);
         resolutionSlider.setMinorTickSpacing(1);
         resolutionSlider.setPaintTicks(true);
         resolutionSlider.setSnapToTicks(true);
-        topBox.add(resolutionSlider);
+        resolutionPanel.add(resolutionSlider, BorderLayout.CENTER);
+        resolutionPanel.add(resolutionList, BorderLayout.SOUTH);
+        topBox.add(resolutionPanel);
 
-
-        displacementSlider.setBorder(BorderFactory.createTitledBorder("Displacements"));
+        JPanel displacementPanel = new JPanel(new BorderLayout());
+        displacementPanel.setBorder(BorderFactory.createTitledBorder("Displacements"));
         displacementSlider.setLabelTable(angleSlider.createStandardLabels(1));
         displacementSlider.setPaintLabels(true);
         displacementSlider.setMinorTickSpacing(1);
         displacementSlider.setPaintTicks(true);
         displacementSlider.setSnapToTicks(true);
-        topBox.add(displacementSlider);
+        displacementPanel.add(displacementSlider, BorderLayout.CENTER);
+        topBox.add(displacementPanel);
 
         lowerBox.setBorder(BorderFactory.createTitledBorder("Square sizes"));
         minimumSquareSizeSlider.setOrientation(JSlider.VERTICAL);
@@ -76,40 +85,47 @@ public class SettingsPanel extends JPanel {
                 
     }
 
-    public void disableAllControls() {
+
+    void disableAllControls() {
         setAllEnabled(false);
     }
 
-    public void enableAllControls() {
+
+    void enableAllControls() {
         setAllEnabled(true);
     }
 
+
     public void setAllEnabled(boolean state) {
-        setMinimumSquaresEnabled(state);
-        setMaximumSquaresEnabled(state);
-        setAngleEnabled(state);
-        setResolutionEnabled(state);
-        setDisplacementEnabled(state);
-    }
-
-    public void setMinimumSquaresEnabled(boolean state) {
         minimumSquareSizeSlider.setEnabled(state);
-    }
-
-    public void setMaximumSquaresEnabled(boolean state) {
         maximumSquareSizeSlider.setEnabled(state);
-    }
-
-    public void setAngleEnabled(boolean state) {
         angleSlider.setEnabled(state);
-    }
-
-    public void setResolutionEnabled(boolean state) {
         resolutionSlider.setEnabled(state);
-    }
-
-    public void setDisplacementEnabled(boolean state) {
+        resolutionList.setEnabled(state);
         displacementSlider.setEnabled(state);
     }
 
+    JSlider getMinimumSquareSizeSlider() {
+        return minimumSquareSizeSlider;
+    }
+
+    JSlider getMaximumSquareSizeSlider() {
+        return maximumSquareSizeSlider;
+    }
+
+    JSlider getAngleSlider() {
+        return angleSlider;
+    }
+
+    JSlider getResolutionSlider() {
+        return resolutionSlider;
+    }
+
+    JSlider getDisplacementSlider() {
+        return displacementSlider;
+    }
+
+    JComboBox getResolutionList() {
+        return resolutionList;
+    }
 }

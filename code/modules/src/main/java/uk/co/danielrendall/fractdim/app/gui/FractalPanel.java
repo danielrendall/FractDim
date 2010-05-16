@@ -10,8 +10,8 @@ import org.jdesktop.swingx.MultiSplitLayout;
 import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
-import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
+import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.svg.SVGContentGenerator;
 import uk.co.danielrendall.fractdim.svg.SVGElementCreator;
@@ -55,9 +55,9 @@ public class FractalPanel extends JLayeredPane {
     // need to know when Batik's update manager is ready - then we can start adding things to the document
     private transient boolean updateManagerIsReady = false;
 
-    public FractalPanel(BoundedRangeModel minimumSquareSizeModel, BoundedRangeModel maximumSquareSizeModel, BoundedRangeModel angleModel, BoundedRangeModel resolutionModel, BoundedRangeModel displacementModel) {
+    public FractalPanel() {
 
-        this.settingsPanel = new SettingsPanel(minimumSquareSizeModel, maximumSquareSizeModel, angleModel, resolutionModel, displacementModel);
+        this.settingsPanel = new SettingsPanel();
 
         canvas = new JSVGCanvas();
         canvas.setDocumentState(AbstractJSVGComponent.ALWAYS_DYNAMIC);
@@ -229,14 +229,6 @@ public class FractalPanel extends JLayeredPane {
         }
     }
 
-    public SettingsPanel getSettingsPanel() {
-        return settingsPanel;
-    }
-
-    public ResultPanel getResultPanel() {
-        return resultPanel;
-    }
-
     public void showProgressBar() {
         progressPanel.setVisible(true);
     }
@@ -248,4 +240,49 @@ public class FractalPanel extends JLayeredPane {
     public void hideProgressBar() {
         progressPanel.setVisible(false);
     }
-}
+
+    // Delegate methods for Settings panel
+    public JSlider getMinimumSquareSizeSlider() {
+        return settingsPanel.getMinimumSquareSizeSlider();
+    }
+
+    public JSlider getMaximumSquareSizeSlider() {
+        return settingsPanel.getMaximumSquareSizeSlider();
+    }
+
+    public JSlider getAngleSlider() {
+        return settingsPanel.getAngleSlider();
+    }
+
+    public JSlider getResolutionSlider() {
+        return settingsPanel.getResolutionSlider();
+    }
+
+    public JSlider getDisplacementSlider() {
+        return settingsPanel.getDisplacementSlider();
+    }
+
+    public JComboBox getResolutionList() {
+        return settingsPanel.getResolutionList();
+    }
+
+    public void update(SquareCountingResult result) {
+        resultPanel.update(result);
+    }
+
+    public void addResultPanelListener(ResultPanelListener listener) {
+        resultPanel.addResultPanelListener(listener);
+    }
+
+    public void removeResultPanelListener(ResultPanelListener listener) {
+        resultPanel.removeResultPanelListener(listener);
+    }
+
+    public void enableAllControls() {
+        settingsPanel.enableAllControls();
+    }
+
+    public void disableAllControls() {
+        settingsPanel.disableAllControls();
+    }
+ }

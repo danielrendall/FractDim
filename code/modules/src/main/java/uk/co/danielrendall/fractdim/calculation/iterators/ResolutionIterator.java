@@ -11,5 +11,4 @@ import java.util.Iterator;
  */
 public interface ResolutionIterator extends Iterator<Double> {
     void reset();
-    
 }

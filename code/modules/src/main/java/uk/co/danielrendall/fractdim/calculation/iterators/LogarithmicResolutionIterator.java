@@ -16,8 +16,8 @@ public class LogarithmicResolutionIterator implements ResolutionIterator {
     private int resolutionStep;
 
     public LogarithmicResolutionIterator(double minResolution, double maxResolution, int numberOfResolutionSteps) {
-        this.logMinResolutionReciprocal = Math.log(1.0d / minResolution);;
-        this.logMaxResolutionReciprocal = Math.log(1.0d / maxResolution);;
+        this.logMinResolutionReciprocal = Math.log(1.0d / minResolution);
+        this.logMaxResolutionReciprocal = Math.log(1.0d / maxResolution);
         this.numberOfResolutionSteps = numberOfResolutionSteps;
         this.resolutionLogIncrement = (logMinResolutionReciprocal - logMaxResolutionReciprocal) / (double)(numberOfResolutionSteps);
 

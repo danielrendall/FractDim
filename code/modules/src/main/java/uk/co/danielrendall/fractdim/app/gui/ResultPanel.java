@@ -21,11 +21,13 @@ import uk.co.danielrendall.fractdim.logging.Log;
  * To change this template use File | Settings | File Templates.
  */
 public class ResultPanel extends JPanel {
-    final JXTreeTable resultTable = new JXTreeTable();
 
+    private final JXTreeTable resultTable;
     private SquareCountingResult result;
-    public ResultPanel() {
+
+    ResultPanel() {
         super (new BorderLayout());
+        resultTable = new JXTreeTable();
 
         setPreferredSize(new Dimension(300, 300));
 
@@ -49,7 +51,7 @@ public class ResultPanel extends JPanel {
 
     }
 
-    public void update(SquareCountingResult result) {
+    void update(SquareCountingResult result) {
         Log.gui.info("Result panel setting SquareCountingResult");
         this.result = result;
         SquareCountingModelRoot root = new SquareCountingModelRoot(result.getAngleGridCollection());
@@ -101,11 +103,11 @@ public class ResultPanel extends JPanel {
         }
     }
 
-    public void addResultPanelListener(ResultPanelListener listener) {
+    void addResultPanelListener(ResultPanelListener listener) {
         listenerList.add(ResultPanelListener.class, listener);
     }
 
-    public void removeResultPanelListener(ResultPanelListener listener) {
+    void removeResultPanelListener(ResultPanelListener listener) {
         listenerList.remove(ResultPanelListener.class, listener);
     }
 
