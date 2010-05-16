@@ -37,7 +37,6 @@ public class ExcelExportWorker extends SwingWorker<String, Integer> implements C
 
     private double currentAngle = 0;
     private double currentResolution = 0;
-    private Vec currentDisplacement = Vec.ZERO;
     private int currentDataRow = 0;
     private int currentIntermediateRow = 0;
     private int currentResultsRow = 0;
@@ -80,27 +79,26 @@ public class ExcelExportWorker extends SwingWorker<String, Integer> implements C
     @Override
     protected String doInBackground() throws Exception {
         Row firstDataRow = rawDataSheet.createRow(currentDataRow++);
-        int currentCell = 0;
-        firstDataRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Grid Angle"));
-        firstDataRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Grid Resolution"));
-        firstDataRow.createCell(currentCell++).setCellValue(ch.createRichTextString("X displacement"));
-        firstDataRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Y displacement"));
-        firstDataRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Square count"));
+        firstDataRow.createCell(0).setCellValue(ch.createRichTextString("Grid Angle"));
+        firstDataRow.createCell(1).setCellValue(ch.createRichTextString("Grid Resolution"));
+        firstDataRow.createCell(2).setCellValue(ch.createRichTextString("X displacement"));
+        firstDataRow.createCell(3).setCellValue(ch.createRichTextString("Y displacement"));
+        firstDataRow.createCell(4).setCellValue(ch.createRichTextString("Square count"));
         rawDataSheet.createFreezePane(0, 1);
 
-        currentCell = 0;
         Row firstIntermediateRow = intermediateSheet.createRow(currentIntermediateRow++);
         Row secondIntermediateRow = intermediateSheet.createRow(currentIntermediateRow++);
 
-        firstIntermediateRow.createCell(currentCell).setCellValue(ch.createRichTextString("Angles"));
-        secondIntermediateRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Resolution"));
-        secondIntermediateRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Reciprocal Resolution"));
-        secondIntermediateRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Log Reciprocal Resolution"));
+        firstIntermediateRow.createCell(0).setCellValue(ch.createRichTextString("Angles"));
+        secondIntermediateRow.createCell(0).setCellValue(ch.createRichTextString("Resolution"));
+        secondIntermediateRow.createCell(1).setCellValue(ch.createRichTextString("Reciprocal Resolution"));
+        secondIntermediateRow.createCell(2).setCellValue(ch.createRichTextString("Log Reciprocal Resolution"));
+        int currentCell = 3;
         for (Double d : result.getAngleGridCollection().getAvailableAngles()) {
             firstIntermediateRow.createCell(currentCell).setCellValue(d);
-            secondIntermediateRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Count"));
-            secondIntermediateRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Log Count"));
-            currentCell++;
+            secondIntermediateRow.createCell(currentCell).setCellValue(ch.createRichTextString("Count"));
+            secondIntermediateRow.createCell(currentCell + 1).setCellValue(ch.createRichTextString("Log Count"));
+            currentCell += 3;
         }
         double d = result.getAngleGridCollection().getAvailableAngles().iterator().next();
         for (double resolution: result.getAngleGridCollection().collectionForAngle(d).getAvailableResolutions()) {
@@ -114,9 +112,8 @@ public class ExcelExportWorker extends SwingWorker<String, Integer> implements C
 
 
         Row firstResultRow = resultsSheet.createRow(currentResultsRow++);
-        currentCell = 0;
-        firstResultRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Grid Angle"));
-        firstResultRow.createCell(currentCell++).setCellValue(ch.createRichTextString("Fractal Dimension"));
+        firstResultRow.createCell(0).setCellValue(ch.createRichTextString("Grid Angle"));
+        firstResultRow.createCell(1).setCellValue(ch.createRichTextString("Fractal Dimension"));
         resultsSheet.createFreezePane(0, 1);
 
         result.getAngleGridCollection().accept(this);
@@ -155,53 +152,77 @@ public class ExcelExportWorker extends SwingWorker<String, Integer> implements C
         }
     }
 
+    // the current row on the intermediate sheet as we loop through the resolution
+    int intermediateResolutionRow;
     // column representing the angle in the second (intermediate sheet)
-    int intermediateAngleColumn = 0;
+    int intermediateAngleColumn;
+    // row representing the angle in the first (results) sheet
+    int resultsRow;
 
     public void visit(AngleGridCollection collection) {
         intermediateAngleColumn = 3;
+        resultsRow = 1;
         for (Double angle : collection.getAvailableAngles()) {
             currentAngle = angle;
+
             ResolutionGridCollection rgc = collection.collectionForAngle(angle);
             rgc.accept(this);
+
+            final Row angleRow = resultsSheet.createRow(resultsRow);
+            angleRow.createCell(0).setCellValue(angle);
+
+            CellReference topXRange = new CellReference(2, 2, false, false);
+            CellReference bottomXRange = new CellReference(intermediateResolutionRow - 1, 2, false, false);
+
+            CellReference topYRange = new CellReference(2, intermediateAngleColumn + 1, false, false);
+            CellReference bottomYRange = new CellReference(intermediateResolutionRow - 1, intermediateAngleColumn + 1, false, false);
+
+            angleRow.createCell(1).setCellFormula(String.format("SLOPE('Intermediate'!%s:%s,'Intermediate'!%s:%s)", topYRange.formatAsString(), bottomYRange.formatAsString(), topXRange.formatAsString(), bottomXRange.formatAsString()));
             intermediateAngleColumn += 3;
+            resultsRow += 1;
         }
+
+        Row grandAverageRow = resultsSheet.createRow(resultsRow + 1);
+        grandAverageRow.createCell(0).setCellValue(ch.createRichTextString("Average:"));
+        grandAverageRow.createCell(1).setCellFormula(String.format("AVERAGE(B2:B%d)", resultsRow));
+
     }
 
-    int intermediateResolutionRow = 0;
     public void visit(ResolutionGridCollection collection) {
         intermediateResolutionRow = 2;
         for (Double resolution: collection.getAvailableResolutions()) {
             currentResolution = resolution;
+            int initialRawDataRow = currentDataRow + 1; // rows are 0 based, but formulas are 1-based
             DisplacementGridCollection dgc = collection.collectionForResolution(resolution);
+
             dgc.accept(this);
+
+            int finalRawDataRow = currentDataRow; // actually currentdataRow - 1 + 1
+            final Row intermediateAverageRow = intermediateSheet.getRow(intermediateResolutionRow);
+            Cell displacementSum = intermediateAverageRow.createCell(intermediateAngleColumn);
+            Cell reciprocal = intermediateAverageRow.createCell(intermediateAngleColumn + 1);
+
+            displacementSum.setCellFormula(String.format("AVERAGE('Data'!E%d:E%d)", initialRawDataRow, finalRawDataRow));
+            reciprocal.setCellFormula(String.format("LOG(%s)", new CellReference(intermediateResolutionRow, intermediateAngleColumn, false, false).formatAsString()));
+
             intermediateResolutionRow++;
         }
     }
 
     public void visit(DisplacementGridCollection collection) {
-        int initialRawDataRow = currentDataRow + 1; // rows are 0 based, but formulas are 1-based
         for (Vec displacement : collection.getAvailableDisplacements()) {
-            currentDisplacement = displacement;
+
             Grid g = collection.gridForDisplacement(displacement);
             Row row = rawDataSheet.createRow(currentDataRow++);
-            int currentCell = 0;
-            row.createCell(currentCell++).setCellValue(currentAngle);
-            row.createCell(currentCell++).setCellValue(currentResolution);
-            row.createCell(currentCell++).setCellValue(currentDisplacement.x());
-            row.createCell(currentCell++).setCellValue(currentDisplacement.y());
-            row.createCell(currentCell++).setCellValue(g.getSquareCount());
+            row.createCell(0).setCellValue(currentAngle);
+            row.createCell(1).setCellValue(currentResolution);
+            row.createCell(2).setCellValue(displacement.x());
+            row.createCell(3).setCellValue(displacement.y());
+            row.createCell(4).setCellValue(g.getSquareCount());
 
             visitedGrids++;
             publish((int)(100.0d * (double) visitedGrids / (double) gridCount));
         }
-        int finalRawDataRow = currentDataRow; // actually currentdataRow - 1 + 1
-        final Row intermediateAverageRow = intermediateSheet.getRow(intermediateResolutionRow);
-        Cell displacementSum = intermediateAverageRow.createCell(intermediateAngleColumn);
-        Cell reciprocal = intermediateAverageRow.createCell(intermediateAngleColumn + 1);
-
-        displacementSum.setCellFormula("AVERAGE('Data'!E" + initialRawDataRow + ":E" + finalRawDataRow + ")");
-        reciprocal.setCellFormula("LOG(" + new CellReference(intermediateResolutionRow, intermediateAngleColumn, false, false).formatAsString() + ")");
 
     }
 }
