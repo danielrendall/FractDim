@@ -179,7 +179,6 @@ public class FractalPanel extends JLayeredPane {
      * @param generator
      */
     private void addOverlayInUpdateManager(String overlayId, SVGContentGenerator generator) {
-        Log.gui.debug("Adding overlay with ID " + overlayId);
         SVGDocument myDoc = canvas.getSVGDocument();
         SVGElementCreator creator = new SVGElementCreator(myDoc);
         SVGSVGElement root = myDoc.getRootElement();
@@ -187,14 +186,11 @@ public class FractalPanel extends JLayeredPane {
         Element group = creator.createGroup();
         BoundingBox box = generator.generateContent(group, creator);
 
-
         overlayIdMap.put(overlayId, group.getAttributeNS(null, "id"));
         overlayBoundingBoxes.put(overlayId, box);
         currentBoundingBox = currentBoundingBox.expandToInclude(box);
         root.appendChild(group);
         String viewBox = currentBoundingBox.forSvg();
-        Log.gui.debug("Current bounding box is " + root.getAttributeNS(null, "viewBox"));
-        Log.gui.debug("Setting bounding box to " + viewBox);
         root.setAttributeNS(null, "viewBox", viewBox);
         root.setAttributeNS(null, "overflow", "visible");
     }
@@ -205,7 +201,6 @@ public class FractalPanel extends JLayeredPane {
      * @param overlayId
      */
     private void removeOverlayInUpdateManager(String overlayId) {
-        Log.gui.debug("Removing overlay with ID " + overlayId);
 
         String overlayGroupId = overlayIdMap.remove(overlayId);
         if (overlayGroupId != null) {
@@ -222,7 +217,6 @@ public class FractalPanel extends JLayeredPane {
             }
             currentBoundingBox = newBoundingBox;
             String viewBox = currentBoundingBox.forSvg();
-            Log.gui.debug("Setting bounding box to " + viewBox);
             root.setAttributeNS(null, "viewBox", viewBox);
         } else {
             Log.gui.debug("Overlay hasn't been set");

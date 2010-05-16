@@ -111,26 +111,33 @@ public class FractalController implements Runnable {
 
     private FractalController(FractalDocument document) {
         this.document = document;
-        this.panel = new FractalPanel();
+        panel = new FractalPanel();
 
-        this.minimumSquareSizeModel = new DefaultBoundedRangeModel(10, 0, 1, 1000);
-        this.panel.getMinimumSquareSizeSlider().setModel(this.minimumSquareSizeModel);
+        minimumSquareSizeModel = new DefaultBoundedRangeModel(10, 0, 1, 1000);
+        panel.getMinimumSquareSizeSlider().setModel(minimumSquareSizeModel);
 
-        this.maximumSquareSizeModel = new DefaultBoundedRangeModel(990, 0, 1, 1000);
-        this.panel.getMaximumSquareSizeSlider().setModel(this.maximumSquareSizeModel);
+        maximumSquareSizeModel = new DefaultBoundedRangeModel(990, 0, 1, 1000);
+        panel.getMaximumSquareSizeSlider().setModel(maximumSquareSizeModel);
 
-        this.angleModel = new DefaultBoundedRangeModel(5,0,1,10);
-        this.panel.getAngleSlider().setModel(this.angleModel);
+        angleModel = new DefaultBoundedRangeModel(5,0,1,10);
+        panel.getAngleSlider().setModel(angleModel);
 
-        this.resolutionModel = new DefaultBoundedRangeModel(10, 0, 2, 20);
-        this.panel.getResolutionSlider().setModel(this.resolutionModel);
+        resolutionModel = new DefaultBoundedRangeModel(10, 0, 2, 20);
+        panel.getResolutionSlider().setModel(resolutionModel);
+        panel.getResolutionSlider().addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                if (!resolutionModel.getValueIsAdjusting()) {
+                    updateResolutionList();
+                }
+            }
+        });
 
-        this.displacementModel = new DefaultBoundedRangeModel(2,0,1,3);
-        this.panel.getDisplacementSlider().setModel(this.displacementModel);
+        displacementModel = new DefaultBoundedRangeModel(2,0,1,3);
+        panel.getDisplacementSlider().setModel(displacementModel);
 
-        this.panel.getResolutionIteratorList().setModel(new DefaultComboBoxModel(ResolutionIteratorFactory.factories));
+        panel.getResolutionIteratorList().setModel(new DefaultComboBoxModel(ResolutionIteratorFactory.factories));
 
-        this.panel.getResolutionIteratorList().addItemListener(new ItemListener() {
+        panel.getResolutionIteratorList().addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     final ResolutionIteratorFactory chosenFactory = (ResolutionIteratorFactory) e.getItem();
@@ -146,7 +153,8 @@ public class FractalController implements Runnable {
         });
 
 
-        this.panel.addResultPanelListener(new ResultPanelListener() {
+
+        panel.addResultPanelListener(new ResultPanelListener() {
             public void gridSelected(final GridSelectedEvent e) {
                 addToQueue(new Runnable() {
                     public void run() {
@@ -156,10 +164,10 @@ public class FractalController implements Runnable {
                 });
             }
         });
-        this.jobs = new LinkedList<Runnable>();
+        jobs = new LinkedList<Runnable>();
 
-        this.controllerThread = new Thread(this);
-        this.controllerThread.setDaemon(true);
+        controllerThread = new Thread(this);
+        controllerThread.setDaemon(true);
 
     }
 
