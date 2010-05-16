@@ -19,6 +19,7 @@ import uk.co.danielrendall.fractdim.app.workers.SquareCountingWorker;
 import uk.co.danielrendall.fractdim.calculation.FractalMetadataUtil;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.calculation.grids.Grid;
+import uk.co.danielrendall.fractdim.calculation.iterators.*;
 import uk.co.danielrendall.fractdim.logging.Log;
 import uk.co.danielrendall.fractdim.logging.PrettyPrinter;
 import uk.co.danielrendall.fractdim.svg.SVGContentGenerator;
@@ -301,7 +302,12 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         panel.getSettingsPanel().disableAllControls();
         panel.updateProgressBar(0);
         panel.showProgressBar();
-        SquareCountingWorker scw = new SquareCountingWorker(document, squareSizeModel.getLowerValue(), squareSizeModel.getMaximum(), resolutionModel.getValue(), angleModel.getValue(), displacementModel.getValue(), new Notifiable<SquareCountingWorker>() {
+
+        AngleIterator angleIterator = new UniformAngleIterator(angleModel.getValue());
+        ResolutionIterator resolutionIterator = new LogarithmicResolutionIterator(squareSizeModel.getLowerValue(), squareSizeModel.getMaximum(), resolutionModel.getValue());
+        DisplacementIterator displacementIterator = new UniformDisplacementIterator(displacementModel.getValue());
+
+        SquareCountingWorker scw = new SquareCountingWorker(document, angleIterator, resolutionIterator, displacementIterator, new Notifiable<SquareCountingWorker>() {
             public void notifyComplete(SquareCountingWorker worker) {
                 Log.calc.info("Square counting worker reported");
                 try {

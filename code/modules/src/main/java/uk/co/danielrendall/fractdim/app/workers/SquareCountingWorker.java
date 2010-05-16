@@ -5,10 +5,7 @@ import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.calculation.SquareCounter;
 import uk.co.danielrendall.fractdim.calculation.SquareCounterBuilder;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
-import uk.co.danielrendall.fractdim.calculation.iterators.LogarithmicResolutionIterator;
-import uk.co.danielrendall.fractdim.calculation.iterators.UniformAngleIterator;
-import uk.co.danielrendall.fractdim.calculation.iterators.UniformDisplacementIterator;
-import uk.co.danielrendall.fractdim.calculation.iterators.UniformResolutionIterator;
+import uk.co.danielrendall.fractdim.calculation.iterators.*;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 import javax.swing.*;
@@ -26,20 +23,16 @@ public class SquareCountingWorker extends SwingWorker<SquareCountingResult, Inte
 
     private boolean useful = true;
     private final FractalDocument document;
-    private final double minimumSquareSize;
-    private final double maximumSquareSize;
-    private final int numberOfResolutions;
-    private final int numberOfAngles;
-    private final int numberOfDisplacements;
+    private final AngleIterator angleIterator;
+    private final ResolutionIterator resolutionIterator;
+    private final DisplacementIterator displacementIterator;
     private final Notifiable<SquareCountingWorker> notifiable;
 
-    public SquareCountingWorker(FractalDocument document, double minimumSquareSize, double maximumSquareSize, int numberOfResolutions, int numberOfAngles, int numberOfDisplacements, Notifiable<SquareCountingWorker> notifiable) {
+    public SquareCountingWorker(FractalDocument document, AngleIterator angleIterator, ResolutionIterator resolutionIterator, DisplacementIterator displacementIterator, Notifiable<SquareCountingWorker> notifiable) {
         this.document = document;
-        this.minimumSquareSize = minimumSquareSize;
-        this.maximumSquareSize = maximumSquareSize;
-        this.numberOfResolutions = numberOfResolutions;
-        this.numberOfAngles = numberOfAngles;
-        this.numberOfDisplacements = numberOfDisplacements;
+        this.angleIterator = angleIterator;
+        this.resolutionIterator = resolutionIterator;
+        this.displacementIterator = displacementIterator;
         this.notifiable = notifiable;
     }
 
@@ -47,9 +40,9 @@ public class SquareCountingWorker extends SwingWorker<SquareCountingResult, Inte
 
         SquareCounterBuilder builder = new SquareCounterBuilder();
         builder.maxDepth(30).
-                angleIterator(new UniformAngleIterator(numberOfAngles)).
-                resolutionIterator(new LogarithmicResolutionIterator(minimumSquareSize, maximumSquareSize, numberOfResolutions)).
-                displacementIterator(new UniformDisplacementIterator(numberOfDisplacements)).
+                angleIterator(angleIterator).
+                resolutionIterator(resolutionIterator).
+                displacementIterator(displacementIterator).
                 fractalDocument(document);
 
 
