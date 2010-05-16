@@ -266,7 +266,7 @@ public class FractalPanel extends JLayeredPane {
         return settingsPanel.getResolutionIteratorList();
     }
 
-    public JList getResolutionlist() {
+    public JList getResolutionList() {
         return settingsPanel.getResolutionList();
     }
 

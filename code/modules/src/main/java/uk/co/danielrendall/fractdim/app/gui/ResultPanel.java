@@ -26,7 +26,9 @@ public class ResultPanel extends JPanel {
     private SquareCountingResult result;
 
     ResultPanel() {
+
         super (new BorderLayout());
+        setBorder(BorderFactory.createTitledBorder("Results"));
         resultTable = new JXTreeTable();
 
         setPreferredSize(new Dimension(300, 300));
@@ -59,7 +61,7 @@ public class ResultPanel extends JPanel {
         resultTable.setTreeCellRenderer(new SquareCountingModelTreeCellRenderer());
         resultTable.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         resultTable.setShowGrid(true);
-        resultTable.setRootVisible(true);
+        resultTable.setRootVisible(false);
         resultTable.setEnabled(true);
     }
 

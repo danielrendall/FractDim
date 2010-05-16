@@ -28,11 +28,12 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.*;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by IntelliJ IDEA.
@@ -69,7 +70,7 @@ public class FractalController implements Runnable {
 
     private volatile boolean shouldQuit = false;
 
-    private ResolutionIteratorFactory resolutionIteratorFactory = ResolutionIteratorFactory.factories[0];
+    private AtomicReference<ResolutionIteratorFactory> resolutionIteratorFactory = new AtomicReference<ResolutionIteratorFactory>(ResolutionIteratorFactory.factories[0]);
 
     private final Action actionCalculateFractalDimension = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
@@ -128,6 +129,21 @@ public class FractalController implements Runnable {
         this.panel.getDisplacementSlider().setModel(this.displacementModel);
 
         this.panel.getResolutionIteratorList().setModel(new DefaultComboBoxModel(ResolutionIteratorFactory.factories));
+
+        this.panel.getResolutionIteratorList().addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    final ResolutionIteratorFactory chosenFactory = (ResolutionIteratorFactory) e.getItem();
+                    resolutionIteratorFactory.set(chosenFactory);
+                    if (chosenFactory == ResolutionIteratorFactory.factories[2]) {
+                        FractalController.this.panel.getResolutionSlider().setEnabled(false);
+                    } else {
+                        FractalController.this.panel.getResolutionSlider().setEnabled(true);
+                    }
+                    updateResolutionList();
+                }
+            }
+        });
 
 
         this.panel.addResultPanelListener(new ResultPanelListener() {
@@ -197,12 +213,13 @@ public class FractalController implements Runnable {
                     addToQueue(new Runnable() {
                         public void run() {
                             Log.thread.debug("Updating grids in response to minimum square size change");
-                            updateGrids(minValue, maxValue);
+                            updateMinimumAndMaximumGrids();
                         }
                     });
                     if (minValue > maxValue) {
                         maximumSquareSizeModel.setValue(minValue);
                     }
+                    updateResolutionList();
                 }
             }
         });
@@ -215,19 +232,21 @@ public class FractalController implements Runnable {
                     addToQueue(new Runnable() {
                         public void run() {
                             Log.thread.debug("Updating grids in response to maximum square size change");
-                            updateGrids(minValue, maxValue);
+                            updateMinimumAndMaximumGrids();
                         }
                     });
                     if (maxValue < minValue) {
                         minimumSquareSizeModel.setValue(maxValue);
                     }
+                    updateResolutionList();
                 }
             }
         });
         
         panel.updateProgressBar(66);
         panel.updateDocument(document);
-        updateGrids(minimumSquareSizeModel.getValue(),  maximumSquareSizeModel.getValue());
+        updateMinimumAndMaximumGrids();
+        updateResolutionList();
         panel.updateProgressBar(100);
         panel.hideProgressBar();
         setStatus(Status.READY_FOR_COUNT);
@@ -343,7 +362,7 @@ public class FractalController implements Runnable {
         panel.showProgressBar();
 
         AngleIterator angleIterator = new UniformAngleIterator(angleModel.getValue());
-        ResolutionIterator resolutionIterator = resolutionIteratorFactory.create(minimumSquareSizeModel.getValue(), maximumSquareSizeModel.getValue(), resolutionModel.getValue());
+        ResolutionIterator resolutionIterator = resolutionIteratorFactory.get().create(minimumSquareSizeModel.getValue(), maximumSquareSizeModel.getValue(), resolutionModel.getValue());
         DisplacementIterator displacementIterator = new UniformDisplacementIterator(displacementModel.getValue());
 
         SquareCountingWorker scw = new SquareCountingWorker(document, angleIterator, resolutionIterator, displacementIterator, new Notifiable<SquareCountingWorker>() {
@@ -372,10 +391,23 @@ public class FractalController implements Runnable {
     }
 
 
-    private void updateGrids(int minGridSize, int maxGridSize) {
+    private void updateResolutionList() {
+        final ResolutionIteratorFactory iteratorFactory = resolutionIteratorFactory.get();
+        if (iteratorFactory != null) {
+            JList resolutionList = this.panel.getResolutionList();
+            Vector<Double> resolutions = new Vector<Double>();
+            for (ResolutionIterator it = iteratorFactory.create(minimumSquareSizeModel.getValue(), maximumSquareSizeModel.getValue(), resolutionModel.getValue()); it.hasNext();) {
+                resolutions.add(it.next());
+            }
+            resolutionList.setListData(resolutions);
+        }
+    }
+
+    private void updateMinimumAndMaximumGrids() {
         checkControllerThread();
-        final Grid minGrid = new Grid(minGridSize);
-        final Grid maxGrid = new Grid(maxGridSize);
+
+        final Grid minGrid = new Grid(minimumSquareSizeModel.getValue());
+        final Grid maxGrid = new Grid(maximumSquareSizeModel.getValue());
 
         final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
 

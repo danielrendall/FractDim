@@ -27,15 +27,9 @@ public class SettingsPanel extends JPanel {
 
     SettingsPanel() {
 
-        this.setLayout(new MigLayout("fill", "[pref][pref][pref, grow, fill]", "[min][min][min][grow, fill]"));
+        this.setLayout(new MigLayout("fill", "[grow, fill][grow, fill][grow, fill]", "[min][min][min][grow, fill]"));
 
-        minimumSquareSizeSlider = new JSlider();
-        maximumSquareSizeSlider = new JSlider();
         angleSlider = new JSlider();
-        resolutionSlider = new JSlider();
-        displacementSlider = new JSlider();
-        resolutionIteratorList = new JComboBox();
-        resolutionList = new JList();
 
         JPanel anglePanel = new JPanel(new BorderLayout());
         anglePanel.setBorder(BorderFactory.createTitledBorder("Angles"));
@@ -47,6 +41,9 @@ public class SettingsPanel extends JPanel {
         anglePanel.add(angleSlider, BorderLayout.CENTER);
         add(anglePanel, "cell 0 0 3 1, growx");
 
+        resolutionSlider = new JSlider();
+        resolutionIteratorList = new JComboBox();
+
         JPanel resolutionPanel = new JPanel(new BorderLayout());
         resolutionPanel.setBorder(BorderFactory.createTitledBorder("Resolutions"));
         resolutionSlider.setLabelTable(resolutionSlider.createStandardLabels(5));
@@ -56,8 +53,9 @@ public class SettingsPanel extends JPanel {
         resolutionSlider.setSnapToTicks(true);
         resolutionPanel.add(resolutionSlider, BorderLayout.CENTER);
         resolutionPanel.add(resolutionIteratorList, BorderLayout.SOUTH);
-
         add(resolutionPanel, "cell 0 1 3 1, growx");
+
+        displacementSlider = new JSlider();
 
         JPanel displacementPanel = new JPanel(new BorderLayout());
         displacementPanel.setBorder(BorderFactory.createTitledBorder("Displacements"));
@@ -70,30 +68,39 @@ public class SettingsPanel extends JPanel {
 
         add(displacementPanel, "cell 0 2 3 1, growx");
 
+        minimumSquareSizeSlider = new JSlider();
+
         minimumSquareSizeSlider.setOrientation(JSlider.VERTICAL);
         minimumSquareSizeSlider.setBorder(BorderFactory.createTitledBorder("Min"));
 
         add(minimumSquareSizeSlider, "cell 0 3 1 1");
+
+        maximumSquareSizeSlider = new JSlider();
 
         maximumSquareSizeSlider.setOrientation(JSlider.VERTICAL);
         maximumSquareSizeSlider.setBorder(BorderFactory.createTitledBorder("Max"));
 
         add(maximumSquareSizeSlider, "cell 1 3 1 1");
 
+        resolutionList = new JList();
+        resolutionList.setBorder(BorderFactory.createTitledBorder("Grid sizes"));
+        resolutionList.setCellRenderer(new ListCellRenderer(){
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Double d = (Double) value;
+                return new JLabel(String.format("%5.1f", d));
+            }
+        });
         add(resolutionList, "cell 2 3 1 1");
                         
     }
-
 
     void disableAllControls() {
         setAllEnabled(false);
     }
 
-
     void enableAllControls() {
         setAllEnabled(true);
     }
-
 
     public void setAllEnabled(boolean state) {
         minimumSquareSizeSlider.setEnabled(state);
