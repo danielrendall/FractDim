@@ -1,15 +1,8 @@
 package uk.co.danielrendall.fractdim.app.gui;
 
-import com.jidesoft.swing.RangeSlider;
-import org.apache.log4j.Logger;
-import uk.co.danielrendall.fractdim.app.controller.FractalController;
-import uk.co.danielrendall.fractdim.app.model.ParameterChangeListener;
-import uk.co.danielrendall.fractdim.app.model.SimpleChangeListener;
-import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -19,67 +12,104 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class SettingsPanel extends JPanel {
-    private final static Logger log = Logger.getLogger(SettingsPanel.class);
 
-    private final Map<Parameter, JComponent> components;
+    private final JSlider minimumSquareSizeSlider;
+    private final JSlider maximumSquareSizeSlider;
+    private final JSlider angleSlider;
+    private final JSlider resolutionSlider;
+    private final JSlider displacementSlider;
 
-    public static SettingsPanel create() {
+    public SettingsPanel(BoundedRangeModel minimumSquareSizeModel, BoundedRangeModel maximumSquareSizeModel, BoundedRangeModel angleModel, BoundedRangeModel resolutionModel, BoundedRangeModel displacementModel) {
+        minimumSquareSizeSlider = new JSlider(minimumSquareSizeModel);
+        maximumSquareSizeSlider = new JSlider(maximumSquareSizeModel);
+        angleSlider = new JSlider(angleModel);
+        resolutionSlider = new JSlider(resolutionModel);
+        displacementSlider = new JSlider(displacementModel);
 
-        Map<Parameter, JComponent> components = new LinkedHashMap<Parameter, JComponent>();
-
-        RangeSlider rs = new RangeSlider();
-        rs.setModel(new DefaultBoundedRangeModel(25, 50, 0, 100));
-        components.put(FractalController.SQUARE_SIZES, rs);
-        components.put(FractalController.NUMBER_RESOLUTIONS, new JSlider(new DefaultBoundedRangeModel(50, 0, 0, 100)));
-        components.put(FractalController.NUMBER_ANGLES, new JSlider(new DefaultBoundedRangeModel(50, 0, 0, 100)));
-        components.put(FractalController.NUMBER_DISPLACEMENTS, new JSlider(new DefaultBoundedRangeModel(50, 0, 0, 100)));
-
-        return new SettingsPanel(components);
-
-    }
-
-    private SettingsPanel(Map<Parameter, JComponent> components) {
         setLayout(new BorderLayout());
-        Box myBox = Box.createVerticalBox();
-        this.components = Collections.unmodifiableMap(components);
+        Box outerBox = Box.createVerticalBox();
+        Box topBox = Box.createVerticalBox();
+        Box lowerBox = Box.createHorizontalBox();
+
         setBorder(BorderFactory.createTitledBorder("Settings"));
 
-        int i=0;
-        for (Parameter param : components.keySet()) {
-            JComponent component = components.get(param);
-            component.setBorder(BorderFactory.createTitledBorder(param.getName()));
-            component.setToolTipText(param.getDescription());
-            myBox.add(component);
-        }
-        this.add(myBox, BorderLayout.CENTER);
-    }
+        angleSlider.setBorder(BorderFactory.createTitledBorder("Angles"));
+        angleSlider.setLabelTable(angleSlider.createStandardLabels(5));
+        angleSlider.setPaintLabels(true);
+        angleSlider.setMinorTickSpacing(1);
+        angleSlider.setPaintTicks(true);
+        angleSlider.setSnapToTicks(true);
+        topBox.add(angleSlider);
 
-    public void setDataModelForParameter(Parameter parameter, BoundedRangeModel model, int tickSpacing) {
-        JSlider slider = ((JSlider)this.components.get(parameter));
-        slider.setModel(model);
-        int increment = (model.getMaximum() - model.getMinimum());
-        slider.setLabelTable(slider.createStandardLabels(increment));
-        slider.setMajorTickSpacing(increment);
-        slider.setPaintLabels(true);
-        slider.setPaintTicks(false);
-        if (tickSpacing != 0) {
-            slider.setMinorTickSpacing(tickSpacing);
-            slider.setPaintTicks(true);
-            slider.setSnapToTicks(true);
-        }
+        resolutionSlider.setBorder(BorderFactory.createTitledBorder("Resolutions"));
+        resolutionSlider.setLabelTable(resolutionSlider.createStandardLabels(5));
+        resolutionSlider.setPaintLabels(true);
+        resolutionSlider.setMinorTickSpacing(1);
+        resolutionSlider.setPaintTicks(true);
+        resolutionSlider.setSnapToTicks(true);
+        topBox.add(resolutionSlider);
+
+
+        displacementSlider.setBorder(BorderFactory.createTitledBorder("Displacements"));
+        displacementSlider.setLabelTable(angleSlider.createStandardLabels(1));
+        displacementSlider.setPaintLabels(true);
+        displacementSlider.setMinorTickSpacing(1);
+        displacementSlider.setPaintTicks(true);
+        displacementSlider.setSnapToTicks(true);
+        topBox.add(displacementSlider);
+
+        lowerBox.setBorder(BorderFactory.createTitledBorder("Square sizes"));
+        minimumSquareSizeSlider.setOrientation(JSlider.VERTICAL);
+        minimumSquareSizeSlider.setBorder(BorderFactory.createTitledBorder("Min"));
+        lowerBox.add(minimumSquareSizeSlider);
+
+        maximumSquareSizeSlider.setOrientation(JSlider.VERTICAL);
+        maximumSquareSizeSlider.setBorder(BorderFactory.createTitledBorder("Max"));
+        lowerBox.add(maximumSquareSizeSlider);
+
+        outerBox.add(topBox);
+        JPanel lowerPanel = new JPanel(new BorderLayout());
+        lowerPanel.add(lowerBox, BorderLayout.CENTER);
+        outerBox.add(lowerPanel);
+
+        this.add(outerBox, BorderLayout.CENTER);
+                
     }
 
     public void disableAllControls() {
-        for (Parameter param : components.keySet()) {
-            JComponent component = components.get(param);
-            component.setEnabled(false);
-        }
+        setAllEnabled(false);
     }
 
     public void enableAllControls() {
-        for (Parameter param : components.keySet()) {
-            JComponent component = components.get(param);
-            component.setEnabled(true);
-        }
+        setAllEnabled(true);
     }
+
+    public void setAllEnabled(boolean state) {
+        setMinimumSquaresEnabled(state);
+        setMaximumSquaresEnabled(state);
+        setAngleEnabled(state);
+        setResolutionEnabled(state);
+        setDisplacementEnabled(state);
+    }
+
+    public void setMinimumSquaresEnabled(boolean state) {
+        minimumSquareSizeSlider.setEnabled(state);
+    }
+
+    public void setMaximumSquaresEnabled(boolean state) {
+        maximumSquareSizeSlider.setEnabled(state);
+    }
+
+    public void setAngleEnabled(boolean state) {
+        angleSlider.setEnabled(state);
+    }
+
+    public void setResolutionEnabled(boolean state) {
+        resolutionSlider.setEnabled(state);
+    }
+
+    public void setDisplacementEnabled(boolean state) {
+        displacementSlider.setEnabled(state);
+    }
+
 }

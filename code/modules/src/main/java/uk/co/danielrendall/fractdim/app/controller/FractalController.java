@@ -11,8 +11,6 @@ import uk.co.danielrendall.fractdim.app.gui.SettingsPanel;
 import uk.co.danielrendall.fractdim.app.model.*;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.actions.ActionRepository;
-import uk.co.danielrendall.fractdim.app.model.widgetmodels.DoubleRangeModel;
-import uk.co.danielrendall.fractdim.app.model.widgetmodels.Parameter;
 import uk.co.danielrendall.fractdim.app.workers.ExcelExportWorker;
 import uk.co.danielrendall.fractdim.app.workers.Notifiable;
 import uk.co.danielrendall.fractdim.app.workers.SquareCountingWorker;
@@ -28,6 +26,8 @@ import uk.co.danielrendall.fractdim.svg.Utilities;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.Date;
@@ -42,7 +42,7 @@ import java.util.concurrent.ExecutionException;
  * Time: 21:02:09
  * To change this template use File | Settings | File Templates.
  */
-public class FractalController implements ParameterChangeListener, ResultPanelListener, Runnable {
+public class FractalController implements ResultPanelListener, Runnable {
 
     private enum Status {NEW, DOC_LOADED, READY_FOR_COUNT, COUNTING_SQUARES, SQUARES_COUNTED, EXPORTING};
 
@@ -53,18 +53,14 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     private final static String MAX_GRID = "MaxGrid";
     private final static String BOUNDING_BOX = "BoundingBox";
 
-    public final static Parameter SQUARE_SIZES = new Parameter("CALC_SETTINGS", "SQUARE_SIZES", "Square sizes", "The range of square sizes to be used for counting");
-    public final static Parameter NUMBER_RESOLUTIONS = new Parameter("CALC_SETTINGS", "NUMBER_RESOLUTIONS", "Number of resolutions", "The number of different square sizes between the minimum and maximum (inclusive)");
-    public final static Parameter NUMBER_ANGLES = new Parameter("CALC_SETTINGS", "NUMBER_ANGLES", "Number of angles", "The number of different grid angles to be tried for each resolution");
-    public final static Parameter NUMBER_DISPLACEMENTS = new Parameter("CALC_SETTINGS", "NUMBER_DISPLACEMENTS", "Number of displacements", "The number of different offsets within each square to be tried for each angle");
-
     private final FractalDocument document;
     private final FractalPanel panel;
 
-    private DoubleRangeModel squareSizeModel;
-    private BoundedRangeModel resolutionModel;
-    private BoundedRangeModel angleModel;
-    private BoundedRangeModel displacementModel;
+    private final BoundedRangeModel minimumSquareSizeModel;
+    private final BoundedRangeModel maximumSquareSizeModel;
+    private final BoundedRangeModel resolutionModel;
+    private final BoundedRangeModel angleModel;
+    private final BoundedRangeModel displacementModel;
 
     private final Thread controllerThread;
 
@@ -115,7 +111,12 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
 
     private FractalController(FractalDocument document) {
         this.document = document;
-        this.panel = new FractalPanel();
+        this.minimumSquareSizeModel = new DefaultBoundedRangeModel(10, 0, 1, 1000);
+        this.maximumSquareSizeModel = new DefaultBoundedRangeModel(990, 0, 1, 1000);
+        this.angleModel = new DefaultBoundedRangeModel(5, 0, 1, 10);
+        this.resolutionModel = new DefaultBoundedRangeModel(10, 0, 2, 20);
+        this.displacementModel = new DefaultBoundedRangeModel(2, 0, 1, 3);
+        this.panel = new FractalPanel(this.minimumSquareSizeModel, this.maximumSquareSizeModel, this.angleModel, this.resolutionModel, this.displacementModel);
         this.panel.getResultPanel().addResultPanelListener(this);
         this.jobs = new LinkedList<Runnable>();
 
@@ -160,35 +161,51 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         document.setMetadata(metadata);
         BoundingBox box = metadata.getBoundingBox();
         double maximumBoxSize = Math.min(box.getWidth(), box.getHeight());
-        double minimumBoxSize = maximumBoxSize / 50.0d;
-
-        double range = maximumBoxSize - minimumBoxSize;
-        // start with a slider range just a little inside the real range.
-        double rangeMin = minimumBoxSize + (range * 0.1d);
-        double rangeExtent = range * 0.8d;
-        this.squareSizeModel = new DoubleRangeModel(rangeMin, rangeExtent, minimumBoxSize, maximumBoxSize);
-        this.resolutionModel = new DefaultBoundedRangeModel(2, 0, 2, 20);
-        this.angleModel = new DefaultBoundedRangeModel(1, 0, 1, 10);
-        this.displacementModel = new DefaultBoundedRangeModel(1, 0, 1, 3);
         this.status = Status.DOC_LOADED;
 
         Log.thread.debug("Populating settings panel");
-        SettingsPanel settingsPanel = panel.getSettingsPanel();
-        squareSizeModel.addChangeListener(new SimpleChangeListener(FractalController.this, SQUARE_SIZES));
-        settingsPanel.setDataModelForParameter(SQUARE_SIZES, squareSizeModel, 0);
 
-        resolutionModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_RESOLUTIONS));
-        settingsPanel.setDataModelForParameter(NUMBER_RESOLUTIONS, resolutionModel, 1);
+        maximumSquareSizeModel.setValue((int)maximumBoxSize + 1);
 
-        angleModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_ANGLES));
-        settingsPanel.setDataModelForParameter(NUMBER_ANGLES, angleModel, 1);
+        minimumSquareSizeModel.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                final int minValue = minimumSquareSizeModel.getValue();
+                final int maxValue = maximumSquareSizeModel.getValue();
+                if (!minimumSquareSizeModel.getValueIsAdjusting()) {
+                    addToQueue(new Runnable() {
+                        public void run() {
+                            Log.thread.debug("Updating grids in response to minimum square size change");
+                            updateGrids(minValue, maxValue);
+                        }
+                    });
+                    if (minValue > maxValue) {
+                        maximumSquareSizeModel.setValue(minValue);
+                    }
+                }
+            }
+        });
 
-        displacementModel.addChangeListener(new SimpleChangeListener(FractalController.this, NUMBER_DISPLACEMENTS));
-        settingsPanel.setDataModelForParameter(NUMBER_DISPLACEMENTS, displacementModel, 1);
-
+        maximumSquareSizeModel.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                final int minValue = minimumSquareSizeModel.getValue();
+                final int maxValue = maximumSquareSizeModel.getValue();
+                if (!maximumSquareSizeModel.getValueIsAdjusting()) {
+                    addToQueue(new Runnable() {
+                        public void run() {
+                            Log.thread.debug("Updating grids in response to maximum square size change");
+                            updateGrids(minValue, maxValue);
+                        }
+                    });
+                    if (maxValue < minValue) {
+                        minimumSquareSizeModel.setValue(maxValue);
+                    }
+                }
+            }
+        });
+        
         panel.updateProgressBar(66);
         panel.updateDocument(document);
-        updateGrids();
+        updateGrids(minimumSquareSizeModel.getValue(),  maximumSquareSizeModel.getValue());
         panel.updateProgressBar(100);
         panel.hideProgressBar();
         setStatus(Status.READY_FOR_COUNT);
@@ -304,7 +321,7 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
         panel.showProgressBar();
 
         AngleIterator angleIterator = new UniformAngleIterator(angleModel.getValue());
-        ResolutionIterator resolutionIterator = new LogarithmicResolutionIterator(squareSizeModel.getLowerValue(), squareSizeModel.getMaximum(), resolutionModel.getValue());
+        ResolutionIterator resolutionIterator = new LogarithmicResolutionIterator(minimumSquareSizeModel.getValue(), maximumSquareSizeModel.getValue(), resolutionModel.getValue());
         DisplacementIterator displacementIterator = new UniformDisplacementIterator(displacementModel.getValue());
 
         SquareCountingWorker scw = new SquareCountingWorker(document, angleIterator, resolutionIterator, displacementIterator, new Notifiable<SquareCountingWorker>() {
@@ -333,10 +350,10 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
     }
 
 
-    private void updateGrids() {
+    private void updateGrids(int minGridSize, int maxGridSize) {
         checkControllerThread();
-        final Grid minGrid = new Grid(squareSizeModel.getValue());
-        final Grid maxGrid = new Grid(squareSizeModel.getUpperValue());
+        final Grid minGrid = new Grid(minGridSize);
+        final Grid maxGrid = new Grid(maxGridSize);
 
         final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
 
@@ -376,19 +393,6 @@ public class FractalController implements ParameterChangeListener, ResultPanelLi
                 return theGrid.writeFilledToSVG(rootElement, creator, boundingBox, "#ff9999");
             }
         });
-    }
-
-    public void valueChanged(Parameter param, int value) {
-        if (param.equals(SQUARE_SIZES)) {
-            addToQueue(new Runnable() {
-                public void run() {
-                    Log.thread.debug("Updating grids in response to parameter change");
-                    updateGrids();
-                }
-            });
-        } else {
-            Log.gui.debug("Ignoring change to param " + param.getId() + " to " + value);
-        }
     }
 
     public void gridSelected(final GridSelectedEvent e) {

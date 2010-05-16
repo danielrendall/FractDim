@@ -265,20 +265,20 @@ public class Grid {
      * @return The bounding box occupied by enough of the grid to cover the supplied bounding box.
      */
     public BoundingBox writeToSVG(Element rootGroup, SVGElementCreator creator, BoundingBox boundingBox, String colour) {
-        double centreX = (boundingBox.getMaxX() + boundingBox.getMinX()) / 2.0d;
-        double centreY = (boundingBox.getMaxY() + boundingBox.getMinY()) / 2.0d;
+        double originX = boundingBox.getMinX();
+        double originY = boundingBox.getMinY();
 
         // Recall that in SVG, the origin is at the top-left and so y increases downwards
 
-        int squaresToTheLeft = (int) Math.ceil((centreX - boundingBox.getMinX()) / resolution);
-        int squaresToTheRight = (int) Math.ceil((boundingBox.getMaxX() - centreX) / resolution);
-        int squaresToTheTop = (int) Math.ceil((centreY - boundingBox.getMinY()) / resolution);
-        int squaresToTheBottom = (int) Math.ceil((boundingBox.getMaxY() - centreY) / resolution);
+        int squaresToTheLeft = (int) Math.ceil((originX - boundingBox.getMinX()) / resolution);
+        int squaresToTheRight = (int) Math.ceil((boundingBox.getMaxX() - originX) / resolution);
+        int squaresToTheTop = (int) Math.ceil((originY - boundingBox.getMinY()) / resolution);
+        int squaresToTheBottom = (int) Math.ceil((boundingBox.getMaxY() - originY) / resolution);
 
-        double left = centreX - ((double) squaresToTheLeft) * resolution;
-        double right = centreX + ((double) squaresToTheRight) * resolution;
-        double top = centreY - ((double) squaresToTheTop) * resolution;
-        double bottom = centreY + ((double) squaresToTheBottom) * resolution;
+        double left = originX - ((double) squaresToTheLeft) * resolution;
+        double right = originX + ((double) squaresToTheRight) * resolution;
+        double top = originY - ((double) squaresToTheTop) * resolution;
+        double bottom = originY + ((double) squaresToTheBottom) * resolution;
 
         if (left > right) { throw new RuntimeException("Left should be less than right");}
         if (top > bottom) { throw new RuntimeException("Top should be less than bottom");}

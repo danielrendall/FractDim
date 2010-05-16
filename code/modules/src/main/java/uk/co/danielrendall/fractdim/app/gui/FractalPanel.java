@@ -55,9 +55,9 @@ public class FractalPanel extends JLayeredPane {
     // need to know when Batik's update manager is ready - then we can start adding things to the document
     private transient boolean updateManagerIsReady = false;
 
-    public FractalPanel() {
+    public FractalPanel(BoundedRangeModel minimumSquareSizeModel, BoundedRangeModel maximumSquareSizeModel, BoundedRangeModel angleModel, BoundedRangeModel resolutionModel, BoundedRangeModel displacementModel) {
 
-        this.settingsPanel = SettingsPanel.create();
+        this.settingsPanel = new SettingsPanel(minimumSquareSizeModel, maximumSquareSizeModel, angleModel, resolutionModel, displacementModel);
 
         canvas = new JSVGCanvas();
         canvas.setDocumentState(AbstractJSVGComponent.ALWAYS_DYNAMIC);
