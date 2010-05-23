@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <meta>
+        <filters directoryPatterns="" filePatterns=""
+            positiveFilePatterns="" showHiddenFiles="false"/>
+        <options/>
+    </meta>
+    <projectTree name="fractdim.xpr">
+        <folder name="samples">
+            <file name="samples/S21F.svg"/>
+            <file name="samples/S24F.svg"/>
+            <file name="samples/Z11F.svg"/>
+            <file name="samples/Z1F.svg"/>
+            <file name="samples/Z2F.svg"/>
+            <file name="samples/Z3F.svg"/>
+            <file name="samples/Z6F.svg"/>
+            <file name="samples/Z7F.svg"/>
+        </folder>
+        <folder name="testcases">
+            <file
+                name="../code/modules/src/test/resources/svg/four_cubics.svg"/>
+            <file name="../code/modules/src/test/resources/svg/grid.svg"/>
+            <file
+                name="../code/modules/src/test/resources/svg/single_cubic.svg"/>
+            <file
+                name="../code/modules/src/test/resources/svg/single_line.svg"/>
+            <file
+                name="../code/modules/src/test/resources/svg/single_line_plain.svg"/>
+            <file
+                name="../code/modules/src/test/resources/svg/squiggles.svg"/>
+            <file
+                name="../code/modules/src/test/resources/svg/test1.svg"/>
+            <file
+                name="../code/modules/src/test/resources/svg/test2.svg"/>
+            <file
+                name="../code/modules/src/test/resources/svg/test3.svg"/>
+            <file
+                name="../code/modules/src/test/resources/svg/test4.svg"/>
+            <file name="../code/modules/src/test/resources/svg/Z1Fa.svg"
+            />
+        </folder>
+    </projectTree>
+</project>
