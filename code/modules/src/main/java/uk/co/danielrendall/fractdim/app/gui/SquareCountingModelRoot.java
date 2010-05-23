@@ -56,6 +56,10 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         return -1;
     }
 
+    public String toString() {
+        return "Average";
+    }
+
     class AngleModelNode implements SquareCountingModelTreeNode {
         private final double angle;
         private final List<ResolutionModelNode> resolutionModels;

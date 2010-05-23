@@ -193,12 +193,13 @@
                             <outfile>target/fractdim.exe</outfile>
                             <jar>target/FractDim.jar</jar>
                             <errTitle>FractDim</errTitle>
+                            <icon>../../resources/icons/v_1_1.ico</icon>
                             <jre>
                                 <minVersion>1.5.0</minVersion>
                             </jre>
                             <splash>
                                 <file>../../resources/splash/v_1_1.bmp</file>
-                                <timeout>5</timeout>
+                                <timeout>8</timeout>
                             </splash>
                             <versionInfo>
                                 <fileVersion>1.1.0.0</fileVersion>

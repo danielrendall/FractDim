@@ -61,7 +61,7 @@ public class ResultPanel extends JPanel {
         resultTable.setTreeCellRenderer(new SquareCountingModelTreeCellRenderer());
         resultTable.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         resultTable.setShowGrid(true);
-        resultTable.setRootVisible(false);
+        resultTable.setRootVisible(true);
         resultTable.setEnabled(true);
     }
 

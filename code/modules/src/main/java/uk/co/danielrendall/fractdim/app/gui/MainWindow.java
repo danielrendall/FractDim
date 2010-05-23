@@ -26,6 +26,7 @@ public class MainWindow extends JFrame {
 
     public MainWindow() throws HeadlessException {
         super("Fractal Dimension");
+        setIconImage(Toolkit.getDefaultToolkit().getImage(MainWindow.class.getResource("/icons/16/fractdim.png")));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent e) {
