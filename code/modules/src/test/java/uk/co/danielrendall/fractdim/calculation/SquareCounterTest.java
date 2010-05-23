@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.w3c.dom.svg.SVGDocument;
 import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
+import uk.co.danielrendall.fractdim.app.model.FractalDocumentMetadata;
 import uk.co.danielrendall.mathlib.geom2d.BezierCubic;
 import uk.co.danielrendall.mathlib.geom2d.Line;
 import uk.co.danielrendall.mathlib.geom2d.Point;
@@ -380,6 +381,10 @@ public class SquareCounterTest {
             SVGDocument svg = gen.generateFractal(new KochCurve(), new Point(startX, startY).rotate(Math.PI / 90d), new Point(endX, endY).rotate(Math.PI / 90d), 3);
             FractalController controller =  FractalController.fromDocument(svg, "Test " + i);
             FractalDocument fractalDocument = controller.getDocument();
+
+            FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(fractalDocument.getSvgDoc());
+
+            fractalDocument.setMetadata(metadata);
 
             try {
                 // Prepare the DOM document for writing

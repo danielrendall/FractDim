@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
+import uk.co.danielrendall.fractdim.app.model.FractalDocumentMetadata;
 import uk.co.danielrendall.fractdim.logging.Log;
 
 /**
@@ -23,6 +24,8 @@ public class StatisticsCalculatorTest {
         InputStream is = StatisticsCalculatorTest.class.getResourceAsStream("/svg/single_cubic.svg");
         FractalController controller =  FractalController.fromInputStream(is);
         FractalDocument fractalDocument = controller.getDocument();
+        FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(fractalDocument.getSvgDoc());
+        fractalDocument.setMetadata(metadata);
 
         Log.geom.debug("Approximate bounding box: " + fractalDocument.getMetadata().getBoundingBox());
         Log.geom.debug("Number of curves: " + fractalDocument.getMetadata().getCurveCount());

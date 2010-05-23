@@ -1,5 +1,6 @@
 package uk.co.danielrendall.fractdim.app;
 
+import org.apache.log4j.*;
 import uk.co.danielrendall.fractdim.app.controller.FractalController;
 import uk.co.danielrendall.fractdim.app.gui.FractalPanel;
 import uk.co.danielrendall.fractdim.app.gui.MainWindow;
@@ -22,6 +23,50 @@ import java.util.prefs.Preferences;
  */
 public class FractDim {
 
+    private final static Preferences prefs;
+
+    static {
+        prefs = Preferences.userRoot().node("/uk/co/danielrendall/fractdim");
+        String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+        System.out.println("Using look and feel: " + lookAndFeel);
+        try {
+            UIManager.setLookAndFeel(lookAndFeel);
+        } catch (Exception e) {
+            System.out.println("Couldn't set look and feel - " + e.getMessage());
+        }
+        try {
+            Preferences loggingPrefs = prefs.node("logging");
+            Preferences loggers = loggingPrefs.node("loggers");
+            String layout = loggingPrefs.get("layout", "%m%n");
+            loggingPrefs.put("layout", layout);
+            File logFile = new File(System.getProperty("user.home"), "fractdim.log");
+            String logFileName = loggingPrefs.get("logfile", logFile.getAbsolutePath());
+            loggingPrefs.put("logfile", logFileName);
+
+            Logger.getRootLogger().addAppender(new FileAppender(new PatternLayout(layout),logFileName));
+            setLogLevel(Log.gui, loggers, Level.INFO);
+            setLogLevel(Log.thread, loggers, Level.INFO);
+            setLogLevel(Log.app, loggers, Level.INFO);
+            setLogLevel(Log.misc, loggers, Level.INFO);
+            setLogLevel(Log.test, loggers, Level.INFO);
+            setLogLevel(Log.messages, loggers, Level.INFO);
+            setLogLevel(Log.geom, loggers, Level.INFO);
+            setLogLevel(Log.calc, loggers, Level.INFO);
+            setLogLevel(Log.points, loggers, Level.INFO);
+            setLogLevel(Log.squares, loggers, Level.INFO);
+            setLogLevel(Log.recursion, loggers, Level.INFO);
+        } catch (IOException e) {
+            System.out.println("Unable to configure logging - " + e.getMessage());
+        }
+    }
+
+    private static void setLogLevel(Logger aLog, Preferences loggingPrefs, Level def) {
+        String level = loggingPrefs.get(aLog.getName(), def.toString());
+        loggingPrefs.put(aLog.getName(), level);
+        aLog.setLevel(Level.toLevel(level));
+        System.out.println("Log " + aLog.getName() + " is at level " + level);
+    }
+
     private final static FractDim fractDim = new FractDim();
 
     private final static int DEFAULT_WIDTH = 1024;
@@ -33,7 +78,6 @@ public class FractDim {
     private final Map<FractalPanel, FractalController> controllers = new HashMap<FractalPanel, FractalController>();
     private FractalController currentController = null;
 
-    private final Preferences prefs;
 
     private static AtomicInteger ID = new AtomicInteger(1);
     private final String PREF_DIRECTORY_SVG = "initial.directory.svg";
@@ -51,14 +95,7 @@ public class FractDim {
         System.out.println("This program comes with ABSOLUTELY NO WARRANTY");
         System.out.println("This is free software, and you are welcome to redistribute it under certain conditions");
 
-        try {
-            UIManager.setLookAndFeel(
-                    UIManager.getSystemLookAndFeelClassName());
-            fractDim.run(args);
-        }
-        catch (Exception e) {
-            // handle exception
-        }
+        fractDim.run(args);
     }
 
     public static FractDim instance() {
@@ -66,7 +103,6 @@ public class FractDim {
     }
     public FractDim() {
         window = new MainWindow();
-        prefs = Preferences.userRoot().node("/uk/co/danielrendall/fractdim");
         File svgDir = new File(prefs.get(PREF_DIRECTORY_SVG, System.getProperty("user.home")));
         if (svgDir.exists()) {
             openFileChooser = new JFileChooser(svgDir);
