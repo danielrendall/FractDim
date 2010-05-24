@@ -140,6 +140,7 @@ public class Grid {
 
     public void endEvaluation() {
         masterStore.addAll(temporaryStore);
+        squaresMet.clear();
     }
 
     public boolean[] notifyNewPoint(Point startPoint, Point midPoint, Point endPoint) {
