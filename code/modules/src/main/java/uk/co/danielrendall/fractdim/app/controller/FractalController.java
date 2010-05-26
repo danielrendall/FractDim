@@ -42,13 +42,17 @@ import java.util.concurrent.atomic.AtomicReference;
  * Time: 21:02:09
  * To change this template use File | Settings | File Templates.
  */
-public class FractalController implements Runnable {
+public class FractalController {
+    private final ControllerThread controllerThread = new ControllerThread(this);
+
 
     private enum Status {NEW, DOC_LOADED, READY_FOR_COUNT, COUNTING_SQUARES, SQUARES_COUNTED, EXPORTING};
 
     private final static String CALC_STATS = "CalcStats";
+    private final static String GENERATE_METADATA = "GenerateMetadata";
     private final static String COUNT_SQUARES = "CountSquares";
     private final static String RESULT_GRID = "ResultGrid";
+    private final static String MIN_MAX_GRIDS = "MinMaxGrids";
     private final static String MIN_GRID = "MinGrid";
     private final static String MAX_GRID = "MaxGrid";
     private final static String BOUNDING_BOX = "BoundingBox";
@@ -62,13 +66,9 @@ public class FractalController implements Runnable {
     private final BoundedRangeModel angleModel;
     private final BoundedRangeModel displacementModel;
 
-    private final Thread controllerThread;
-
-    private final Queue<Runnable> jobs;
 
     private SquareCountingResult result = null;
 
-    private volatile boolean shouldQuit = false;
 
     private AtomicReference<ResolutionIteratorFactory> resolutionIteratorFactory = new AtomicReference<ResolutionIteratorFactory>(ResolutionIteratorFactory.factories[0]);
 
@@ -126,9 +126,9 @@ public class FractalController implements Runnable {
         panel.getResolutionSlider().setModel(resolutionModel);
         panel.getResolutionSlider().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                if (!resolutionModel.getValueIsAdjusting()) {
+//                if (!resolutionModel.getValueIsAdjusting()) {
                     updateResolutionList();
-                }
+//                }
             }
         });
 
@@ -156,7 +156,7 @@ public class FractalController implements Runnable {
 
         panel.addResultPanelListener(new ResultPanelListener() {
             public void gridSelected(final GridSelectedEvent e) {
-                addToQueue(new Runnable() {
+                controllerThread.addToQueue(RESULT_GRID, new Runnable() {
                     public void run() {
                         Log.thread.debug("Grid selected: " + e.getGrid().toString());
                         updateResultGrid(e.getGrid());
@@ -164,10 +164,6 @@ public class FractalController implements Runnable {
                 });
             }
         });
-        jobs = new LinkedList<Runnable>();
-
-        controllerThread = new Thread(this);
-        controllerThread.setDaemon(true);
 
     }
 
@@ -177,7 +173,7 @@ public class FractalController implements Runnable {
         controllerThread.start();
         panel.updateProgressBar(0);
         panel.showProgressBar();
-        addToQueue(new Runnable() {
+        controllerThread.addToQueue(GENERATE_METADATA, new Runnable() {
             public void run() {
                 generateMetaData();
             }
@@ -189,18 +185,11 @@ public class FractalController implements Runnable {
     }
 
     public void notifyRemoved() {
-        shouldQuit = true;
-        controllerThread.interrupt();
-        try {
-            controllerThread.join();
-            Log.thread.info("Joined controller thread");
-        } catch (InterruptedException e) {
-            Log.thread.warn("Couldn't join controller thread - " + e.getMessage());
-        }
+        controllerThread.quit();
     }
 
     private void generateMetaData() {
-        checkControllerThread();
+        controllerThread.checkControllerThread();
         Log.thread.debug("Generating metadata");
         panel.updateProgressBar(33);
         FractalDocumentMetadata metadata = FractalMetadataUtil.getMetadata(document.getSvgDoc());
@@ -218,7 +207,7 @@ public class FractalController implements Runnable {
                 final int minValue = minimumSquareSizeModel.getValue();
                 final int maxValue = maximumSquareSizeModel.getValue();
                 if (!minimumSquareSizeModel.getValueIsAdjusting()) {
-                    addToQueue(new Runnable() {
+                    controllerThread.addToQueue(MIN_MAX_GRIDS, new Runnable() {
                         public void run() {
                             Log.thread.debug("Updating grids in response to minimum square size change");
                             updateMinimumAndMaximumGrids();
@@ -227,8 +216,8 @@ public class FractalController implements Runnable {
                     if (minValue > maxValue) {
                         maximumSquareSizeModel.setValue(minValue);
                     }
-                    updateResolutionList();
                 }
+                updateResolutionList();
             }
         });
 
@@ -237,7 +226,7 @@ public class FractalController implements Runnable {
                 final int minValue = minimumSquareSizeModel.getValue();
                 final int maxValue = maximumSquareSizeModel.getValue();
                 if (!maximumSquareSizeModel.getValueIsAdjusting()) {
-                    addToQueue(new Runnable() {
+                    controllerThread.addToQueue(MIN_MAX_GRIDS, new Runnable() {
                         public void run() {
                             Log.thread.debug("Updating grids in response to maximum square size change");
                             updateMinimumAndMaximumGrids();
@@ -246,11 +235,11 @@ public class FractalController implements Runnable {
                     if (maxValue < minValue) {
                         minimumSquareSizeModel.setValue(maxValue);
                     }
-                    updateResolutionList();
                 }
+                updateResolutionList();
             }
         });
-        
+
         panel.updateProgressBar(66);
         panel.updateDocument(document);
         updateMinimumAndMaximumGrids();
@@ -259,35 +248,6 @@ public class FractalController implements Runnable {
         panel.hideProgressBar();
         setStatus(Status.READY_FOR_COUNT);
         // All the setting up of the panel etc. will be done in the controller thread.
-    }
-
-
-    private synchronized void addToQueue(Runnable r) {
-        jobs.add(r);
-        controllerThread.interrupt();
-    }
-
-    private synchronized Runnable getFromQueue() {
-        return jobs.poll();
-    }
-
-
-    // main lifecycle of controller. Does things, updates status.
-    public void run() {
-        while (!shouldQuit) {
-            for (Runnable r = getFromQueue(); r != null; r = getFromQueue()) {
-                Log.thread.info("Found a runnable in the queue");
-                r.run();
-            }
-
-            try {
-                Log.thread.info("Sleeping...");
-                Thread.sleep(Long.MAX_VALUE);
-            } catch (InterruptedException e) {
-                // ignore
-            }
-            Log.thread.info("Awoken");
-        }
     }
 
     public FractalDocument getDocument() {
@@ -412,7 +372,7 @@ public class FractalController implements Runnable {
     }
 
     private void updateMinimumAndMaximumGrids() {
-        checkControllerThread();
+        controllerThread.checkControllerThread();
 
         final Grid minGrid = new Grid(minimumSquareSizeModel.getValue());
         final Grid maxGrid = new Grid(maximumSquareSizeModel.getValue());
@@ -448,7 +408,7 @@ public class FractalController implements Runnable {
     }
 
     private void updateResultGrid(final Grid theGrid) {
-        checkControllerThread();
+        controllerThread.checkControllerThread();
         final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
         panel.updateOverlay(RESULT_GRID, new SVGContentGenerator() {
             public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
@@ -469,7 +429,7 @@ public class FractalController implements Runnable {
     }
 
     private void checkControllerThread() {
-        if (Thread.currentThread() != controllerThread) throw new IllegalStateException("Should be called in controller thread");
+        controllerThread.checkControllerThread();
     }
 
 }
