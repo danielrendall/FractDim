@@ -27,7 +27,7 @@ public class Grid {
     private final double resolution;
     private final Vec fractionalDisplacement;
 
-    final Vec displacement;
+    private final Vec displacement;
 
     private final GridSquareStore masterStore;
     private final GridSquareStore temporaryStore;

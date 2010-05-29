@@ -64,7 +64,7 @@ public class SquareCounter extends AbstractNotifyingGraphics {
         }
     }
 
-    // Note - when this is called, the start and end Squareels have both been put in the store
+    // Note - when this is called, the start and end Squares have both been put in the store
     private void evaluateBetween(ParametricCurve curve, Set<Grid> gridsToNotify, int depth,
                                  double rangeStart, Point startPoint,
                                  double rangeEnd, Point endPoint) {

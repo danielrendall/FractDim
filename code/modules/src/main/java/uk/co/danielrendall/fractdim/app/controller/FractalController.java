@@ -52,10 +52,18 @@ public class FractalController {
     private final static String GENERATE_METADATA = "GenerateMetadata";
     private final static String COUNT_SQUARES = "CountSquares";
     private final static String RESULT_GRID = "ResultGrid";
+    private final static int RESULT_GRID_Z_INDEX = -15;
+
     private final static String MIN_MAX_GRIDS = "MinMaxGrids";
+
     private final static String MIN_GRID = "MinGrid";
+    private final static int MIN_GRID_Z_INDEX = -15;
+
     private final static String MAX_GRID = "MaxGrid";
+    private final static int MAX_GRID_Z_INDEX = -10;
+
     private final static String BOUNDING_BOX = "BoundingBox";
+    private final static int BOUNDING_BOX_Z_INDEX = -5;
 
     private final FractalDocument document;
     private final FractalPanel panel;
@@ -381,7 +389,7 @@ public class FractalController {
 
         Log.gui.info("Bounding box is " + boundingBox);
 
-        panel.updateOverlay(BOUNDING_BOX, new SVGContentGenerator() {
+        panel.updateOverlay(BOUNDING_BOX, BOUNDING_BOX_Z_INDEX, new SVGContentGenerator() {
             public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
                 Element path = creator.createPath("#999999");
                 path.setAttributeNS(null, "d", String.format("M %s,%s L %s,%s L %s,%s L %s,%s z",
@@ -394,13 +402,13 @@ public class FractalController {
             }
         });
 
-        panel.updateOverlay(MIN_GRID, new SVGContentGenerator() {
+        panel.updateOverlay(MIN_GRID, MIN_GRID_Z_INDEX, new SVGContentGenerator() {
             public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
                 return minGrid.writeToSVG(rootElement, creator, boundingBox, "#99ff99");
             }
         });
 
-        panel.updateOverlay(MAX_GRID, new SVGContentGenerator() {
+        panel.updateOverlay(MAX_GRID, MAX_GRID_Z_INDEX, new SVGContentGenerator() {
             public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
                 return maxGrid.writeToSVG(rootElement, creator, boundingBox, "#9999ff");
             }
@@ -410,7 +418,7 @@ public class FractalController {
     private void updateResultGrid(final Grid theGrid) {
         controllerThread.checkControllerThread();
         final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
-        panel.updateOverlay(RESULT_GRID, new SVGContentGenerator() {
+        panel.updateOverlay(RESULT_GRID, RESULT_GRID_Z_INDEX, new SVGContentGenerator() {
             public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
                 return theGrid.writeFilledToSVG(rootElement, creator, boundingBox, "#ff9999");
             }

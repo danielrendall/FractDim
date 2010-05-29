@@ -7,12 +7,16 @@ import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.batik.swing.svg.AbstractJSVGComponent;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
 import uk.co.danielrendall.fractdim.app.model.FractalDocument;
 import uk.co.danielrendall.fractdim.calculation.SquareCountingResult;
 import uk.co.danielrendall.fractdim.logging.Log;
+import uk.co.danielrendall.fractdim.logging.PrettyPrinter;
 import uk.co.danielrendall.fractdim.svg.SVGContentGenerator;
 import uk.co.danielrendall.fractdim.svg.SVGElementCreator;
 import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
@@ -22,6 +26,7 @@ import uk.co.danielrendall.mathlib.geom2d.Vec;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.List;
 
@@ -42,7 +47,12 @@ public class FractalPanel extends JLayeredPane {
     private final JProgressBar progressBar;
     private final JPanel progressPanel;
 
+    // Maps our identifiers for overlays (e.g. "MAX_GRID") to the actual id of the group element representing that overlay
     private final Map<String, String> overlayIdMap;
+
+    // Maps the ID of a group element to its desired z-index (note - these should all be negative)
+    private final Map<String, Integer> zIndexMap;
+
     private final Map<String, BoundingBox> overlayBoundingBoxes;
 
     private BoundingBox rootBoundingBox;
@@ -67,6 +77,8 @@ public class FractalPanel extends JLayeredPane {
         resultPanel = new ResultPanel();
 
         overlayIdMap = new HashMap<String, String>();
+        zIndexMap = new HashMap<String, Integer>();
+
         overlayBoundingBoxes = new HashMap<String, BoundingBox>();
 
         temporaryRunnableQueue = new LinkedList<Runnable>();
@@ -128,14 +140,41 @@ public class FractalPanel extends JLayeredPane {
         });
         rootBoundingBox = doc.getMetadata().getBoundingBox();
         currentBoundingBox = rootBoundingBox;
-        canvas.setSVGDocument(doc.getSvgDoc());
+        // put any existing group elements inside a known root group with ZIndex Integer.MAX_VALUE
+        SVGDocument document = doc.getSvgDoc();
+        SVGElementCreator creator = new SVGElementCreator(document);
+        SVGSVGElement root = document.getRootElement();
+
+        Element group = creator.createGroup();
+
+        NodeList children = root.getChildNodes();
+        int childCount = children.getLength();
+        List<Node> nodesToAppendToGroup = new ArrayList<Node>();
+
+
+        for (int i=0; i< childCount; i++) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                Element childEl = (Element) child;
+                if ("g".equals(childEl.getTagName())) {
+                    nodesToAppendToGroup.add(childEl);
+                }
+            }
+        }
+        for (Node node:nodesToAppendToGroup) {
+            group.appendChild(root.removeChild(node));
+        }
+        root.appendChild(group);
+        zIndexMap.put(group.getAttributeNS(null, "id"), Integer.MAX_VALUE);
+        
+        canvas.setSVGDocument(document);
     }
 
 
-    public void addOverlay(final String overlayId, final SVGContentGenerator generator) {
+    public void addOverlay(final String overlayId, final int zIndex, final SVGContentGenerator generator) {
         runNowOrLater(overlayId, new Runnable() {
             public void run() {
-                addOverlayInUpdateManager(overlayId, generator);
+                addOverlayInUpdateManager(overlayId, zIndex, generator);
             }
         });
     }
@@ -150,11 +189,11 @@ public class FractalPanel extends JLayeredPane {
         });
     }
 
-    public void updateOverlay(final String overlayId, final SVGContentGenerator generator) {
+    public void updateOverlay(final String overlayId, final int zIndex, final SVGContentGenerator generator) {
         runNowOrLater(overlayId, new Runnable() {
             public void run() {
                 removeOverlayInUpdateManager(overlayId);
-                addOverlayInUpdateManager(overlayId, generator);
+                addOverlayInUpdateManager(overlayId, zIndex, generator);
             }
         });
     }
@@ -178,21 +217,62 @@ public class FractalPanel extends JLayeredPane {
      * @param overlayId
      * @param generator
      */
-    private void addOverlayInUpdateManager(String overlayId, SVGContentGenerator generator) {
+    private void addOverlayInUpdateManager(String overlayId, int zIndex, SVGContentGenerator generator) {
         SVGDocument myDoc = canvas.getSVGDocument();
-        SVGElementCreator creator = new SVGElementCreator(myDoc);
-        SVGSVGElement root = myDoc.getRootElement();
+//        StringWriter swBefore = new StringWriter();
+//        PrettyPrinter pp = new PrettyPrinter(myDoc.getRootElement());
+//        pp.prettyPrint(swBefore);
+//        try {
+            SVGElementCreator creator = new SVGElementCreator(myDoc);
+            SVGSVGElement root = myDoc.getRootElement();
 
-        Element group = creator.createGroup();
-        BoundingBox box = generator.generateContent(group, creator);
+            Element group = creator.createGroup();
+            BoundingBox box = generator.generateContent(group, creator);
 
-        overlayIdMap.put(overlayId, group.getAttributeNS(null, "id"));
-        overlayBoundingBoxes.put(overlayId, box);
-        currentBoundingBox = currentBoundingBox.expandToInclude(box);
-        root.appendChild(group);
-        String viewBox = currentBoundingBox.forSvg();
-        root.setAttributeNS(null, "viewBox", viewBox);
-        root.setAttributeNS(null, "overflow", "visible");
+            final String overlayGroupId = group.getAttributeNS(null, "id");
+
+            overlayIdMap.put(overlayId, overlayGroupId);
+            zIndexMap.put(overlayGroupId, zIndex);
+            Log.gui.debug(String.format("Overlay name %s groupId %s zIndex %d", overlayId, overlayGroupId, zIndex));
+
+            overlayBoundingBoxes.put(overlayId, box);
+            currentBoundingBox = currentBoundingBox.expandToInclude(box);
+            NodeList children = root.getChildNodes();
+            int childCount = children.getLength();
+            Log.gui.debug("Root has " + childCount + " children");
+            Node childToInsertBefore = null;
+            for (int i=0; i< childCount; i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    Element childEl = (Element) child;
+                    if ("g".equals(childEl.getTagName())) {
+                        childToInsertBefore = childEl;
+                        String id = childEl.getAttributeNS(null, "id");
+                        Log.gui.debug("Child "+ i + " has Id " + id);
+                        int zIndexOfChild = zIndexMap.get(id);
+                        if (zIndexOfChild > zIndex) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if (childToInsertBefore != null) {
+                root.insertBefore(group, childToInsertBefore);
+            } else {
+                root.appendChild(group);
+            }
+            String viewBox = currentBoundingBox.forSvg();
+            root.setAttributeNS(null, "viewBox", viewBox);
+            root.setAttributeNS(null, "overflow", "visible");
+//            StringWriter swAfter = new StringWriter();
+//            PrettyPrinter pp1 = new PrettyPrinter(myDoc.getRootElement());
+//            pp1.prettyPrint(swAfter);
+//            Log.gui.debug("Before: " + swBefore.toString());
+//            Log.gui.debug("After: " + swAfter.toString());
+//        } catch (Exception e) {
+//            Log.gui.warn(e);
+//            Log.gui.debug("Before: " + swBefore.toString());
+//        }
     }
 
     /**
@@ -204,6 +284,7 @@ public class FractalPanel extends JLayeredPane {
 
         String overlayGroupId = overlayIdMap.remove(overlayId);
         if (overlayGroupId != null) {
+            zIndexMap.remove(overlayGroupId);
             SVGDocument myDoc = canvas.getSVGDocument();
             SVGSVGElement root = myDoc.getRootElement();
             Element el = root.getElementById(overlayGroupId);
