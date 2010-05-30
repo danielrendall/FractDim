@@ -276,10 +276,10 @@ public class Grid {
         int squaresToTheTop = (int) Math.ceil((originY - boundingBox.getMinY()) / resolution);
         int squaresToTheBottom = (int) Math.ceil((boundingBox.getMaxY() - originY) / resolution);
 
-        double left = originX - ((double) squaresToTheLeft) * resolution;
-        double right = originX + ((double) squaresToTheRight) * resolution;
-        double top = originY - ((double) squaresToTheTop) * resolution;
-        double bottom = originY + ((double) squaresToTheBottom) * resolution;
+        double left = originX - ((double) squaresToTheLeft  + 1.0d) * resolution;
+        double right = originX + ((double) squaresToTheRight + 1.0d) * resolution;
+        double top = originY - ((double) squaresToTheTop + 1.0d) * resolution;
+        double bottom = originY + ((double) squaresToTheBottom + 1.0d) * resolution;
 
         if (left > right) { throw new RuntimeException("Left should be less than right");}
         if (top > bottom) { throw new RuntimeException("Top should be less than bottom");}

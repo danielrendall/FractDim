@@ -84,14 +84,16 @@ public class SettingsPanel extends JPanel {
 
         resolutionList = new JList();
         resolutionList.setBorder(BorderFactory.createTitledBorder("Grid sizes"));
-        resolutionList.setCellRenderer(new ListCellRenderer(){
+        final ListCellRenderer existingRenderer = resolutionList.getCellRenderer();
+        resolutionList.setCellRenderer(new ListCellRenderer() {
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                Double d = (Double) value;
-                return new JLabel(String.format("%5.1f", d));
+                String toDisplay = String.format("%5.1f", (Double) value);
+                return existingRenderer.getListCellRendererComponent(list, toDisplay, index, isSelected,cellHasFocus);
+
             }
         });
         add(resolutionList, "cell 2 3 1 1");
-                        
+
     }
 
     void disableAllControls() {

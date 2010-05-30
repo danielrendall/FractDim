@@ -27,7 +27,7 @@ public class DisplacementGridCollection {
             public int compare(Vec o1, Vec o2) {
                 double yComp = o2.y() - o1.y();
                 double xComp = o2.x() - o1.x();
-                return yComp > 0.0d ? 1 : yComp < 0.0d ? -1 : xComp > 0.0d ? 1 : xComp < 0.0d ? -1 : 0;
+                return yComp > 0.0d ? -1 : yComp < 0.0d ? 1 : xComp > 0.0d ? -1 : xComp < 0.0d ? 1 : 0;
 
             }
         });

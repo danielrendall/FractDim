@@ -27,6 +27,8 @@ import uk.co.danielrendall.mathlib.geom2d.BoundingBox;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -51,10 +53,14 @@ public class FractalController {
     private final static String CALC_STATS = "CalcStats";
     private final static String GENERATE_METADATA = "GenerateMetadata";
     private final static String COUNT_SQUARES = "CountSquares";
+    private final static String UPDATE_RESOLUTION_LIST = "UpdateResolutionList";
+
     private final static String RESULT_GRID = "ResultGrid";
-    private final static int RESULT_GRID_Z_INDEX = -15;
+    private final static int RESULT_GRID_Z_INDEX = -1;
 
     private final static String MIN_MAX_GRIDS = "MinMaxGrids";
+    private final static String INDICATIVE_RESOLUTION_GRID = "IndicativeResolutionGrids";
+    private final static int INDICATIVE_RESOLUTION_GRID_Z_INDEX = -12;
 
     private final static String MIN_GRID = "MinGrid";
     private final static int MIN_GRID_Z_INDEX = -15;
@@ -73,6 +79,8 @@ public class FractalController {
     private final BoundedRangeModel resolutionModel;
     private final BoundedRangeModel angleModel;
     private final BoundedRangeModel displacementModel;
+
+    private boolean indicativeResolutionGridIsDisplayed = false;
 
 
     private SquareCountingResult result = null;
@@ -134,9 +142,12 @@ public class FractalController {
         panel.getResolutionSlider().setModel(resolutionModel);
         panel.getResolutionSlider().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-//                if (!resolutionModel.getValueIsAdjusting()) {
-                    updateResolutionList();
-//                }
+                controllerThread.addToQueue(UPDATE_RESOLUTION_LIST, new Runnable() {
+                    public void run() {
+                        removeIndicativeResolutionGrid();
+                        updateResolutionList();
+                    }
+                });
             }
         });
 
@@ -155,7 +166,12 @@ public class FractalController {
                     } else {
                         FractalController.this.panel.getResolutionSlider().setEnabled(true);
                     }
-                    updateResolutionList();
+                    controllerThread.addToQueue(UPDATE_RESOLUTION_LIST, new Runnable() {
+                        public void run() {
+                            removeIndicativeResolutionGrid();
+                            updateResolutionList();
+                        }
+                    });
                 }
             }
         });
@@ -173,6 +189,22 @@ public class FractalController {
             }
         });
 
+        final JList jList = panel.getResolutionList();
+        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jList.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                int selectedIndex = e.getFirstIndex();
+                    final Double selectedResolution = (Double) jList.getModel().getElementAt(selectedIndex);
+                    controllerThread.addToQueue(INDICATIVE_RESOLUTION_GRID, new Runnable() {
+                        public void run() {
+                            Log.thread.debug("Updating indicative resolution grid");
+                            updateIndicativeResolutionGrid(selectedResolution);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public void notifyAdded() {
@@ -225,7 +257,12 @@ public class FractalController {
                         maximumSquareSizeModel.setValue(minValue);
                     }
                 }
-                updateResolutionList();
+                controllerThread.addToQueue(UPDATE_RESOLUTION_LIST, new Runnable() {
+                    public void run() {
+                        removeIndicativeResolutionGrid();
+                        updateResolutionList();
+                    }
+                });
             }
         });
 
@@ -244,7 +281,12 @@ public class FractalController {
                         minimumSquareSizeModel.setValue(maxValue);
                     }
                 }
-                updateResolutionList();
+                controllerThread.addToQueue(UPDATE_RESOLUTION_LIST, new Runnable() {
+                    public void run() {
+                        removeIndicativeResolutionGrid();
+                        updateResolutionList();
+                    }
+                });
             }
         });
 
@@ -368,6 +410,7 @@ public class FractalController {
 
 
     private void updateResolutionList() {
+        controllerThread.checkControllerThread();
         final ResolutionIteratorFactory iteratorFactory = resolutionIteratorFactory.get();
         if (iteratorFactory != null) {
             JList resolutionList = this.panel.getResolutionList();
@@ -413,6 +456,32 @@ public class FractalController {
                 return maxGrid.writeToSVG(rootElement, creator, boundingBox, "#9999ff");
             }
         });
+    }
+
+    private void updateIndicativeResolutionGrid(double resolution) {
+        controllerThread.checkControllerThread();
+
+        final Grid grid = new Grid(resolution);
+
+        final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
+
+        panel.updateOverlay(INDICATIVE_RESOLUTION_GRID, INDICATIVE_RESOLUTION_GRID_Z_INDEX, new SVGContentGenerator() {
+            public BoundingBox generateContent(Element rootElement, SVGElementCreator creator) {
+                return grid.writeToSVG(rootElement, creator, boundingBox, "#cccc00");
+            }
+        });
+        indicativeResolutionGridIsDisplayed = true;
+    }
+
+    private void removeIndicativeResolutionGrid() {
+        controllerThread.checkControllerThread();
+
+        if (indicativeResolutionGridIsDisplayed) {
+            final BoundingBox boundingBox = document.getMetadata().getBoundingBox();
+
+            panel.removeOverlay(INDICATIVE_RESOLUTION_GRID);
+        }
+        indicativeResolutionGridIsDisplayed = false;
     }
 
     private void updateResultGrid(final Grid theGrid) {
