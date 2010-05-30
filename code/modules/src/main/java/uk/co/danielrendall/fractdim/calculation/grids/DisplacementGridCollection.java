@@ -17,7 +17,10 @@ public class DisplacementGridCollection {
     private final boolean isBuilding;
 
     private boolean averageCountCalculated = false;
+    private boolean minimumSquareCountCalculated = false;
+
     private double averageSquareCount = 0.0d;
+    private double minimumSquareCount = Double.MAX_VALUE;
 
     DisplacementGridCollection() {
         this.gridMap = new TreeMap<Vec, Grid>(new Comparator<Vec>() {
@@ -71,5 +74,16 @@ public class DisplacementGridCollection {
             averageCountCalculated = true;
         }
         return averageSquareCount;
+    }
+
+    public synchronized double getMinimumSquareCount() {
+        if (!minimumSquareCountCalculated) {
+            Collection<Grid> grids = gridMap.values();
+            for (Grid g : grids) {
+                minimumSquareCount = Math.min(minimumSquareCount, (double) g.getSquareCount());
+            }
+            minimumSquareCountCalculated = true;
+        }
+        return minimumSquareCount;
     }
 }

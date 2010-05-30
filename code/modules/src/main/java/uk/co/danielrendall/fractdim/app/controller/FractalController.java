@@ -140,7 +140,7 @@ public class FractalController {
             }
         });
 
-        displacementModel = new DefaultBoundedRangeModel(2,0,1,3);
+        displacementModel = new DefaultBoundedRangeModel(2,0,1,5);
         panel.getDisplacementSlider().setModel(displacementModel);
 
         panel.getResolutionIteratorList().setModel(new DefaultComboBoxModel(ResolutionIteratorFactory.factories));

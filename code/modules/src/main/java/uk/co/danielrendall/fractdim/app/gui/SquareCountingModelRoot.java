@@ -110,6 +110,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
         private final double resolution;
         private final List<DisplacementModelNode> displacementModels;
         private final double averageSquareCount;
+        private final double minimumSquareCount;
 
         private ResolutionModelNode(double resolution, DisplacementGridCollection displacementGridCollection) {
             this.resolution = resolution;
@@ -118,6 +119,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
                 displacementModels.add(new DisplacementModelNode(displacement, displacementGridCollection.gridForDisplacement(displacement)));
             }
             averageSquareCount = displacementGridCollection.getAverageSquareCount();
+            minimumSquareCount = displacementGridCollection.getMinimumSquareCount();
         }
 
         public Object getValueAt(int column) {
@@ -125,7 +127,7 @@ class SquareCountingModelRoot implements SquareCountingModelTreeNode  {
                 case 0:
                     return new Resolution(resolution);
                 case 2:
-                    return String.format("%5.2f", averageSquareCount);
+                    return String.format("%5.2f", minimumSquareCount);
                 default:
                     return "";
             }

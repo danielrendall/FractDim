@@ -59,7 +59,7 @@ public class ResolutionGridCollection {
             int i=0;
             for (Map.Entry<Double, DisplacementGridCollection> entry : gridMap.entrySet()) {
                 double resolution = entry.getKey();
-                double squareCounts = entry.getValue().getAverageSquareCount();
+                double squareCounts = entry.getValue().getMinimumSquareCount();
                 // assume no pesky divide by zero errors...
                 double logSquareCount = Math.log(squareCounts);
                 double logReciprocalResolution = Math.log(1.0d/resolution);
