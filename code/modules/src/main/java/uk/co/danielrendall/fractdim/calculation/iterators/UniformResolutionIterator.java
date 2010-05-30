@@ -1,5 +1,9 @@
 package uk.co.danielrendall.fractdim.calculation.iterators;
 
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 /**
  * Created by IntelliJ IDEA.
  * User: daniel
@@ -8,34 +12,31 @@ package uk.co.danielrendall.fractdim.calculation.iterators;
  * To change this template use File | Settings | File Templates.
  */
 public class UniformResolutionIterator implements ResolutionIterator {
-    private final double minResolution;
-    private final double maxResolution;
-    private final int numberOfResolutionSteps;
-    private final double resolutionIncrement;
-    private int resolutionStep;
+
+    private final SortedSet<Double> resolutions;
+    private Iterator<Double> iterator;
 
     public UniformResolutionIterator(double minResolution, double maxResolution, int numberOfResolutionSteps) {
-        this.minResolution = minResolution;
-        this.maxResolution = maxResolution;
-        this.numberOfResolutionSteps = numberOfResolutionSteps;
-        this.resolutionIncrement = (maxResolution - minResolution) / (double)(numberOfResolutionSteps);
-        //        double resolutionIncrement = ((logMinResolutionReciprocal - logMaxResolutionReciprocal) / (double) numberOfResolutionSteps);
+        this.resolutions = new TreeSet<Double>();
+        double resolutionIncrement = (maxResolution - minResolution) / (double)(numberOfResolutionSteps - 1);
+        for (int i=0; i < numberOfResolutionSteps; i++ ) {
+            double resolution = (i < (numberOfResolutionSteps - 1)) ? minResolution + (resolutionIncrement * (double) i) : maxResolution;
+            resolutions.add(resolution);
+        }
+        iterator = resolutions.iterator();
 
     }
 
     public boolean hasNext() {
-        return resolutionStep <= numberOfResolutionSteps;
+        return iterator.hasNext();
     }
 
     public Double next() {
-
-        Double next = (resolutionStep == numberOfResolutionSteps) ? maxResolution : minResolution + resolutionIncrement * (double)(resolutionStep);
-        resolutionStep++;
-        return next;
+        return iterator.next();
     }
 
     public void reset() {
-        resolutionStep = 0;
+        iterator = resolutions.iterator();
     }
 
     public void remove() {

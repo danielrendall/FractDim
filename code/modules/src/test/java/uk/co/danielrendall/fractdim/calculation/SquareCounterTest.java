@@ -219,7 +219,7 @@ public class SquareCounterTest {
 
         squareCounterBuilder.maxDepth(1000).
                 angleIterator(new UniformAngleIterator(1)).
-                resolutionIterator(new LogarithmicResolutionIterator(1.0d, 10.0d, 9)).
+                resolutionIterator(new LogarithmicResolutionIterator(1.0d, 10.0d, 10)).
                 displacementIterator(new UniformDisplacementIterator(1)).
                 fractalDocument(null);
 
