@@ -199,7 +199,7 @@
                                 <maxHeapSize>512</maxHeapSize>
                             </jre>
                             <splash>
-                                <file>../../resources/splash/v_1_1.bmp</file>
+                                <file>../../resources/splash/v_1_2.bmp</file>
                                 <timeout>8</timeout>
                             </splash>
                             <versionInfo>
