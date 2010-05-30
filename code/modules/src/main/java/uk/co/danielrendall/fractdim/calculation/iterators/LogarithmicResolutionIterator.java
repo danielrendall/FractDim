@@ -1,5 +1,10 @@
 package uk.co.danielrendall.fractdim.calculation.iterators;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 /**
  * Created by IntelliJ IDEA.
  * User: daniel
@@ -9,32 +14,32 @@ package uk.co.danielrendall.fractdim.calculation.iterators;
  */
 public class LogarithmicResolutionIterator implements ResolutionIterator {
 
-    private final double logMinResolutionReciprocal;
-    private final double logMaxResolutionReciprocal;
-    private final int numberOfResolutionSteps;
-    private final double resolutionLogIncrement;
-    private int resolutionStep;
+    private final SortedSet<Double> resolutions;
+    private Iterator<Double> iterator;
 
     public LogarithmicResolutionIterator(double minResolution, double maxResolution, int numberOfResolutionSteps) {
-        this.logMinResolutionReciprocal = Math.log(1.0d / minResolution);
-        this.logMaxResolutionReciprocal = Math.log(1.0d / maxResolution);
-        this.numberOfResolutionSteps = numberOfResolutionSteps;
-        this.resolutionLogIncrement = (logMinResolutionReciprocal - logMaxResolutionReciprocal) / (double)(numberOfResolutionSteps);
+        this.resolutions = new TreeSet<Double>();
+        double logMinResolutionReciprocal = Math.log(1.0d / minResolution);
+        double logMaxResolutionReciprocal = Math.log(1.0d / maxResolution);
+        double resolutionLogIncrement = (logMinResolutionReciprocal - logMaxResolutionReciprocal) / (double) (numberOfResolutionSteps - 1);
 
+        for (int i=0; i < numberOfResolutionSteps; i++ ) {
+            double logResolutionReciprocal = (i < (numberOfResolutionSteps - 1)) ? logMaxResolutionReciprocal + (resolutionLogIncrement * (double) i) : logMinResolutionReciprocal;
+            resolutions.add(1.0d / Math.exp(logResolutionReciprocal));
+        }
+        iterator = resolutions.iterator();
     }
 
     public boolean hasNext() {
-        return resolutionStep <= numberOfResolutionSteps;
+        return iterator.hasNext();
     }
 
     public Double next() {
-        double logResolutionReciprocal = logMaxResolutionReciprocal + (resolutionLogIncrement * (double) (resolutionStep++));
-        double resolution = 1.0d / Math.exp(logResolutionReciprocal);
-        return (resolutionStep == numberOfResolutionSteps) ? 1.0d / Math.exp(logMinResolutionReciprocal) : resolution;
+        return iterator.next();
     }
 
     public void reset() {
-        resolutionStep = 0;
+        iterator = resolutions.iterator();
     }
 
     public void remove() {
