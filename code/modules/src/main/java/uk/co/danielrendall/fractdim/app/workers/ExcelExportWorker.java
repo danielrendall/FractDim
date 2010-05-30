@@ -202,7 +202,7 @@ public class ExcelExportWorker extends SwingWorker<String, Integer> implements C
             Cell displacementSum = intermediateAverageRow.createCell(intermediateAngleColumn);
             Cell reciprocal = intermediateAverageRow.createCell(intermediateAngleColumn + 1);
 
-            displacementSum.setCellFormula(String.format("AVERAGE('Data'!E%d:E%d)", initialRawDataRow, finalRawDataRow));
+            displacementSum.setCellFormula(String.format("MIN('Data'!E%d:E%d)", initialRawDataRow, finalRawDataRow));
             reciprocal.setCellFormula(String.format("LOG(%s)", new CellReference(intermediateResolutionRow, intermediateAngleColumn, false, false).formatAsString()));
 
             intermediateResolutionRow++;
