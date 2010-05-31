@@ -4,7 +4,7 @@
     <groupId>uk.co.danielrendall</groupId>
     <artifactId>fractdim</artifactId>
     <packaging>jar</packaging>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <name>Fractal Dimension</name>
     <url>http://www.danielrendall.co.uk/fractdim/</url>
     <dependencies>
@@ -203,12 +203,12 @@
                                 <timeout>8</timeout>
                             </splash>
                             <versionInfo>
-                                <fileVersion>1.2.0.0</fileVersion>
-                                <txtFileVersion>1.2.0.0</txtFileVersion>
+                                <fileVersion>1.2.1.0</fileVersion>
+                                <txtFileVersion>1.2.1.0</txtFileVersion>
                                 <fileDescription>Fractal Dimension Calculator</fileDescription>
                                 <copyright>Daniel Rendall</copyright>
-                                <productVersion>1.2.0.0</productVersion>
-                                <txtProductVersion>1.2.0.0</txtProductVersion>
+                                <productVersion>1.2.1.0</productVersion>
+                                <txtProductVersion>1.2.1.0</txtProductVersion>
                                 <productName>Fractal Dimension Calculator</productName>
                                 <internalName>fractdim</internalName>
                                 <originalFilename>fractdim.exe</originalFilename>

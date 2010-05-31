@@ -23,7 +23,7 @@ public class SVGElementCreator {
 
     public Element createGroup() {
         Element group = doc.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "g");
-        group.setAttributeNS(null, "id", "g" + FractDim.newId());
+        group.setAttributeNS(null, "id", "fdg" + FractDim.newId());
         return group;
     }
 
@@ -33,14 +33,14 @@ public class SVGElementCreator {
 
     public Element createPath(String colour) {
         Element path = doc.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "path");
-        path.setAttributeNS(null, "id", "path" + FractDim.newId());
+        path.setAttributeNS(null, "id", "fdpath" + FractDim.newId());
         path.setAttributeNS(null, "style", String.format("%s;stroke:%s;fill:none", DEFAULT_PATH_STYLE, colour));
         return path;
     }
 
     public Element createFilledPath(String strokeColour, String fillColour) {
         Element path = doc.createElementNS(SVGDOMImplementation.SVG_NAMESPACE_URI, "path");
-        path.setAttributeNS(null, "id", "path" + FractDim.newId());
+        path.setAttributeNS(null, "id", "fdpath" + FractDim.newId());
         path.setAttributeNS(null, "style", String.format("%s;stroke:%s;fill:%s;fill-opacity:0.3", DEFAULT_PATH_STYLE, strokeColour, fillColour));
         return path;
     }
