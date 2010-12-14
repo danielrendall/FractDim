@@ -64,7 +64,6 @@
                     <artifactId>jmxtools</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
@@ -87,7 +86,7 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.8.0</version>
+            <version>1.8.3</version>
         </dependency>
         <dependency>
             <groupId>com.jgoodies</groupId>
