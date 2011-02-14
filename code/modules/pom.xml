@@ -10,7 +10,7 @@
     <dependencies>
         <dependency>
             <groupId>uk.co.danielrendall</groupId>
-            <artifactId>mathlib</artifactId>
+            <artifactId>javamathlib</artifactId>
             <version>1.0</version>
         </dependency>
         <dependency>
