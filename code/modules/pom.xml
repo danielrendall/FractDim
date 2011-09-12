@@ -5,6 +5,14 @@
     <artifactId>fractdim</artifactId>
     <packaging>jar</packaging>
     <version>1.2.1</version>
+    <licenses>
+        <license>
+            <name>GPL v3</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
     <name>Fractal Dimension</name>
     <url>http://www.danielrendall.co.uk/fractdim/</url>
     <dependencies>
@@ -125,6 +133,12 @@
     <build>
         <plugins>
             <!-- Turning on debug -->
+            <plugin>
+                <groupId>net.surguy</groupId>
+                <artifactId>maven-displaylicense-plugin</artifactId>
+                <version>0.5</version>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
